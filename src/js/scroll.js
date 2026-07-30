@@ -116,14 +116,23 @@ export function initScrollChoreography(scene) {
      handoff: the middle half of each formation-to-formation span does the
      travelling, so the particles are parked and still while you read. */
   function applyLateral(f) {
+    /* The endgame sphere never dodges: pinned dead center. */
+    if (sphereT > 0) {
+      sceneCall('setLateral', 0, 0);
+      return;
+    }
     /* A content-avoidance zone owns the machine while active. */
     if (zoneStack.length) return;
     if (!lateralEnabled) {
       sceneCall('setLateral', 0, 0);
       return;
     }
-    const i = Math.min(Math.floor(f), 3);
-    let t = clamp(0, 1, (f - i - 0.25) / 0.5);
+    /* parks are indexed hero 0, stations 1..4. Stations hold formations
+       2..5 (PEAK 0 and PLAY 1 both live above them), so formation space
+       maps to park space shifted down by 1. */
+    const pf = clamp(0, 4, f - 1);
+    const i = Math.min(Math.floor(pf), 3);
+    let t = clamp(0, 1, (pf - i - 0.25) / 0.5);
     t = t * t * (3 - 2 * t); /* smoothstep */
     const off = parkOffset[i] + (parkOffset[i + 1] - parkOffset[i]) * t;
     const strip = parkStrip[i] + (parkStrip[i + 1] - parkStrip[i]) * t;
@@ -140,37 +149,35 @@ export function initScrollChoreography(scene) {
 
   /* Content-avoidance zones (desktop): while a content section occupies
      the viewport the machine swims to a gutter beside it, scaled down to
-     the strip and slightly dimmed, so copy is never obstructed. Zones
-     alternate sides down the page, which reads as the object maneuvering
-     around the content. Stack (not a flag) so overlapping ranges hand
-     off cleanly. */
+     the strip and slightly dimmed, so copy is never obstructed. From
+     #work onward the machine is the endgame sphere and never dodges
+     again, so only the sections above it keep zones. Stack (not a flag)
+     so overlapping ranges hand off cleanly. */
   const zoneStack = [];
+  /* 0..1 progress of the GROWTH -> SPHERE endgame morph. While > 0 the
+     sphere owns the machine: dead center, no parking, no zones. */
+  let sphereT = 0;
   function zoneTop() {
     return zoneStack.length ? zoneStack[zoneStack.length - 1] : null;
   }
   function applyZones() {
     const z = zoneTop();
-    if (z && z.ring) {
-      /* Ring zone: center the machine and wrap it around the measured
-         content block as a thin ellipse line. */
-      sceneCall('setLateral', 0, 0);
-      sceneCall('setRing', 1, z.rx, z.ry);
+    if (z) {
+      /* offset/strip as viewport fractions; the scene clamps and fits */
+      sceneCall('setLateral', z.side * 0.86, z.strip);
+    } else if (lateralEnabled) {
+      applyLateral(lastF);
     } else {
-      sceneCall('setRing', 0);
-      if (z) {
-        /* offset/strip as viewport fractions; the scene clamps and fits */
-        sceneCall('setLateral', z.side * 0.86, z.strip);
-      } else if (lateralEnabled) {
-        applyLateral(lastF);
-      } else {
-        sceneCall('setLateral', 0, 0);
-      }
+      sceneCall('setLateral', 0, 0);
     }
     applyDim();
   }
 
   function applyDim() {
-    const base = dimState[0] || dimState[1] ? 0.4 : 1;
+    let base = dimState[0] || dimState[1] ? 0.4 : 1;
+    /* The endgame sphere recedes a touch so it reads as a background
+       behind content, never a wash over it. */
+    if (sphereT > 0) base = Math.min(base, 1 - 0.25 * sphereT);
     const z = zoneTop();
     sceneCall('setDim', Math.min(base, z ? z.dim : 1));
   }
@@ -220,22 +227,53 @@ export function initScrollChoreography(scene) {
     }
 
     /* --------------------------------------------------------------
+     * 2b. Approach morph: PEAK -> PLAY (formation 0 -> 1) scrubbed over
+     * the run-up to the video section, at station pace, so the first
+     * change forms with the scroll instead of snapping. It starts while
+     * the proof ring is wrapping the stats (the melt hides under the
+     * ring) and completes with the video in the upper third.
+     * ScrollTrigger updates run in start-position order, so the station
+     * driver below outranks this one wherever they could both write.
+     * -------------------------------------------------------------- */
+    const vsl = document.querySelector('#vsl');
+
+    function applyPlayMorph(self) {
+      const f = self.progress; /* 0 PEAK -> 1 PLAY */
+      lastF = f;
+      sceneCall('setFormation', f);
+      applyLateral(f);
+    }
+
+    if (vsl) {
+      ScrollTrigger.create({
+        trigger: vsl,
+        start: 'top 120%',
+        end: 'top 30%',
+        scrub: 0.6,
+        onUpdate: applyPlayMorph,
+        onRefresh: applyPlayMorph
+      });
+    }
+
+    /* --------------------------------------------------------------
      * 3. Formation driver: one scrub across #services maps page
-     *    position to the continuous formation index 0..4.
+     *    position to the continuous formation index 1..5.
      *
-     * Derivation of f = p * 4.67 + 0.165 (re-derive if heights change):
+     * Derivation of f = p * 4.67 + 1.166 (re-derive if heights change):
      * - 4 stations x 150vh = 600vh section height.
      * - Trigger spans 'top bottom' -> 'bottom top': 600 + 100 = 700vh.
      * - Station i's sticky stage (100svh) is pinned while the scroll sits
      *   in [100 + 150i, 150 + 150i]vh of that 700vh span, so its hold
      *   center is at p = (125 + 150i) / 700.
-     * - We want formation i+1 fully formed at each hold center. Solving
+     * - Stations hold formations 2..5 (PLAY owns 1 above), so we want
+     *   formation i+2 fully formed at each hold center. Solving
      *   f = a*p + b over consecutive centers:
      *     a = 700/150 = 4.67  (one formation per 150vh of scroll)
-     *     b = 1 - a * 125/700 = 0.165
+     *     b = 2 - a * 125/700 = 1.166
+     * scrub 0.6 smooths the small seam against the PLAY hold above.
      * -------------------------------------------------------------- */
     function applyFormation(self) {
-      const f = clamp(0, 4, self.progress * 4.67 + 0.165);
+      const f = clamp(1, 5, self.progress * 4.67 + 1.166);
       lastF = f;
       sceneCall('setFormation', f);
       applyLateral(f);
@@ -246,7 +284,7 @@ export function initScrollChoreography(scene) {
         trigger: services,
         start: 'top bottom',
         end: 'bottom top',
-        scrub: true,
+        scrub: 0.6,
         onUpdate: applyFormation,
         onRefresh(self) {
           /* Re-measure first: a resize changes panel widths, and the
@@ -255,26 +293,24 @@ export function initScrollChoreography(scene) {
           if (self.isActive) {
             applyFormation(self);
           } else if (self.progress <= 0) {
-            /* Above the stations: pure PEAK, parked beside the hero copy. */
-            lastF = 0;
-            sceneCall('setFormation', 0);
-            applyLateral(0);
+            /* Above the stations the PLAY morph scrub owns the
+               formation; just re-park with the fresh measurements. */
+            applyLateral(lastF);
           } else {
-            /* Below the stations: hold GROWTH, return to center. */
-            lastF = 4;
-            sceneCall('setFormation', 4);
+            /* Below the stations: hold GROWTH centered until the
+               endgame sphere scrub takes over. */
+            lastF = 5;
+            sceneCall('setFormation', 5);
             sceneCall('setLateral', 0, 0);
           }
         },
         onToggle(self) {
           if (self.isActive) return;
           if (self.progress <= 0) {
-            lastF = 0;
-            sceneCall('setFormation', 0);
-            applyLateral(0);
+            applyLateral(lastF);
           } else {
-            lastF = 4;
-            sceneCall('setFormation', 4);
+            lastF = 5;
+            sceneCall('setFormation', 5);
             sceneCall('setLateral', 0, 0);
           }
         }
@@ -375,18 +411,12 @@ export function initScrollChoreography(scene) {
       }
 
       /* ------------------------------------------------------------
-       * Content-avoidance zones. Sides alternate down the page; dim
-       * drops with how text-heavy the section is. Only >=900px: below
-       * that the canvas is already calmed by CSS (opacity + halos).
+       * Content-avoidance zones. Only the sections above the endgame
+       * sphere keep one: from #work onward the machine is a centered
+       * background and never dodges. Only >=900px: below that the
+       * canvas is already calmed by CSS (opacity + halos).
        * ------------------------------------------------------------ */
-      const ZONES = [
-        ['#vsl', -1, 0.7, 0.24],
-        ['#work', 1, 0.55, 0.2],
-        ['#testimonials', -1, 0.7, 0.24],
-        ['#process', 1, 0.7, 0.26],
-        ['#book', -1, 0.45, 0.2],
-        ['#faq', 1, 0.45, 0.2]
-      ];
+      const ZONES = [['#vsl', -1, 0.7, 0.24]];
       function zoneSet(zone, active) {
         const idx = zoneStack.indexOf(zone);
         if (active && idx === -1) zoneStack.push(zone);
@@ -412,54 +442,48 @@ export function initScrollChoreography(scene) {
 
       /* #proof is special: instead of dodging to a gutter, the machine
          becomes a thin particle ring that lassos the stats strip
-         (measured, so the ellipse hugs the real block at any viewport). */
+         (measured, so the ellipse hugs the real block at any viewport).
+         Fully scrub-driven: the wrap forms over the first half of the
+         pass and releases over the second, at the same unhurried pace
+         as the station morphs, and rewinds identically. */
       const proofEl = document.querySelector('#proof');
       if (proofEl) {
-        const ringZone = { ring: true, dim: 0.95, rx: 0.85, ry: 0.35 };
-        /* Cached in refresh so the scrubbed center-tracker below never
-           reads layout on the scroll hot path. */
+        const ringShape = { rx: 0.85, ry: 0.35 };
+        /* Cached in refresh so the scrubbed tracker never reads layout
+           on the scroll hot path. */
         let ringSpan = 1;
         let ringHalfVh = 1;
         const measureRingShape = () => {
           const vw = window.innerWidth;
           const vh = window.innerHeight;
           const r = proofEl.getBoundingClientRect();
-          ringZone.rx = clamp(0.3, 0.97, (r.width * 0.5 + 24) / (vw / 2));
-          ringZone.ry = clamp(0.18, 0.6, (r.height * 0.5 - 24) / (vh / 2));
+          ringShape.rx = clamp(0.3, 0.97, (r.width * 0.5 + 24) / (vw / 2));
+          ringShape.ry = clamp(0.18, 0.6, (r.height * 0.5 - 24) / (vh / 2));
           ringSpan = vh + r.height;
           ringHalfVh = vh / 2;
         };
+        const applyRing = (self) => {
+          const p = self.progress;
+          /* Wrap 0.12 -> 0.42, hold, release 0.58 -> 0.88. */
+          const rt = Math.min(
+            clamp(0, 1, (p - 0.12) / 0.3),
+            clamp(0, 1, (0.88 - p) / 0.3)
+          );
+          sceneCall('setRing', rt, ringShape.rx, ringShape.ry);
+          /* Keep the ellipse glued to the stats block as it moves
+             through the viewport (progress 0.5 = block centered). */
+          sceneCall('setRingCenter', ((0.5 - p) * ringSpan) / ringHalfVh);
+        };
         measureRingShape();
-        ScrollTrigger.create({
-          trigger: proofEl,
-          start: 'top 55%',
-          end: 'bottom 35%',
-          onToggle(self) {
-            zoneSet(ringZone, self.isActive);
-          },
-          onRefresh(self) {
-            measureRingShape();
-            zoneSet(ringZone, self.isActive);
-          }
-        });
-        /* Scrubbed tracker: keeps the ellipse glued to the stats block as
-           it moves through the viewport (progress 0.5 = block centered). */
         ScrollTrigger.create({
           trigger: proofEl,
           start: 'top bottom',
           end: 'bottom top',
           scrub: true,
-          onUpdate(self) {
-            sceneCall(
-              'setRingCenter',
-              ((0.5 - self.progress) * ringSpan) / ringHalfVh
-            );
-          },
+          onUpdate: applyRing,
           onRefresh(self) {
-            sceneCall(
-              'setRingCenter',
-              ((0.5 - self.progress) * ringSpan) / ringHalfVh
-            );
+            measureRingShape();
+            applyRing(self);
           }
         });
       }
@@ -472,6 +496,39 @@ export function initScrollChoreography(scene) {
         applyDim();
       };
     });
+
+    /* --------------------------------------------------------------
+     * 5b. Endgame: GROWTH -> SPHERE (formation 5 -> 6). Starts the
+     * moment #work's heading crosses 70% of the viewport and runs over
+     * 150vh of scroll - station pace - so the growth curve slowly
+     * gathers itself into the tumbling globe while the conveyor pins.
+     * From there the sphere holds dead center behind everything to the
+     * end of the page. All sizes, not just desktop: below 900px the
+     * machine is centered anyway. Updates run in start-position order,
+     * so this outranks the station driver in their overlap.
+     * -------------------------------------------------------------- */
+    const work = document.querySelector('#work');
+
+    function applySphere(self) {
+      sphereT = self.progress;
+      if (sphereT > 0) {
+        sceneCall('setFormation', 5 + sphereT);
+        sceneCall('setLateral', 0, 0);
+      }
+      applyDim();
+    }
+
+    if (work) {
+      ScrollTrigger.create({
+        trigger: work,
+        start: 'top 70%',
+        end: () => '+=' + window.innerHeight * 1.5,
+        scrub: 0.6,
+        invalidateOnRefresh: true,
+        onUpdate: applySphere,
+        onRefresh: applySphere
+      });
+    }
 
     /* --------------------------------------------------------------
      * 6. Reading dim for #book and #faq.

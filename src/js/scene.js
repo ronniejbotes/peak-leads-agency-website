@@ -6,7 +6,7 @@
 
    Public API (DESIGN.md section 5):
      init(canvas, opts) -> boolean   // false = caller adds body.no-3d
-     setFormation(f)     // float 0..4, integer = fully formed
+     setFormation(f)     // float 0..6, integer = fully formed
      setProgress(p)      // 0..1 page progress -> camera drift + subtle warm
      setLateral(offset, strip)  // park the formation left/right of panels
      setPointer(x, y)    // -1..1; drives the cursor-repulsion field (particles dodge the pointer)
@@ -14,7 +14,8 @@
      setCondense(c)      // -1..1 implosion / bang
      resize(), destroy()
 
-   Formations: 0 PEAK, 1 FRAME, 2 RANKS, 3 FUNNEL, 4 GROWTH.
+   Formations: 0 PEAK, 1 PLAY, 2 FRAME, 3 RANKS, 4 FUNNEL, 5 GROWTH,
+   6 SPHERE (endgame globe, tumbles in place at screen center).
    Colors: chalk #D9C7A0 <-> bone #F2EFE9 uniforms only. Dust layer #6b6456.
    ========================================================================== */
 
@@ -70,7 +71,7 @@ function clamp(v, lo, hi) {
 function buildPeak(count) {
   const arr = new Float32Array(count * 3);
   const half = 2.4; // ridge half-width
-  const base = -1.35; // ground line
+  const base = -0.95; // ground line, raised so the hero massif rides higher in frame
   const crestN = Math.floor(count * 0.3);
 
   const profile = (x) =>
@@ -100,6 +101,60 @@ function buildPeak(count) {
     arr[i * 3] = x;
     arr[i * 3 + 1] = y;
     arr[i * 3 + 2] = z * (i < crestN ? 0.45 : 1);
+  }
+  return arr;
+}
+
+// 1 - PLAY: a video play control for the VSL section. 45% of points trace
+// a thin circle outline (r 1.6), 12% trace the edges of an equilateral
+// triangle pointing right (r 0.98, nudged +x for optical centering), 35%
+// fill the triangle via barycentric sampling, and the rest scatter a faint
+// disc of dust inside the ring. Thin z slab so it reads as a glyph.
+function buildPlay(count) {
+  const arr = new Float32Array(count * 3);
+  const R = 1.6;
+  const ringN = Math.floor(count * 0.45);
+  const edgeN = Math.floor(count * 0.12);
+  const fillN = Math.floor(count * 0.35);
+
+  // equilateral triangle pointing right, optically nudged toward +x
+  const cx = 0.1;
+  const tr = 0.98;
+  const vx = [cx + tr, cx - tr * 0.5, cx - tr * 0.5];
+  const vy = [0, tr * 0.866, -tr * 0.866];
+
+  let i = 0;
+  for (let k = 0; k < ringN; k++, i++) {
+    const a = (k / ringN) * Math.PI * 2;
+    const r = R + (Math.random() - 0.5) * 0.05;
+    arr[i * 3] = Math.cos(a) * r;
+    arr[i * 3 + 1] = Math.sin(a) * r;
+    arr[i * 3 + 2] = (Math.random() - 0.5) * 0.1;
+  }
+  for (let k = 0; k < edgeN; k++, i++) {
+    const e = k % 3;
+    const t = Math.random();
+    arr[i * 3] = vx[e] + (vx[(e + 1) % 3] - vx[e]) * t + (Math.random() - 0.5) * 0.035;
+    arr[i * 3 + 1] = vy[e] + (vy[(e + 1) % 3] - vy[e]) * t + (Math.random() - 0.5) * 0.035;
+    arr[i * 3 + 2] = (Math.random() - 0.5) * 0.08;
+  }
+  for (let k = 0; k < fillN; k++, i++) {
+    let u = Math.random();
+    let v = Math.random();
+    if (u + v > 1) {
+      u = 1 - u;
+      v = 1 - v;
+    }
+    arr[i * 3] = vx[0] + (vx[1] - vx[0]) * u + (vx[2] - vx[0]) * v;
+    arr[i * 3 + 1] = vy[0] + (vy[1] - vy[0]) * u + (vy[2] - vy[0]) * v;
+    arr[i * 3 + 2] = (Math.random() - 0.5) * 0.12;
+  }
+  for (; i < count; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const r = Math.sqrt(Math.random()) * (R - 0.15);
+    arr[i * 3] = Math.cos(a) * r;
+    arr[i * 3 + 1] = Math.sin(a) * r;
+    arr[i * 3 + 2] = (Math.random() - 0.5) * 0.15;
   }
   return arr;
 }
@@ -147,7 +202,7 @@ function roundedRectPoint(s, w, h, r) {
   }
 }
 
-// 1 - FRAME: browser window outline 4.4 x 2.9, corner radius 0.32.
+// 2 - FRAME: browser window outline 4.4 x 2.9, corner radius 0.32.
 // Budget: 50% of points spaced evenly along the rounded-rect perimeter,
 // 8% draw the top bar line at y = h/2 - 0.42, 6% stack into three
 // "traffic light" dots on the bar's left (point stacking reads bright
@@ -218,7 +273,7 @@ const RANKS_SPACING = 0.55;
 const RANKS_X0 = -2.2; // first column center; last lands at +2.2
 const RANKS_BASE = -1.5; // shared floor all columns stand on
 
-// 2 - RANKS: 9 ascending columns left -> right (the SEO ladder).
+// 3 - RANKS: 9 ascending columns left -> right (the SEO ladder).
 // Column k centers at x = -2.2 + k * 0.55; heights climb
 // h(k) = 0.55 + 2.5 * (k/8)^1.15 (0.55 -> 3.05) off the shared base at
 // y = -1.5. Points are allocated proportionally to column height (walked
@@ -255,7 +310,7 @@ function buildRanks(count) {
   return arr;
 }
 
-// 3 - FUNNEL: cone with a wide mouth and a narrow spout.
+// 4 - FUNNEL: cone with a wide mouth and a narrow spout.
 // Radius profile r(t) = rSpout + (rTop - rSpout) * (1-t)^1.8 over height
 // t = 0 (top, y = 1.6) -> 1 (bottom, y = -1.7): a bowl that tightens into
 // a stem, mouth radius 2.05 down to 0.2. Budget: 55% ride three spiral
@@ -315,7 +370,7 @@ function buildFunnel(count) {
   return arr;
 }
 
-// 4 - GROWTH: rising curve band + converging scatter.
+// 5 - GROWTH: rising curve band + converging scatter.
 // Backbone y = f(x) = -1.05 + 2.35 / (1 + e^(-1.25x)) + 0.14 sin(1.7x)
 // over x in [-2.6, 2.6]: a logistic climb with a gentle wave, ending
 // (~+1.06) well above where it starts (~-0.8). The band is sampled by
@@ -379,6 +434,73 @@ function buildGrowth(count) {
   return arr;
 }
 
+// 6 - SPHERE: the endgame globe that owns the back half of the page.
+// 58% of points sit on a fibonacci-lattice shell (r 1.9, slight radial
+// jitter so it shimmers), 18% ride three great-circle rings tilted around
+// distinct axes (armillary structure that makes the tumble readable), 14%
+// form a flat equatorial halo ring at 1.3-1.52r (reads beautifully under
+// the 33-degree lean), and the rest condense into a bright nucleus. The
+// tumble itself lives in the vertex shader; the build is static and
+// centered on the origin so rotation never displaces the center.
+function buildSphere(count) {
+  const arr = new Float32Array(count * 3);
+  const R = 1.9;
+  const GA = Math.PI * (3 - Math.sqrt(5)); // golden angle
+  const shellN = Math.floor(count * 0.58);
+  const ringN = Math.floor(count * 0.18);
+  const haloN = Math.floor(count * 0.14);
+
+  let i = 0;
+  for (let k = 0; k < shellN; k++, i++) {
+    const y = 1 - (2 * (k + 0.5)) / shellN;
+    const rr = Math.sqrt(Math.max(0, 1 - y * y));
+    const th = GA * k;
+    const jit = 1 + (Math.random() - 0.5) * 0.04;
+    arr[i * 3] = Math.cos(th) * rr * R * jit;
+    arr[i * 3 + 1] = y * R * jit;
+    arr[i * 3 + 2] = Math.sin(th) * rr * R * jit;
+  }
+
+  // three great circles, each tilted differently so the spin reads
+  const perBand = ringN / 3;
+  for (let k = 0; k < ringN; k++, i++) {
+    const band = Math.floor(k / perBand);
+    const a = ((k % perBand) / perBand) * Math.PI * 2;
+    const r = R * 1.02 + (Math.random() - 0.5) * 0.05;
+    const x = Math.cos(a) * r;
+    let y = Math.sin(a) * r;
+    let z = (Math.random() - 0.5) * 0.04;
+    const tx = 0.6 * (band + 1); // tilt about x
+    const y2 = y * Math.cos(tx) - z * Math.sin(tx);
+    z = y * Math.sin(tx) + z * Math.cos(tx);
+    y = y2;
+    const tz = 1.1 * band; // then about z
+    arr[i * 3] = x * Math.cos(tz) - y * Math.sin(tz);
+    arr[i * 3 + 1] = x * Math.sin(tz) + y * Math.cos(tz);
+    arr[i * 3 + 2] = z;
+  }
+
+  // equatorial halo ring, thin in y
+  for (let k = 0; k < haloN; k++, i++) {
+    const a = Math.random() * Math.PI * 2;
+    const r = R * (1.3 + Math.random() * 0.22);
+    arr[i * 3] = Math.cos(a) * r;
+    arr[i * 3 + 1] = (Math.random() - 0.5) * 0.06;
+    arr[i * 3 + 2] = Math.sin(a) * r;
+  }
+
+  // luminous nucleus (cube-root radius bias piles density at the center)
+  for (; i < count; i++) {
+    const u = Math.pow(Math.random(), 1 / 3) * 0.55;
+    const th = Math.random() * Math.PI * 2;
+    const ph = Math.acos(2 * Math.random() - 1);
+    arr[i * 3] = u * Math.sin(ph) * Math.cos(th);
+    arr[i * 3 + 1] = u * Math.cos(ph);
+    arr[i * 3 + 2] = u * Math.sin(ph) * Math.sin(th);
+  }
+  return arr;
+}
+
 /* ------------------------------------------------------------------ *
  * Shaders
  * ------------------------------------------------------------------ */
@@ -402,18 +524,22 @@ uniform float uRingCenter; // vertical center of the ellipse (local units)
 varying float vAlpha;
 
 // Per-formation idle motion, applied to raw formation positions.
-// Ids: 0 PEAK, 1 FRAME, 2 RANKS, 3 FUNNEL, 4 GROWTH.
+// Ids: 0 PEAK, 1 PLAY, 2 FRAME, 3 RANKS, 4 FUNNEL, 5 GROWTH, 6 SPHERE.
 vec3 animatePos(vec3 p, float form) {
   if (form < 0.5) {
     // 0 PEAK: slight breathing of the massif
     float b = 1.0 + 0.025 * sin(uTime * 0.7 + aSeed.x * 6.2831);
     return p * b;
   } else if (form < 1.5) {
-    // 1 FRAME: gentle vertical float
+    // 1 PLAY: soft pulse, a play control inviting the click
+    float b = 1.0 + 0.035 * sin(uTime * 1.3 + aSeed.y * 1.4);
+    return p * b;
+  } else if (form < 2.5) {
+    // 2 FRAME: gentle vertical float
     p.y += 0.03 * sin(uTime * 0.8 + p.x * 1.2);
     return p;
-  } else if (form < 2.5) {
-    // 2 RANKS: per-column height shimmer. Column index recovered from x
+  } else if (form < 3.5) {
+    // 3 RANKS: per-column height shimmer. Column index recovered from x
     // (columns at x = -2.2 + k * 0.55, jitter < half spacing; constants
     // mirror buildRanks). Heights scale about the shared base at
     // y = -1.5 so the feet stay planted.
@@ -421,8 +547,8 @@ vec3 animatePos(vec3 p, float form) {
     float m = 0.95 + 0.05 * sin(uTime * 1.7 + col * 1.9);
     p.y = -1.5 + (p.y + 1.5) * m;
     return p;
-  } else if (form < 3.5) {
-    // 3 FUNNEL: slow spin about Y plus a downward-travelling compression
+  } else if (form < 4.5) {
+    // 4 FUNNEL: slow spin about Y plus a downward-travelling compression
     // wave (~5% of the cone height) with matching radial pull toward the
     // axis, so material reads as flowing down the cone.
     float a = uTime * 0.22;
@@ -434,10 +560,26 @@ vec3 animatePos(vec3 p, float form) {
     p.x *= 1.0 - 0.05 * drift;
     p.z *= 1.0 - 0.05 * drift;
     return p;
+  } else if (form < 5.5) {
+    // 5 GROWTH: subtle x drift with a faint vertical shimmer
+    p.x += 0.05 * sin(uTime * 0.5 + aSeed.y * 6.2831);
+    p.y += 0.02 * sin(uTime * 0.9 + aSeed.x * 6.2831);
+    return p;
   }
-  // 4 GROWTH: subtle x drift with a faint vertical shimmer
-  p.x += 0.05 * sin(uTime * 0.5 + aSeed.y * 6.2831);
-  p.y += 0.02 * sin(uTime * 0.9 + aSeed.x * 6.2831);
+  // 6 SPHERE: stately tumble, spinning about y with a slow cross-roll
+  // about x, the whole assembly leaned 33 degrees on both screen axes
+  // (cos 33 = 0.8387, sin 33 = 0.5446). Pure rotation about the origin:
+  // the center never moves.
+  float a1 = uTime * 0.30;
+  float c1 = cos(a1);
+  float s1 = sin(a1);
+  p = vec3(c1 * p.x + s1 * p.z, p.y, -s1 * p.x + c1 * p.z);
+  float a2 = uTime * 0.11;
+  float c2 = cos(a2);
+  float s2 = sin(a2);
+  p = vec3(p.x, c2 * p.y - s2 * p.z, s2 * p.y + c2 * p.z);
+  p = vec3(p.x, 0.8387 * p.y - 0.5446 * p.z, 0.5446 * p.y + 0.8387 * p.z);
+  p = vec3(0.8387 * p.x - 0.5446 * p.y, 0.5446 * p.x + 0.8387 * p.y, p.z);
   return p;
 }
 
@@ -619,7 +761,7 @@ function tick() {
   const halfW = halfH * cam.aspect;
   const mixV = state.uniforms.uMix.value;
   const reachA = state.formHalfW[state.pairIndex];
-  const reachB = state.formHalfW[Math.min(state.pairIndex + 1, 4)];
+  const reachB = state.formHalfW[Math.min(state.pairIndex + 1, 6)];
   // half-width of the formation currently on screen, before fitting
   const reach = (reachA + (reachB - reachA) * mixV) * state.baseScale;
 
@@ -634,7 +776,9 @@ function tick() {
   state.points.scale.setScalar(state.baseScale * lat.fit);
 
   const limit = Math.max(0, halfW - reach * lat.fit);
-  const wantX = clamp(want.offset * halfW, -limit, limit);
+  /* As the ring wrap forms, the lateral parking falls away so the ellipse
+     hugs the centered content block instead of riding off to one side. */
+  const wantX = clamp(want.offset * halfW, -limit, limit) * (1 - state.ring.t);
   lat.value += (wantX - lat.value) * 0.08;
   state.points.position.x = lat.value;
 
@@ -677,16 +821,16 @@ function tick() {
 }
 
 function uploadPair(idx) {
-  // idx = lower formation of the active pair (0..3)
+  // idx = lower formation of the active pair (0..5)
   const g = state.geometry;
   g.attributes.aStart.array.set(state.formations[idx]);
-  g.attributes.aEnd.array.set(state.formations[Math.min(idx + 1, 4)]);
+  g.attributes.aEnd.array.set(state.formations[Math.min(idx + 1, 6)]);
   g.attributes.aStart.needsUpdate = true;
   g.attributes.aEnd.needsUpdate = true;
   state.uniforms.uFormA.value = idx;
-  state.uniforms.uFormB.value = Math.min(idx + 1, 4);
+  state.uniforms.uFormB.value = Math.min(idx + 1, 6);
   state.uniforms.uColorA.value.copy(state.colors[idx]);
-  state.uniforms.uColorB.value.copy(state.colors[Math.min(idx + 1, 4)]);
+  state.uniforms.uColorB.value.copy(state.colors[Math.min(idx + 1, 6)]);
   state.pairIndex = idx;
 }
 
@@ -729,10 +873,12 @@ function init(canvas, opts = {}) {
     // ---- formations -------------------------------------------------
     const formations = [
       buildPeak(count),
+      buildPlay(count),
       buildFrame(count),
       buildRanks(count),
       buildFunnel(count),
-      buildGrowth(count)
+      buildGrowth(count),
+      buildSphere(count)
     ];
 
     // How far each formation reaches sideways, in world units. Measured
@@ -754,7 +900,9 @@ function init(canvas, opts = {}) {
     // ---- formation colors: chalk-to-bone ramp only ------------------
     const chalk = new THREE.Color(CHALK);
     const bone = new THREE.Color(BONE);
-    const colors = [0, 1, 2, 3, 4].map((i) => chalk.clone().lerp(bone, i / 4));
+    const colors = [0, 1, 2, 3, 4, 5, 6].map((i) =>
+      chalk.clone().lerp(bone, i / 6)
+    );
 
     // ---- main particle system --------------------------------------
     const geometry = new THREE.BufferGeometry();
@@ -926,8 +1074,8 @@ function init(canvas, opts = {}) {
 
 function setFormation(f) {
   if (!state) return;
-  f = clamp(Number.isFinite(+f) ? +f : 0, 0, 4);
-  const idx = Math.min(Math.floor(f), 3);
+  f = clamp(Number.isFinite(+f) ? +f : 0, 0, 6);
+  const idx = Math.min(Math.floor(f), 5);
   const frac = f - idx;
   if (idx !== state.pairIndex) uploadPair(idx); // re-upload only on pair change
   state.uniforms.uMix.value = frac; // shader applies smoothstep

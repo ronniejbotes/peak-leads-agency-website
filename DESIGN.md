@@ -8,9 +8,14 @@ Dials: VARIANCE 8 / MOTION 8 / DENSITY 3.
 
 **"The climb."** Bradley Hartmann's Peak Leads takes home-service businesses to the top of
 their market. One persistent particle object (warm chalk on near-black) morphs through
-5 formations as you scroll: mountain PEAK (hero) → browser FRAME (web design) → ascending
-RANKS (SEO) → ad FUNNEL (paid ads) → GROWTH curve (lead gen). Scrolling back rewinds
-everything. The metaphor appears in copy sparingly (climb, peak, top of market).
+7 formations as you scroll: mountain PEAK (hero) → thin ellipse ring wrapping the stats
+(#proof, scrub-driven) → PLAY control (VSL) → browser FRAME (web design) → ascending
+RANKS (SEO) → ad FUNNEL (paid ads) → GROWTH curve (lead gen) → SPHERE endgame: from the
+moment #work enters, GROWTH gathers into a big tumbling globe (33° tilt on both screen
+axes, center locked at screen center) that stays as a pure background behind all content
+to the end of the page - no more dodging or parking. Every morph is scrubbed at station
+pace, so nothing snaps and scrolling back rewinds everything. The metaphor appears in
+copy sparingly (climb, peak, top of market).
 
 Brand feel: Bradley's wardrobe (white/black/beige) + Porsche-chalk engineering precision.
 Crisp fast motion (performance car), never floaty. Founder presence is real: his photo,
@@ -157,7 +162,7 @@ conveyor / asymmetric quote grid / numbered rows / embed / accordions. ≥4 dist
 ES module (Three.js from npm, tree-shaken imports OK). Exports ONE object `PeakScene`:
 ```js
 init(canvas, opts) -> boolean   // false = caller adds .no-3d
-setFormation(f)     // float 0..4, integer = fully formed
+setFormation(f)     // float 0..6, integer = fully formed
 setProgress(p)      // 0..1 page progress (camera drift + subtle hue warm)
 setLateral(offset, stripWidth)  // park machine left/right of panels (px, 0 = center)
 setPointer(x, y)    // -1..1 eased parallax
@@ -172,26 +177,37 @@ false, pause rAF on document.hidden, handle context lost. Second static layer: 7
 warm "dust" points. Colors: uniforms lerp `#D9C7A0` (chalk) ↔ `#F2EFE9` (bone), NO other hues.
 Formations (Float32Array generators):
 - 0 PEAK: gaussian mountain ridgeline point cloud, sharp central summit (r ~2.4 wide),
-  slight breathing idle.
-- 1 FRAME: rounded-rect browser outline 4.4×2.9 (50% points) + interior dot grid + top bar
+  base raised to -0.95 so the hero massif rides high in frame; slight breathing idle.
+- 1 PLAY: video play control for the VSL - thin circle outline (r 1.6) + right-pointing
+  triangle (edge trace + barycentric fill) + faint inner dust; soft pulse idle.
+- 2 FRAME: rounded-rect browser outline 4.4×2.9 (50% points) + interior dot grid + top bar
   line with 3 dot "traffic lights"; gentle y float idle.
-- 2 RANKS: 9 ascending columns left→right (SEO ladder), per-column sine shimmer idle.
-- 3 FUNNEL: conical spiral (wide top ring → narrow spout), slow rotation idle, points
+- 3 RANKS: 9 ascending columns left→right (SEO ladder), per-column sine shimmer idle.
+- 4 FUNNEL: conical spiral (wide top ring → narrow spout), slow rotation idle, points
   drift downward along cone ~5%.
-- 4 GROWTH: rising curve y=f(x) polyline band (arc-length spread) + scatter converging to
+- 5 GROWTH: rising curve y=f(x) polyline band (arc-length spread) + scatter converging to
   the line; ends higher than it starts; subtle x drift idle.
+- 6 SPHERE: endgame globe (r 1.9) - fibonacci shell + 3 tilted great circles + flat
+  equatorial halo (1.3-1.52r) + bright nucleus; idle = spin about y with slow x cross-roll,
+  whole assembly leaned 33° on both screen axes, pure rotation so the center never moves.
 
 ## 6. Scroll choreography contract (`src/js/scroll.js`)
 
 GSAP + ScrollTrigger (npm). Everything scrubbed or reversible (rewind guarantee). Calls
 scene ONLY via guarded `sceneCall('setFormation', f)` try/catch bridge. Responsibilities:
-page progress → CSS var + `setProgress`; formation driver mapped over `#services`
-(4 stations × 150vh: `setFormation(clamp(0,4, progress*4.67 + 0.165))` re-derived if
-heights change); lateral parking (measure `.station-inner` rects, alternate sides, 0 <900px);
-hero scrub-out; station reveals (`gsap.from` y32/opacity, stagger 0.06, toggleActions
-play none none reverse; opacity NOT autoAlpha); ghost number ±6vh parallax scrub; conveyor
-pin (`ease:'none'`, function-based end, invalidateOnRefresh); footer marquee drift; stat
-count-ups (IntersectionObserver once at 0.4, rAF ease-out, reduced-motion jumps to final);
+page progress → CSS var + `setProgress`; #proof ring fully scrub-driven (wrap 0.12→0.42 of
+the pass, hold, release 0.58→0.88, ellipse measured + center-tracked; ≥900px only); PLAY
+approach morph (`#vsl` top 120%→30%, scrub 0.6, formation 0→1); formation driver mapped
+over `#services` (4 stations × 150vh hold formations 2..5:
+`setFormation(clamp(1,5, progress*4.67 + 1.166))` re-derived if heights change, scrub 0.6);
+endgame sphere (`#work` top 70% + 150vh, scrub 0.6, formation 5→6, all sizes; while its
+progress > 0 the machine is centered, zones/parking suppressed, dim eased to 0.75); lateral
+parking above #work only (measure `.station-inner` rects, alternate sides, 0 <900px; park
+index = formation - 1); hero scrub-out; station reveals (`gsap.from` y32/opacity, stagger
+0.06, toggleActions play none none reverse; opacity NOT autoAlpha); ghost number ±6vh
+parallax scrub; conveyor pin (`ease:'none'`, function-based end, invalidateOnRefresh);
+content zone only for `#vsl` (side -1); footer marquee drift; stat count-ups
+(IntersectionObserver once at 0.4, rAF ease-out, reduced-motion jumps to final);
 `gsap.matchMedia` for ≥900px set-pieces; kill + revert on re-init.
 
 ## 7. Boot gate (`src/js/main.js`)
@@ -208,7 +224,7 @@ loads deferred (after load + 1.5s or first interaction).
 ## 8. Free-audit funnel (`/free-audit/` + `src/js/audit.js`)
 
 Full-screen dark shell, no site nav (brand wordmark + "peakleads.agency" link + X → `/`).
-Same particle canvas behind (formation morphs per step: 0→1→2→3→4→0 cycle), radial
+Same particle canvas behind (formation morphs per step, walking 0→6 then back to 0), radial
 backdrop scrim so particles stay visible. 4px fixed top progress bar (accent), width
 (step)/(total). One question per screen, `.in` slide-up entrance, Enter advances,
 auto-focus, Back button from step 2, "N of 8" counter, error lines aria-live, honeypot

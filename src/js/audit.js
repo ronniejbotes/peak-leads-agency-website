@@ -43,9 +43,10 @@ const SCREEN_IDS = [
 const THANKS_INDEX = SCREEN_IDS.length - 1;
 const TOTAL_STEPS = 8;
 
-/* intro = 0 (PEAK); steps 1-8 cycle the five formations; the thanks screen
-   returns to the PEAK to match "You're on the way up." */
-const FORMATION_BY_SCREEN = [0, 0, 1, 2, 3, 4, 0, 1, 2, 0];
+/* intro = 0 (PEAK); steps 1-8 walk the seven formations (PEAK, PLAY,
+   FRAME, RANKS, FUNNEL, GROWTH, SPHERE); the thanks screen returns to
+   the PEAK to match "You're on the way up." */
+const FORMATION_BY_SCREEN = [0, 0, 1, 2, 3, 4, 5, 6, 2, 0];
 
 const FIELD_IDS = { 1: 'f-name', 2: 'f-email', 3: 'f-phone', 4: 'f-business', 5: 'f-trade', 8: 'f-website' };
 const ERROR_IDS = { 1: 'err-name', 2: 'err-email', 3: 'err-phone', 4: 'err-business', 5: 'err-trade', 6: 'err-service', 7: 'err-spend', 8: 'err-website' };
