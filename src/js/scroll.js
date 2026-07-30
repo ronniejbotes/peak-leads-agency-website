@@ -116,6 +116,8 @@ export function initScrollChoreography(scene) {
      handoff: the middle half of each formation-to-formation span does the
      travelling, so the particles are parked and still while you read. */
   function applyLateral(f) {
+    /* A content-avoidance zone owns the machine while active. */
+    if (zoneStack.length) return;
     if (!lateralEnabled) {
       sceneCall('setLateral', 0, 0);
       return;
@@ -135,8 +137,42 @@ export function initScrollChoreography(scene) {
    * cannot blank each other on the way out.
    * ================================================================== */
   const dimState = [false, false];
+
+  /* Content-avoidance zones (desktop): while a content section occupies
+     the viewport the machine swims to a gutter beside it, scaled down to
+     the strip and slightly dimmed, so copy is never obstructed. Zones
+     alternate sides down the page, which reads as the object maneuvering
+     around the content. Stack (not a flag) so overlapping ranges hand
+     off cleanly. */
+  const zoneStack = [];
+  function zoneTop() {
+    return zoneStack.length ? zoneStack[zoneStack.length - 1] : null;
+  }
+  function applyZones() {
+    const z = zoneTop();
+    if (z && z.ring) {
+      /* Ring zone: center the machine and wrap it around the measured
+         content block as a thin ellipse line. */
+      sceneCall('setLateral', 0, 0);
+      sceneCall('setRing', 1, z.rx, z.ry);
+    } else {
+      sceneCall('setRing', 0);
+      if (z) {
+        /* offset/strip as viewport fractions; the scene clamps and fits */
+        sceneCall('setLateral', z.side * 0.86, z.strip);
+      } else if (lateralEnabled) {
+        applyLateral(lastF);
+      } else {
+        sceneCall('setLateral', 0, 0);
+      }
+    }
+    applyDim();
+  }
+
   function applyDim() {
-    sceneCall('setDim', dimState[0] || dimState[1] ? 0.4 : 1);
+    const base = dimState[0] || dimState[1] ? 0.4 : 1;
+    const z = zoneTop();
+    sceneCall('setDim', Math.min(base, z ? z.dim : 1));
   }
 
   const ctx = gsap.context(() => {
@@ -338,9 +374,102 @@ export function initScrollChoreography(scene) {
         });
       }
 
+      /* ------------------------------------------------------------
+       * Content-avoidance zones. Sides alternate down the page; dim
+       * drops with how text-heavy the section is. Only >=900px: below
+       * that the canvas is already calmed by CSS (opacity + halos).
+       * ------------------------------------------------------------ */
+      const ZONES = [
+        ['#vsl', -1, 0.7, 0.24],
+        ['#work', 1, 0.55, 0.2],
+        ['#testimonials', -1, 0.7, 0.24],
+        ['#process', 1, 0.7, 0.26],
+        ['#book', -1, 0.45, 0.2],
+        ['#faq', 1, 0.45, 0.2]
+      ];
+      function zoneSet(zone, active) {
+        const idx = zoneStack.indexOf(zone);
+        if (active && idx === -1) zoneStack.push(zone);
+        if (!active && idx !== -1) zoneStack.splice(idx, 1);
+        applyZones();
+      }
+      ZONES.forEach(([sel, side, dim, strip]) => {
+        const el = document.querySelector(sel);
+        if (!el) return;
+        const zone = { side, dim, strip };
+        ScrollTrigger.create({
+          trigger: el,
+          start: 'top 60%',
+          end: 'bottom 40%',
+          onToggle(self) {
+            zoneSet(zone, self.isActive);
+          },
+          onRefresh(self) {
+            zoneSet(zone, self.isActive);
+          }
+        });
+      });
+
+      /* #proof is special: instead of dodging to a gutter, the machine
+         becomes a thin particle ring that lassos the stats strip
+         (measured, so the ellipse hugs the real block at any viewport). */
+      const proofEl = document.querySelector('#proof');
+      if (proofEl) {
+        const ringZone = { ring: true, dim: 0.95, rx: 0.85, ry: 0.35 };
+        /* Cached in refresh so the scrubbed center-tracker below never
+           reads layout on the scroll hot path. */
+        let ringSpan = 1;
+        let ringHalfVh = 1;
+        const measureRingShape = () => {
+          const vw = window.innerWidth;
+          const vh = window.innerHeight;
+          const r = proofEl.getBoundingClientRect();
+          ringZone.rx = clamp(0.3, 0.97, (r.width * 0.5 + 24) / (vw / 2));
+          ringZone.ry = clamp(0.18, 0.6, (r.height * 0.5 - 24) / (vh / 2));
+          ringSpan = vh + r.height;
+          ringHalfVh = vh / 2;
+        };
+        measureRingShape();
+        ScrollTrigger.create({
+          trigger: proofEl,
+          start: 'top 55%',
+          end: 'bottom 35%',
+          onToggle(self) {
+            zoneSet(ringZone, self.isActive);
+          },
+          onRefresh(self) {
+            measureRingShape();
+            zoneSet(ringZone, self.isActive);
+          }
+        });
+        /* Scrubbed tracker: keeps the ellipse glued to the stats block as
+           it moves through the viewport (progress 0.5 = block centered). */
+        ScrollTrigger.create({
+          trigger: proofEl,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true,
+          onUpdate(self) {
+            sceneCall(
+              'setRingCenter',
+              ((0.5 - self.progress) * ringSpan) / ringHalfVh
+            );
+          },
+          onRefresh(self) {
+            sceneCall(
+              'setRingCenter',
+              ((0.5 - self.progress) * ringSpan) / ringHalfVh
+            );
+          }
+        });
+      }
+
       return () => {
         lateralEnabled = false;
+        zoneStack.length = 0;
+        sceneCall('setRing', 0);
         sceneCall('setLateral', 0, 0);
+        applyDim();
       };
     });
 
@@ -526,6 +655,7 @@ export function initScrollChoreography(scene) {
     progressHost.style.setProperty('--scroll-progress', '0');
     sceneCall('setDim', 1);
     sceneCall('setLateral', 0, 0);
+    sceneCall('setRing', 0);
   }
 
   activeCleanup = cleanup;

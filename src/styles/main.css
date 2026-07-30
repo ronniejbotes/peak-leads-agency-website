@@ -515,13 +515,14 @@ main > section#services { padding-block: 0; }
    Hero — copy left, particles park right
    ========================================================================== */
 
+/* Not a full-viewport hero: generous top padding, tight bottom, so the
+   stats strip sits right under the CTAs instead of below the fold. */
 .hero {
   position: relative;
-  min-height: 100vh;
-  min-height: 100svh;
   display: flex;
   align-items: center;
-  padding-block: calc(var(--nav-h) + var(--nav-top) + 48px) 96px;
+  padding-block: calc(var(--nav-h) + var(--nav-top) + clamp(96px, 16vh, 170px))
+    clamp(40px, 7vh, 64px);
   padding-inline: var(--pad-x);
 }
 
@@ -581,6 +582,9 @@ main > section#services { padding-block: 0; }
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(28px, 5vw, 44px) 0;
+  /* Snug under the hero CTAs; keep breathing room below plus clearance
+     for the particle ring that wraps this section. */
+  padding-block: clamp(48px, 9vh, 96px);
 }
 #proof > h2, #proof > p { grid-column: 1 / -1; }
 
@@ -1016,7 +1020,11 @@ main > section#services { padding-block: 0; }
 
 .calendly-inline-widget {
   width: 100%;
-  min-height: 700px;
+  min-width: 320px;
+  /* Definite height, not min-height: Calendly's iframe is height:100%,
+     which computes to auto against a min-height-only parent (the widget
+     rendered ~450px tall with its calendar cut off). */
+  height: 760px;
   margin-top: 24px;
   border-radius: var(--radius);
   overflow: hidden;

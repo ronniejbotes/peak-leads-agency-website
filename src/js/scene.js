@@ -9,7 +9,7 @@
      setFormation(f)     // float 0..4, integer = fully formed
      setProgress(p)      // 0..1 page progress -> camera drift + subtle warm
      setLateral(offset, strip)  // park the formation left/right of panels
-     setPointer(x, y)    // -1..1, eased parallax (lerp 0.06)
+     setPointer(x, y)    // -1..1; drives the cursor-repulsion field (particles dodge the pointer)
      setDim(d)           // brightness 0.35 reading dim .. 1 full
      setCondense(c)      // -1..1 implosion / bang
      resize(), destroy()
@@ -394,6 +394,11 @@ uniform float uFormB;
 uniform float uPointSize;
 uniform float uPixelRatio;
 uniform float uCondense;
+uniform vec3 uRepel;       // xy = cursor in the points' local space, z = strength
+uniform float uRepelSigma; // falloff radius of the dodge, local units
+uniform float uRing;       // 0..1 blend toward the wrap-around ellipse line
+uniform vec3 uRingShape;   // x = rx, y = ry, z = line thickness (local units)
+uniform float uRingCenter; // vertical center of the ellipse (local units)
 varying float vAlpha;
 
 // Per-formation idle motion, applied to raw formation positions.
@@ -444,10 +449,33 @@ void main() {
     sin(uTime * 1.1 + aSeed.x * 39.47),
     sin(uTime * 1.3 + aSeed.y * 27.13),
     sin(uTime * 0.9 + aSeed.z * 33.31));
+  // ring wrap: blend toward a thin ellipse outline that lassos on-page
+  // content (stats strip). Seed-stable angle + slow drift keeps it alive.
+  if (uRing > 0.001) {
+    float ang = aSeed.x * 6.2831 + uTime * 0.06;
+    float rad = (aSeed.y - 0.5) * uRingShape.z;
+    vec3 ringPos = vec3(
+      cos(ang) * (uRingShape.x + rad),
+      sin(ang) * (uRingShape.y + rad) + uRingCenter,
+      (aSeed.z - 0.5) * 0.12);
+    pos = mix(pos, ringPos, smoothstep(0.0, 1.0, uRing));
+  }
   // implosion / bang: +1 collapses to a dense ball, negative blasts out
   float cIn = clamp(uCondense, 0.0, 1.0);
   float cOut = max(0.0, -uCondense);
   pos *= 1.0 - 0.9 * cIn + 1.9 * cOut;
+  // cursor repulsion: particles disperse away from the pointer with a
+  // gaussian falloff; per-point seed variation keeps the edge organic
+  vec2 away = pos.xy - uRepel.xy;
+  float d2r = dot(away, away);
+  float push = uRepel.z * (0.7 + 0.6 * aSeed.x)
+             * exp(-d2r / (2.0 * uRepelSigma * uRepelSigma));
+  if (push > 0.0005) {
+    vec2 dir = d2r > 1e-6 ? away * inversesqrt(d2r) : vec2(0.0, 1.0);
+    pos.xy += dir * push;
+    // a little depth scatter so the dodge reads 3D, not flat
+    pos.z += push * 0.35 * (aSeed.z - 0.5);
+  }
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
   float size = uPointSize * (0.6 + aSeed.y * 0.8) * (1.0 + cIn * 0.7);
   gl_PointSize = clamp(size * uPixelRatio * (26.0 / max(0.1, -mv.z)), 1.0, 40.0);
@@ -565,14 +593,16 @@ function tick() {
   state.time += dt;
   state.uniforms.uTime.value = state.time;
 
-  // eased pointer parallax (lerp 0.06) + slow progress-driven camera drift
+  // The pointer no longer tilts the camera: it drives the repulsion field
+  // instead (particles disperse away from the cursor). Camera keeps only
+  // the slow progress-driven drift.
   const p = state.pointer;
-  p.x += (p.tx - p.x) * 0.06;
-  p.y += (p.ty - p.y) * 0.06;
+  p.x += (p.tx - p.x) * 0.08;
+  p.y += (p.ty - p.y) * 0.08;
   const prog = state.progress;
   const cam = state.camera;
-  cam.position.x = p.x * 0.55;
-  cam.position.y = -p.y * 0.4 - prog * 0.35;
+  cam.position.x = 0;
+  cam.position.y = -prog * 0.35;
   cam.position.z = 7.0 - prog * 0.7;
   cam.lookAt(0, 0, 0);
 
@@ -611,6 +641,37 @@ function tick() {
   // dim eases on the same filter as the slide above
   const dim = state.uniforms.uDim;
   dim.value += (state.dimTarget - dim.value) * 0.08;
+
+  /* Cursor repulsion field, expressed in the points' LOCAL space so it
+     stays under the cursor through lateral parking and fit scaling.
+     Strength/sigma divide by the scale so the dodge feels the same size
+     on screen regardless of how the formation was fitted. Fades out a
+     couple of seconds after the pointer stops moving. */
+  const rp = state.uniforms.uRepel.value;
+  const sc = Math.max(0.2, state.points.scale.x);
+  const worldX = p.x * halfW;
+  const worldY = -p.y * halfH + cam.position.y;
+  rp.x = (worldX - state.points.position.x) / sc;
+  rp.y = worldY / sc;
+  const fresh = performance.now() - state.pointer.stamp < 2500;
+  const wantStrength = fresh ? 0.62 / sc : 0;
+  rp.z += (wantStrength - rp.z) * 0.07;
+  state.uniforms.uRepelSigma.value = 0.45 / sc;
+
+  /* Ring wrap eases on the shared filter; rx/ry arrive as fractions of the
+     half viewport and convert to local units so the ellipse hugs whatever
+     content block scroll.js measured. */
+  const ring = state.ring;
+  ring.t += (ring.target - ring.t) * 0.06;
+  state.uniforms.uRing.value = ring.t;
+  if (ring.t > 0.001) {
+    const rs = state.uniforms.uRingShape.value;
+    rs.x = (ring.rx * halfW) / sc;
+    rs.y = (ring.ry * halfH) / sc;
+    /* cy arrives as a down-positive fraction of the half viewport height
+       (screen space); world y is up-positive. */
+    state.uniforms.uRingCenter.value = (-ring.cy * halfH) / sc;
+  }
 
   state.renderer.render(state.scene, state.camera);
 }
@@ -732,7 +793,12 @@ function init(canvas, opts = {}) {
       uFormA: { value: 0 },
       uFormB: { value: 1 },
       uProg: { value: 0 },
-      uPixelRatio: sharedPR
+      uPixelRatio: sharedPR,
+      uRepel: { value: new THREE.Vector3(0, 0, 0) },
+      uRepelSigma: { value: 0.45 },
+      uRing: { value: 0 },
+      uRingShape: { value: new THREE.Vector3(3, 1, 0.07) },
+      uRingCenter: { value: 0 }
     };
 
     const material = new THREE.ShaderMaterial({
@@ -808,7 +874,8 @@ function init(canvas, opts = {}) {
       clock: new THREE.Clock(),
       time: 0,
       progress: 0,
-      pointer: { x: 0, y: 0, tx: 0, ty: 0 },
+      pointer: { x: 0, y: 0, tx: 0, ty: 0, stamp: 0 },
+      ring: { t: 0, target: 0, rx: 0.85, ry: 0.35, cy: 0 },
       running: false,
       contextLost: false,
       raf: 0,
@@ -894,7 +961,31 @@ function setLateral(offset, strip) {
   state.lateral.rawStrip = Math.max(0, Number.isFinite(+strip) ? +strip : 0);
 }
 
+/* Wrap the particles into a thin ellipse line around on-page content.
+     target - 0 (normal formation) .. 1 (fully ringed)
+     rxFrac - ellipse half-width as a fraction of the half viewport width
+     ryFrac - ellipse half-height as a fraction of the half viewport height */
+function setRing(target, rxFrac, ryFrac) {
+  if (!state) return;
+  state.ring.target = clamp(Number.isFinite(+target) ? +target : 0, 0, 1);
+  if (Number.isFinite(+rxFrac) && +rxFrac > 0) {
+    state.ring.rx = Math.min(+rxFrac, 0.98);
+  }
+  if (Number.isFinite(+ryFrac) && +ryFrac > 0) {
+    state.ring.ry = Math.min(+ryFrac, 0.95);
+  }
+}
+
+/* Vertical center of the ring, as a down-positive fraction of the half
+     viewport height. Driven per scroll frame so the ring tracks the block
+     it wraps instead of floating at the viewport center. */
+function setRingCenter(cyFrac) {
+  if (!state) return;
+  state.ring.cy = clamp(Number.isFinite(+cyFrac) ? +cyFrac : 0, -2.5, 2.5);
+}
+
 function setPointer(x, y) {
+  if (state) state.pointer.stamp = performance.now();
   if (!state) return;
   state.pointer.tx = clamp(Number.isFinite(+x) ? +x : 0, -1, 1);
   state.pointer.ty = clamp(Number.isFinite(+y) ? +y : 0, -1, 1);
@@ -953,6 +1044,8 @@ export const PeakScene = {
   setProgress,
   setLateral,
   setPointer,
+  setRing,
+  setRingCenter,
   setDim,
   setCondense,
   resize,
