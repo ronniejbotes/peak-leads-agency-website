@@ -15,6 +15,7 @@
  * - No THREE and no GSAP imports in this file.
  */
 import '../styles/main.css';
+import { armPixel } from './pixel.js';
 
 const docEl = document.documentElement;
 const body = document.body || docEl;
@@ -414,49 +415,6 @@ function initSayHi() {
   onMedia(mqPointerFine, sayHiUpdate);
   onMedia(mqWide, sayHiUpdate);
   sayHiUpdate();
-}
-
-/* ====================================================================
- * Facebook Pixel. Deferred: loads after (window load + 1.5s) OR the
- * first pointerdown/keydown, whichever comes first, once.
- * ================================================================== */
-const PIXEL_ID = '1586557796001231';
-let pixelLoaded = false;
-
-function loadPixel() {
-  if (pixelLoaded) return;
-  pixelLoaded = true;
-  if (!window.fbq) {
-    const n = (window.fbq = function () {
-      if (n.callMethod) {
-        n.callMethod.apply(n, arguments);
-      } else {
-        n.queue.push(arguments);
-      }
-    });
-    if (!window._fbq) window._fbq = n;
-    n.push = n;
-    n.loaded = true;
-    n.version = '2.0';
-    n.queue = [];
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = 'https://connect.facebook.net/en_US/fbevents.js';
-    document.head.appendChild(script);
-  }
-  window.fbq('init', PIXEL_ID);
-  window.fbq('track', 'PageView');
-}
-
-function armPixel() {
-  window.addEventListener('pointerdown', loadPixel, { once: true, passive: true });
-  window.addEventListener('keydown', loadPixel, { once: true });
-  const afterLoad = () => window.setTimeout(loadPixel, 1500);
-  if (document.readyState === 'complete') {
-    afterLoad();
-  } else {
-    window.addEventListener('load', afterLoad, { once: true });
-  }
 }
 
 /* ====================================================================

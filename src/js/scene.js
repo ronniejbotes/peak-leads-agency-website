@@ -539,19 +539,22 @@ const STRIP_MARGIN = 0.035;
    fitted inside. */
 const IDLE_HEADROOM = 1.07;
 
-/* Resolve setLateral inputs to fractions each frame (viewport can resize
-   between calls). Magnitudes <= 1 are already fractions; larger values are
-   pixels and get normalized against the current viewport. */
+/* Resolve setLateral inputs to fractions each frame. Magnitudes <= 1 are
+   already fractions; larger values are pixels and get normalized against
+   the cached viewport width (state.viewportW, refreshed in init/resize:
+   window.innerWidth reads in the rAF loop can force layout flushes, and a
+   fresh object per frame is avoidable GC pressure). */
+const lateralScratch = { offset: 0, strip: 0 };
+
 function normLateral() {
-  const w = window.innerWidth || 1;
+  const w = state.viewportW || 1;
   const o = state.lateral.rawOffset;
   const s = state.lateral.rawStrip;
   const offset = Math.abs(o) <= 1 ? o : o / (w / 2);
   const strip = s <= 1 ? s : s / w;
-  return {
-    offset: clamp(offset, -1, 1),
-    strip: clamp(strip, 0, 1)
-  };
+  lateralScratch.offset = clamp(offset, -1, 1);
+  lateralScratch.strip = clamp(strip, 0, 1);
+  return lateralScratch;
 }
 
 function tick() {
@@ -631,11 +634,11 @@ function uploadPair(idx) {
  * ------------------------------------------------------------------ */
 
 function init(canvas, opts = {}) {
+  let renderer = null;
   try {
     if (state) destroy();
     if (!canvas || typeof window === 'undefined') return false;
 
-    let renderer;
     try {
       renderer = new THREE.WebGLRenderer({
         canvas,
@@ -782,6 +785,7 @@ function init(canvas, opts = {}) {
       scene,
       camera,
       canvas,
+      viewportW: w,
       geometry,
       material,
       points,
@@ -845,6 +849,7 @@ function init(canvas, opts = {}) {
     // never throw: any failure means the caller falls back to no-3d
     try {
       if (state) destroy();
+      else if (renderer) renderer.dispose();
     } catch (e) {
       state = null;
     }
@@ -913,6 +918,7 @@ function resize() {
   if (!state) return;
   const w = window.innerWidth;
   const h = window.innerHeight;
+  state.viewportW = w;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   state.renderer.setPixelRatio(dpr);
   state.renderer.setSize(w, h, false);

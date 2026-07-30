@@ -81,6 +81,12 @@ export function initScrollChoreography(scene) {
     ? Array.prototype.slice.call(services.querySelectorAll('.station'))
     : [];
   const heroInner = document.querySelector('.hero-inner');
+  /* Park against the 620px copy block, not the 1200px container: the
+     container leaves no free strip at normal desktop widths. */
+  const heroCopy = document.querySelector('.hero-copy') || heroInner;
+  /* --scroll-progress is consumed only by .nav-progress: writing it on the
+     nav subtree keeps per-frame style invalidation off the whole document. */
+  const progressHost = document.querySelector('.site-nav') || html;
 
   function measurePark(el, i) {
     parkOffset[i] = 0;
@@ -100,7 +106,7 @@ export function initScrollChoreography(scene) {
   }
 
   function measureParks() {
-    measurePark(heroInner, 0);
+    measurePark(heroCopy, 0);
     for (let i = 0; i < stations.length && i < 4; i++) {
       measurePark(stations[i].querySelector('.station-inner'), i + 1);
     }
@@ -143,7 +149,7 @@ export function initScrollChoreography(scene) {
      * -------------------------------------------------------------- */
     function applyPageProgress(self) {
       const p = self.progress;
-      html.style.setProperty('--scroll-progress', String(p));
+      progressHost.style.setProperty('--scroll-progress', String(p));
       sceneCall('setProgress', p);
     }
 
@@ -515,7 +521,7 @@ export function initScrollChoreography(scene) {
     } catch (err) {
       /* decorative only */
     }
-    html.style.setProperty('--scroll-progress', '0');
+    progressHost.style.setProperty('--scroll-progress', '0');
     sceneCall('setDim', 1);
     sceneCall('setLateral', 0, 0);
   }
