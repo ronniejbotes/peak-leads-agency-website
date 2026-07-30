@@ -539,6 +539,18 @@ main > section#services { padding-block: 0; }
   max-width: 620px;
 }
 
+/* Below 900px the formation stays centered behind the copy: halo the text
+   and calm the canvas so the words always win. */
+@media (max-width: 899.98px) {
+  #scene-canvas { opacity: 0.75; }
+  .hero-copy h1,
+  .hero-copy p {
+    text-shadow:
+      0 2px 18px rgba(13, 12, 10, 0.95),
+      0 0 8px rgba(13, 12, 10, 0.85);
+  }
+}
+
 .hero-inner h1 {
   max-width: 620px;
   margin-bottom: 20px;

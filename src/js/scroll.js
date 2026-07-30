@@ -373,9 +373,11 @@ export function initScrollChoreography(scene) {
      * -------------------------------------------------------------- */
     const footer = document.querySelector('.site-footer');
     const marquee = footer ? footer.querySelector('.footer-marquee') : null;
-    if (footer && marquee) {
+    /* Translate the spans INSIDE the clip box, never the overflow-hidden
+       box itself: moving the box widens the document (mobile x-overflow). */
+    if (footer && marquee && marquee.children.length) {
       gsap.fromTo(
-        marquee,
+        marquee.children,
         { x: () => 0.05 * window.innerWidth },
         {
           x: () => -0.12 * window.innerWidth,
