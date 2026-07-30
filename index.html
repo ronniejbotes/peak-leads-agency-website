@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Peak Leads — lead generation agency." />
+    <title>Peak Leads | Lead Generation Agency</title>
+    <script type="module" src="/src/js/main.js"></script>
+  </head>
+  <body class="bg-neutral-950 text-neutral-100 antialiased">
+    <header class="fixed inset-x-0 top-0 z-50">
+      <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <a href="/" class="text-lg font-bold tracking-tight">Peak Leads</a>
+        <ul class="flex items-center gap-6 text-sm text-neutral-300">
+          <li><a href="/about/" class="hover:text-white">About</a></li>
+          <li><a href="/services/" class="hover:text-white">Services</a></li>
+          <li><a href="/contact/" class="hover:text-white">Contact</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <!-- Hero: full-screen 3D canvas, reacts to mouse + scroll (src/js/three/heroScene.js) -->
+      <section id="hero" class="relative h-screen overflow-hidden">
+        <canvas id="hero-canvas" class="absolute inset-0 h-full w-full"></canvas>
+        <div class="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
+          <h1 class="max-w-3xl text-5xl font-bold tracking-tight md:text-7xl" data-animate="hero-title">
+            Leads that reach the peak.
+          </h1>
+          <p class="mt-6 max-w-xl text-lg text-neutral-400" data-animate="hero-subtitle">
+            Placeholder tagline — replace during the build phase.
+          </p>
+        </div>
+      </section>
+
+      <!-- Placeholder scroll sections: give ScrollTrigger room to work during development -->
+      <section id="what-we-do" class="mx-auto max-w-6xl px-6 py-32" data-animate="section">
+        <h2 class="text-3xl font-bold md:text-5xl">What we do</h2>
+        <p class="mt-4 max-w-2xl text-neutral-400">Placeholder section content.</p>
+      </section>
+
+      <section id="results" class="mx-auto max-w-6xl px-6 py-32" data-animate="section">
+        <h2 class="text-3xl font-bold md:text-5xl">Results</h2>
+        <p class="mt-4 max-w-2xl text-neutral-400">Placeholder section content.</p>
+      </section>
+
+      <section id="cta" class="mx-auto max-w-6xl px-6 py-32" data-animate="section">
+        <h2 class="text-3xl font-bold md:text-5xl">Ready to climb?</h2>
+        <a href="/contact/" class="mt-8 inline-block rounded-full bg-white px-8 py-3 font-semibold text-neutral-950">
+          Get in touch
+        </a>
+      </section>
+    </main>
+
+    <footer class="border-t border-neutral-800 px-6 py-10 text-center text-sm text-neutral-500">
+      &copy; 2026 Peak Leads. All rights reserved.
+    </footer>
+  </body>
+</html>
