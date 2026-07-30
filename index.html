@@ -1,59 +1,450 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Peak Leads — lead generation agency." />
-    <title>Peak Leads | Lead Generation Agency</title>
-    <script type="module" src="/src/js/main.js"></script>
-  </head>
-  <body class="bg-neutral-950 text-neutral-100 antialiased">
-    <header class="fixed inset-x-0 top-0 z-50">
-      <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <a href="/" class="text-lg font-bold tracking-tight">Peak Leads</a>
-        <ul class="flex items-center gap-6 text-sm text-neutral-300">
-          <li><a href="/about/" class="hover:text-white">About</a></li>
-          <li><a href="/services/" class="hover:text-white">Services</a></li>
-          <li><a href="/contact/" class="hover:text-white">Contact</a></li>
-        </ul>
-      </nav>
-    </header>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>document.documentElement.classList.add('js-enabled')</script>
+  <title>Home Services Lead Generation Agency | Peak Leads</title>
+  <meta name="description" content="Peak Leads builds websites, SEO and ad campaigns that turn home service searches into booked jobs. Exclusive leads for roofers, plumbers, HVAC and contractors.">
+  <link rel="canonical" href="https://peakleads.agency/">
+  <meta name="theme-color" content="#0D0C0A">
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-    <main>
-      <!-- Hero: full-screen 3D canvas, reacts to mouse + scroll (src/js/three/heroScene.js) -->
-      <section id="hero" class="relative h-screen overflow-hidden">
-        <canvas id="hero-canvas" class="absolute inset-0 h-full w-full"></canvas>
-        <div class="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
-          <h1 class="max-w-3xl text-5xl font-bold tracking-tight md:text-7xl" data-animate="hero-title">
-            Leads that reach the peak.
-          </h1>
-          <p class="mt-6 max-w-xl text-lg text-neutral-400" data-animate="hero-subtitle">
-            Placeholder tagline — replace during the build phase.
-          </p>
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://peakleads.agency/">
+  <meta property="og:site_name" content="Peak Leads">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Home Services Lead Generation Agency | Peak Leads">
+  <meta property="og:description" content="Peak Leads builds websites, SEO and ad campaigns that turn home service searches into booked jobs. Exclusive leads for roofers, plumbers, HVAC and contractors.">
+  <meta property="og:image" content="https://peakleads.agency/assets/images/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Peak Leads, websites, SEO and exclusive leads for home service businesses">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Home Services Lead Generation Agency | Peak Leads">
+  <meta name="twitter:description" content="Peak Leads builds websites, SEO and ad campaigns that turn home service searches into booked jobs. Exclusive leads for roofers, plumbers, HVAC and contractors.">
+  <meta name="twitter:image" content="https://peakleads.agency/assets/images/og-image.jpg">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://peakleads.agency/#organization",
+        "name": "Peak Leads",
+        "url": "https://peakleads.agency/",
+        "logo": "https://peakleads.agency/assets/images/logo.webp",
+        "email": "bradley@peakleads.agency",
+        "description": "Lead generation agency for US home service businesses. Websites, local SEO, Google Ads and exclusive leads for roofers, plumbers, HVAC and contractors.",
+        "founder": {
+          "@type": "Person",
+          "name": "Bradley Hart"
+        },
+        "sameAs": [
+          "https://www.instagram.com/bradley_mj_kid",
+          "https://za.linkedin.com/in/bradley-hartmann-372785336"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://peakleads.agency/#website",
+        "url": "https://peakleads.agency/",
+        "name": "Peak Leads",
+        "publisher": { "@id": "https://peakleads.agency/#organization" }
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Are the leads exclusive?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Every lead we generate is 100% exclusive to you. We build the campaigns under your own brand and send each lead to you alone. No shared lists, no bidding against five other contractors."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What does it cost?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Lead generation packages start from $140. Websites, SEO and ad campaigns are scoped on the call, so the price matches your market and your goals. No lock-in contracts."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How fast is the website live?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Your site is live in 2 to 3 weeks from the first call. You get daily progress updates while we build, so you always know where things stand."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I pay upfront?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No upfront payments. If you are not happy, you do not pay."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Which trades do you work with?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Roofers, plumbers, HVAC, electrical, solar, landscaping and other home service trades across the US. If your customers search online before they hire, we can help."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What happens on the call?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You get 30 minutes with Bradley. He maps your market, your goals and where jobs are leaking, then tells you what we would do and what it costs. Free, direct, no pitch deck."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <script type="module" src="/src/js/main.js"></script>
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <canvas id="scene-canvas" aria-hidden="true"></canvas>
+
+  <header class="site-nav">
+    <nav class="nav-inner" aria-label="Primary">
+      <a href="/">
+        <img src="/assets/images/logo.webp" alt="Peak Leads logo" width="40" height="40">
+        <strong>PeakLeads</strong>
+      </a>
+      <div class="nav-links" id="nav-links">
+        <a href="/">Home</a>
+        <a href="/about/">About</a>
+        <a href="/services/">What We Do</a>
+        <a href="/#testimonials">Testimonials</a>
+        <a href="/blog/">Blog</a>
+      </div>
+      <a class="nav-cta" href="/#book">Book A Call</a>
+      <button class="nav-burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav-links">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" focusable="false">
+          <line x1="4" y1="7" x2="20" y2="7"></line>
+          <line x1="4" y1="12" x2="20" y2="12"></line>
+          <line x1="4" y1="17" x2="20" y2="17"></line>
+        </svg>
+      </button>
+      <span class="nav-progress" aria-hidden="true"></span>
+    </nav>
+  </header>
+
+  <main id="main">
+
+    <!-- 1. Hero -->
+    <section id="hero" class="hero">
+      <div class="hero-inner">
+        <h1>Build your presence.</h1>
+        <p>Peak Leads builds websites, SEO and ad campaigns that turn home service searches into booked jobs.</p>
+        <div>
+          <a class="btn btn-primary" href="/free-audit/">Get your free audit</a>
+          <a class="btn btn-ghost" href="#book">Book a call</a>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- Placeholder scroll sections: give ScrollTrigger room to work during development -->
-      <section id="what-we-do" class="mx-auto max-w-6xl px-6 py-32" data-animate="section">
-        <h2 class="text-3xl font-bold md:text-5xl">What we do</h2>
-        <p class="mt-4 max-w-2xl text-neutral-400">Placeholder section content.</p>
-      </section>
+    <!-- 2. Proof strip -->
+    <section id="proof" aria-label="Client results">
+      <div class="stat">
+        <p class="stat-value" data-count="4.9" data-decimals="1" data-suffix="/5">4.9/5</p>
+        <p class="stat-label">average client rating</p>
+      </div>
+      <div class="stat">
+        <p class="stat-value" data-count="70" data-suffix="+">70+</p>
+        <p class="stat-label">reviews</p>
+      </div>
+      <div class="stat">
+        <p class="stat-value" data-count="7" data-prefix="$" data-suffix="M+">$7M+</p>
+        <p class="stat-label">client revenue generated</p>
+      </div>
+      <div class="stat">
+        <p class="stat-value" data-count="3" data-prefix="2-" data-suffix="wk">2-3wk</p>
+        <p class="stat-label">from call to live site</p>
+      </div>
+    </section>
 
-      <section id="results" class="mx-auto max-w-6xl px-6 py-32" data-animate="section">
-        <h2 class="text-3xl font-bold md:text-5xl">Results</h2>
-        <p class="mt-4 max-w-2xl text-neutral-400">Placeholder section content.</p>
-      </section>
+    <!-- 3. VSL -->
+    <section id="vsl">
+      <h2>Watch how we build.</h2>
+      <figure>
+        <video src="/assets/videos/vsl.mp4" poster="/assets/images/vsl-poster.jpg" preload="metadata" controls playsinline width="1280" height="720" aria-label="Bradley walks through how Peak Leads builds websites, SEO and lead campaigns"></video>
+        <figcaption>Bradley walks through the exact system, in under a minute.</figcaption>
+      </figure>
+    </section>
 
-      <section id="cta" class="mx-auto max-w-6xl px-6 py-32" data-animate="section">
-        <h2 class="text-3xl font-bold md:text-5xl">Ready to climb?</h2>
-        <a href="/contact/" class="mt-8 inline-block rounded-full bg-white px-8 py-3 font-semibold text-neutral-950">
-          Get in touch
-        </a>
-      </section>
-    </main>
+    <!-- 4. Services stations -->
+    <section id="services">
 
-    <footer class="border-t border-neutral-800 px-6 py-10 text-center text-sm text-neutral-500">
-      &copy; 2026 Peak Leads. All rights reserved.
-    </footer>
-  </body>
+      <article class="station" data-formation="1">
+        <div>
+          <div class="station-inner glass">
+            <p class="ghost-num" aria-hidden="true">01</p>
+            <h2>Websites that win the job before the phone rings.</h2>
+            <p>Precision-built sites for roofers, plumbers and contractors. Live in 2 to 3 weeks with daily progress updates.</p>
+            <ul class="station-list">
+              <li>Live in 2 to 3 weeks</li>
+              <li>Built to rank and convert</li>
+              <li>Daily progress updates</li>
+              <li>Fast on every phone</li>
+            </ul>
+            <a href="/services/#web-design">See web design <span aria-hidden="true">&rarr;</span></a>
+          </div>
+        </div>
+      </article>
+
+      <article class="station" data-formation="2">
+        <div>
+          <div class="station-inner glass">
+            <p class="ghost-num" aria-hidden="true">02</p>
+            <h2>Climb the rankings your competitors camp on.</h2>
+            <p>Local SEO for home services: Google Business Profile, on-page work and content that answers what your customers actually ask.</p>
+            <ul class="station-list">
+              <li>Google Maps and local pack</li>
+              <li>Technical and on-page SEO</li>
+              <li>Content that answers real questions</li>
+              <li>Plain-English monthly reports</li>
+            </ul>
+            <a href="/services/#seo">See SEO <span aria-hidden="true">&rarr;</span></a>
+          </div>
+        </div>
+      </article>
+
+      <article class="station" data-formation="3">
+        <div>
+          <div class="station-inner glass">
+            <p class="ghost-num" aria-hidden="true">03</p>
+            <h2>Ads that buy jobs, not clicks.</h2>
+            <p>Google Ads and Meta ads tuned for home services. Every dollar tracked from the click to the booked call.</p>
+            <ul class="station-list">
+              <li>Google Ads and Local Services Ads</li>
+              <li>Meta ads that fill slow weeks</li>
+              <li>Tracked to the booked call</li>
+              <li>No lock-in contracts</li>
+            </ul>
+            <a href="/services/#ads">See paid ads <span aria-hidden="true">&rarr;</span></a>
+          </div>
+        </div>
+      </article>
+
+      <article class="station" data-formation="4">
+        <div>
+          <div class="station-inner glass">
+            <p class="ghost-num" aria-hidden="true">04</p>
+            <h2>Exclusive leads. Yours alone.</h2>
+            <p>We generate leads under your brand and send them only to you. No shared lists, no bidding against five other contractors.</p>
+            <ul class="station-list">
+              <li>100% exclusive to you</li>
+              <li>Under your own brand</li>
+              <li>Delivered in real time</li>
+              <li>Packages from $140</li>
+            </ul>
+            <a href="/services/#leads">See lead generation <span aria-hidden="true">&rarr;</span></a>
+          </div>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- 5. Work conveyor -->
+    <section id="work">
+      <h2>Recent work.</h2>
+      <div class="conveyor" tabindex="0" role="region" aria-label="Recent client websites, horizontally scrollable">
+        <div class="conveyor-track">
+          <figure class="work-card">
+            <a href="https://andersonroofingrenovations.com" rel="noopener">
+              <img src="/assets/images/work-1.webp" alt="Anderson Roofing and Renovations website home page built by Peak Leads, web design for a roofing contractor" width="1200" height="675" loading="lazy">
+            </a>
+            <figcaption><strong>Anderson Roofing &amp; Renovations</strong> <span>Roofing</span></figcaption>
+          </figure>
+          <figure class="work-card">
+            <a href="https://waterautomation.com" rel="noopener">
+              <img src="/assets/images/work-2.webp" alt="Water Automation website home page built by Peak Leads, web design for a water systems company" width="1200" height="675" loading="lazy">
+            </a>
+            <figcaption><strong>Water Automation</strong> <span>Water systems</span></figcaption>
+          </figure>
+          <figure class="work-card">
+            <a href="https://theleakgeeks.com" rel="noopener">
+              <img src="/assets/images/work-3.webp" alt="The Leak Geeks website home page built by Peak Leads, web design for a leak detection and plumbing company" width="1200" height="675" loading="lazy">
+            </a>
+            <figcaption><strong>The Leak Geeks</strong> <span>Leak detection</span></figcaption>
+          </figure>
+          <figure class="work-card">
+            <a href="https://greatergood.co" rel="noopener">
+              <img src="/assets/images/work-4.webp" alt="GreaterGood website home page built by Peak Leads, web design for a home services business" width="1200" height="675" loading="lazy">
+            </a>
+            <figcaption><strong>GreaterGood</strong> <span>Home services</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Testimonials -->
+    <section id="testimonials">
+      <h2>Trusted by the trades.</h2>
+      <div class="quote-grid">
+
+        <figure class="quote-card">
+          <blockquote>
+            <p>Peak Leads built us a beautiful website that perfectly captures our brand. The team was professional, responsive, and delivered everything on time.</p>
+          </blockquote>
+          <figcaption>
+            <img src="/assets/images/avatar-greg.webp" alt="Greg of Water Automation" width="160" height="160" loading="lazy">
+            <span><strong>Greg</strong> Water Automation</span>
+          </figcaption>
+        </figure>
+
+        <figure class="quote-card">
+          <div role="img" aria-label="Rated 5 out of 5 stars">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+          </div>
+          <blockquote>
+            <p>The team at Peak Leads exceeded all expectations. From the initial consultation to the final launch, they were communicative, creative, and truly cared about our success. Our new site has dramatically increased our leads.</p>
+          </blockquote>
+          <figcaption>
+            <img src="/assets/images/avatar-sarah.webp" alt="Sarah Thompson, roofing company owner" width="160" height="160" loading="lazy">
+            <span><strong>Sarah Thompson</strong> Roofing company owner</span>
+          </figcaption>
+        </figure>
+
+        <figure class="quote-card">
+          <blockquote>
+            <p>They understood exactly what we needed and delivered a website that not only looks amazing but converts visitors into customers. Highly recommended!</p>
+          </blockquote>
+          <figcaption>
+            <img src="/assets/images/avatar-michael.webp" alt="Michael Anderson of Anderson Roofing and Renovations" width="160" height="160" loading="lazy">
+            <span><strong>Michael Anderson</strong> Anderson Roofing &amp; Renovations</span>
+          </figcaption>
+        </figure>
+
+        <figure class="quote-card">
+          <blockquote>
+            <p>The attention to detail and understanding of our industry made all the difference. We&rsquo;ve seen a significant uptick in inquiries since launch.</p>
+          </blockquote>
+          <figcaption>
+            <img src="/assets/images/avatar-david.webp" alt="David Chen of a plumbing services company" width="160" height="160" loading="lazy">
+            <span><strong>David Chen</strong> Plumbing services</span>
+          </figcaption>
+        </figure>
+
+      </div>
+    </section>
+
+    <!-- 7. Process -->
+    <section id="process">
+      <h2>From first call to first lead.</h2>
+      <ol class="process-rows">
+        <li class="process-row">
+          <span aria-hidden="true">01</span>
+          <div>
+            <h3>Book the call</h3>
+            <p>We map your market, your goals and where jobs are leaking.</p>
+          </div>
+        </li>
+        <li class="process-row">
+          <span aria-hidden="true">02</span>
+          <div>
+            <h3>We build</h3>
+            <p>Website, SEO and campaigns assembled in a 2 to 3 week sprint. You get daily updates.</p>
+          </div>
+        </li>
+        <li class="process-row">
+          <span aria-hidden="true">03</span>
+          <div>
+            <h3>You climb</h3>
+            <p>Leads land. We tune weekly. You book more jobs.</p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- 8. Book a call -->
+    <section id="book">
+      <h2>Let&rsquo;s talk about your project.</h2>
+      <p>30 minutes with Bradley. Free, direct, no pitch deck.</p>
+      <div class="calendly-inline-widget" id="calendly" data-url="https://calendly.com/bradley-hart/30min?hide_gdpr_banner=1"></div>
+      <p>Prefer to skip the widget? <a href="https://calendly.com/bradley-hart/30min" rel="noopener">Book directly on Calendly</a> or email <a href="mailto:bradley@peakleads.agency">bradley@peakleads.agency</a>.</p>
+    </section>
+
+    <!-- 9. FAQ -->
+    <section id="faq">
+      <h2>Questions, answered.</h2>
+      <div class="faq-list">
+        <details class="glass">
+          <summary>Are the leads exclusive?</summary>
+          <p>Yes. Every lead we generate is 100% exclusive to you. We build the campaigns under your own brand and send each lead to you alone. No shared lists, no bidding against five other contractors.</p>
+        </details>
+        <details class="glass">
+          <summary>What does it cost?</summary>
+          <p>Lead generation packages start from $140. Websites, SEO and ad campaigns are scoped on the call, so the price matches your market and your goals. No lock-in contracts.</p>
+        </details>
+        <details class="glass">
+          <summary>How fast is the website live?</summary>
+          <p>Your site is live in 2 to 3 weeks from the first call. You get daily progress updates while we build, so you always know where things stand.</p>
+        </details>
+        <details class="glass">
+          <summary>Do I pay upfront?</summary>
+          <p>No upfront payments. If you are not happy, you do not pay.</p>
+        </details>
+        <details class="glass">
+          <summary>Which trades do you work with?</summary>
+          <p>Roofers, plumbers, HVAC, electrical, solar, landscaping and other home service trades across the US. If your customers search online before they hire, we can help.</p>
+        </details>
+        <details class="glass">
+          <summary>What happens on the call?</summary>
+          <p>You get 30 minutes with Bradley. He maps your market, your goals and where jobs are leaking, then tells you what we would do and what it costs. Free, direct, no pitch deck.</p>
+        </details>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-marquee" aria-hidden="true">
+      <span>PEAKLEADS</span><span>PEAKLEADS</span><span>PEAKLEADS</span><span>PEAKLEADS</span>
+    </div>
+    <div>
+      <p><strong>Peak Leads</strong><br>Websites, SEO and exclusive leads for home service businesses.</p>
+      <p><a href="mailto:bradley@peakleads.agency">bradley@peakleads.agency</a></p>
+      <nav aria-label="Footer">
+        <a href="/">Home</a>
+        <a href="/about/">About</a>
+        <a href="/services/">What We Do</a>
+        <a href="/#testimonials">Testimonials</a>
+        <a href="/blog/">Blog</a>
+        <a href="/free-audit/">Free audit</a>
+        <a href="https://www.instagram.com/bradley_mj_kid" rel="noopener">Instagram</a>
+        <a href="https://za.linkedin.com/in/bradley-hartmann-372785336" rel="noopener">LinkedIn</a>
+      </nav>
+      <p>&copy; <span id="footer-year">2026</span> Peak Leads</p>
+    </div>
+  </footer>
+
+  <a class="say-hi" href="#book" aria-label="Book a call with Bradley">
+    <video src="/assets/videos/bradley.mp4" width="144" height="144" autoplay muted loop playsinline preload="metadata" aria-hidden="true" tabindex="-1"></video>
+    <span aria-hidden="true">Say hi</span>
+  </a>
+
+</body>
 </html>

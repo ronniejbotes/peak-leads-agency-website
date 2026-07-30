@@ -1,7 +1,478 @@
-// Landing page entry point.
-import '../styles/main.css'
-import { initHeroScene } from './three/heroScene.js'
-import { initScrollAnimations } from './animations/scroll.js'
+/*
+ * Peak Leads - src/js/main.js
+ * Landing page entry: always-on utilities + the 3D boot gate.
+ *
+ * Contract (DESIGN.md section 7):
+ * - Dynamic-imports scene.js + scroll.js AFTER first paint
+ *   (requestIdleCallback, setTimeout 1 fallback), so hero text is LCP.
+ * - All-or-nothing gate: prefers-reduced-motion, missing canvas, a failed
+ *   import, scene.init returning false or ANY throw -> body.no-3d and no
+ *   choreography. A choreography failure after the scene started also
+ *   tears everything down to no-3d. The page stays fully readable.
+ * - Always-on utilities run with or without 3D: nav burger, footer year,
+ *   Calendly lazy-load, "Say hi" bubble gating, Facebook Pixel.
+ * - `js-enabled` is added by the tiny inline script in <head>, not here.
+ * - No THREE and no GSAP imports in this file.
+ */
+import '../styles/main.css';
 
-initHeroScene(document.querySelector('#hero-canvas'))
-initScrollAnimations()
+const docEl = document.documentElement;
+const body = document.body || docEl;
+
+const motionQuery =
+  typeof window.matchMedia === 'function'
+    ? window.matchMedia('(prefers-reduced-motion: reduce)')
+    : null;
+
+function prefersReducedMotion() {
+  return !!(motionQuery && motionQuery.matches);
+}
+
+function onMedia(query, handler) {
+  if (!query) return;
+  if (typeof query.addEventListener === 'function') {
+    query.addEventListener('change', handler);
+  } else if (typeof query.addListener === 'function') {
+    query.addListener(handler);
+  }
+}
+
+/* ====================================================================
+ * 3D boot gate
+ * ================================================================== */
+let sceneRef = null;
+let scrollCleanup = null;
+let sceneActive = false;
+let booting = false;
+let pointerBound = false;
+let resizeBound = false;
+
+/* Viewport dims are cached: reading innerWidth/innerHeight per pointer
+   event forces style/layout flushes in several engines. */
+let viewportW = window.innerWidth || 1;
+let viewportH = window.innerHeight || 1;
+
+function sceneCall(method, a, b) {
+  if (sceneRef && typeof sceneRef[method] === 'function') {
+    try {
+      sceneRef[method](a, b);
+    } catch (err) {
+      /* decorative only */
+    }
+  }
+}
+
+function bindPointer() {
+  if (pointerBound) return;
+  pointerBound = true;
+  window.addEventListener(
+    'pointermove',
+    (event) => {
+      if (!sceneActive) return;
+      sceneCall(
+        'setPointer',
+        (event.clientX / viewportW) * 2 - 1,
+        (event.clientY / viewportH) * 2 - 1
+      );
+    },
+    { passive: true }
+  );
+}
+
+function bindResize() {
+  if (resizeBound) return;
+  resizeBound = true;
+  let timer = null;
+  window.addEventListener('resize', () => {
+    if (timer) window.clearTimeout(timer);
+    timer = window.setTimeout(() => {
+      timer = null;
+      viewportW = window.innerWidth || 1;
+      viewportH = window.innerHeight || 1;
+      if (sceneActive) sceneCall('resize');
+      /* ScrollTrigger refreshes itself on resize; nothing to do here. */
+    }, 200);
+  });
+}
+
+function applyNo3D() {
+  body.classList.add('no-3d');
+  sayHiEvaluate();
+}
+
+function teardown3D() {
+  if (scrollCleanup) {
+    try {
+      scrollCleanup();
+    } catch (err) {
+      /* decorative only */
+    }
+    scrollCleanup = null;
+  }
+  if (sceneRef) {
+    sceneCall('destroy');
+    sceneRef = null;
+  }
+  sceneActive = false;
+  docEl.style.setProperty('--scroll-progress', '0');
+  applyNo3D();
+}
+
+function boot3D() {
+  if (sceneActive || booting) return;
+  if (prefersReducedMotion()) {
+    applyNo3D();
+    return;
+  }
+  const canvas = document.getElementById('scene-canvas');
+  if (!canvas) {
+    applyNo3D();
+    return;
+  }
+  booting = true;
+  Promise.all([import('./scene.js'), import('./scroll.js')])
+    .then(([sceneMod, scrollMod]) => {
+      booting = false;
+      /* Preference may have flipped while the chunks loaded. */
+      if (prefersReducedMotion()) {
+        applyNo3D();
+        return;
+      }
+      const scene = sceneMod.PeakScene;
+      let ok = false;
+      try {
+        ok = !!scene && scene.init(canvas, {}) !== false;
+      } catch (err) {
+        ok = false;
+      }
+      if (!ok) {
+        applyNo3D();
+        return;
+      }
+      sceneRef = scene;
+      sceneActive = true;
+      body.classList.remove('no-3d');
+      try {
+        scrollCleanup = scrollMod.initScrollChoreography(scene);
+      } catch (err) {
+        /* Scene without working choreography strands content: all or
+           nothing, back to the static experience. */
+        teardown3D();
+        return;
+      }
+      bindPointer();
+      bindResize();
+      sayHiEvaluate();
+    })
+    .catch(() => {
+      booting = false;
+      applyNo3D();
+    });
+}
+
+function scheduleBoot() {
+  const idle = (cb) => {
+    if (typeof window.requestIdleCallback === 'function') {
+      window.requestIdleCallback(cb);
+    } else {
+      window.setTimeout(cb, 1);
+    }
+  };
+  /* Double rAF lets the first paint land before any chunk work starts. */
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => idle(boot3D));
+  });
+}
+
+onMedia(motionQuery, () => {
+  if (prefersReducedMotion()) {
+    teardown3D();
+  } else {
+    boot3D();
+  }
+});
+
+/* Landing on a /#hash from another page: the browser performs its anchor
+   jump before ScrollTrigger inserts the conveyor's pin spacer, so the
+   target ends up further down than where the browser left us. Re-aim once
+   ScrollTrigger's own load refresh has run. */
+window.addEventListener('load', () => {
+  if (!location.hash || location.hash.length < 2) return;
+  let target = null;
+  try {
+    target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+  } catch (err) {
+    target = null;
+  }
+  if (!target) return;
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      target.scrollIntoView({ block: 'start' });
+    });
+  });
+});
+
+/* bfcache restore freezes the WebGL scene and every pin measurement at
+   their pre-navigation state; re-measuring mid-scroll is not reliable with
+   a pinned section. A fresh load rebuilds cleanly and scrollRestoration
+   puts the visitor back where they were. Only needed when 3D actually ran. */
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted && sceneActive) window.location.reload();
+});
+
+/* ====================================================================
+ * Nav burger (<900px dropdown). State lives on aria-expanded plus a
+ * data-open attribute on .site-nav for CSS to target.
+ * ================================================================== */
+function initNav() {
+  const nav = document.querySelector('.site-nav');
+  const burger = document.querySelector('.nav-burger');
+  const links = document.querySelector('.nav-links');
+  if (!nav || !burger || !links) return;
+
+  function isOpen() {
+    return burger.getAttribute('aria-expanded') === 'true';
+  }
+
+  function setOpen(open) {
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) {
+      nav.setAttribute('data-open', '');
+    } else {
+      nav.removeAttribute('data-open');
+    }
+  }
+
+  setOpen(isOpen());
+
+  burger.addEventListener('click', () => setOpen(!isOpen()));
+
+  document.addEventListener('keydown', (event) => {
+    if ((event.key === 'Escape' || event.key === 'Esc') && isOpen()) {
+      setOpen(false);
+      burger.focus();
+    }
+  });
+
+  /* Close when a menu link is chosen (anchor navigation on one page). */
+  links.addEventListener('click', (event) => {
+    const target = event.target;
+    const link =
+      target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (link && isOpen()) setOpen(false);
+  });
+}
+
+/* ====================================================================
+ * Footer year
+ * ================================================================== */
+function initYear() {
+  const year = String(new Date().getFullYear());
+  const el = document.querySelector('[data-year], #year');
+  if (el) {
+    el.textContent = year;
+    return;
+  }
+  /* Fallback: rewrite the year inside the footer's copyright text node. */
+  const footer = document.querySelector('.site-footer');
+  if (!footer || typeof document.createTreeWalker !== 'function' || !window.NodeFilter) {
+    return;
+  }
+  const walker = document.createTreeWalker(footer, NodeFilter.SHOW_TEXT, null);
+  let node;
+  while ((node = walker.nextNode())) {
+    if (/\b20\d{2}\b/.test(node.nodeValue || '')) {
+      node.nodeValue = node.nodeValue.replace(/\b20\d{2}\b/, year);
+      return;
+    }
+  }
+}
+
+/* ====================================================================
+ * Calendly lazy-load. The inline embed div in #book carries data-url;
+ * Calendly's widget.js initializes it once injected. Injection happens
+ * when #book is within 800px of the viewport (or on load without IO).
+ * ================================================================== */
+let calendlyInjected = false;
+
+function injectCalendly() {
+  if (calendlyInjected) return;
+  calendlyInjected = true;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'https://assets.calendly.com/assets/external/widget.css';
+  document.head.appendChild(link);
+  const script = document.createElement('script');
+  script.src = 'https://assets.calendly.com/assets/external/widget.js';
+  script.async = true;
+  document.head.appendChild(script);
+}
+
+function initCalendly() {
+  const book = document.getElementById('book');
+  if (!book) return;
+
+  /* Booked-call conversion: Calendly posts a message when an event is
+     scheduled inside the embed. */
+  window.addEventListener('message', (event) => {
+    if (!event || !event.data || event.data.event !== 'calendly.event_scheduled') return;
+    if (
+      typeof event.origin === 'string' &&
+      event.origin.indexOf('calendly.com') === -1
+    ) {
+      return;
+    }
+    if (typeof window.fbq === 'function') {
+      window.fbq('trackCustom', 'CallScheduled');
+    }
+  });
+
+  if (!('IntersectionObserver' in window)) {
+    if (document.readyState === 'complete') {
+      injectCalendly();
+    } else {
+      window.addEventListener('load', injectCalendly, { once: true });
+    }
+    return;
+  }
+
+  const observer = new window.IntersectionObserver(
+    (entries) => {
+      for (let i = 0; i < entries.length; i++) {
+        if (entries[i].isIntersecting) {
+          observer.disconnect();
+          injectCalendly();
+          break;
+        }
+      }
+    },
+    { rootMargin: '800px 0px' }
+  );
+  observer.observe(book);
+}
+
+/* ====================================================================
+ * "Say hi" bubble. Shown only when the 3D experience is running
+ * (body not .no-3d), on precise pointers at >=900px. Hidden while #book
+ * is on screen so it never covers the Calendly embed.
+ * ================================================================== */
+const mqPointerFine =
+  typeof window.matchMedia === 'function'
+    ? window.matchMedia('(pointer: fine)')
+    : null;
+const mqWide =
+  typeof window.matchMedia === 'function'
+    ? window.matchMedia('(min-width: 900px)')
+    : null;
+
+const sayHi = { el: null, video: null, nearBook: false };
+
+function sayHiUpdate() {
+  if (!sayHi.el) return;
+  const eligible =
+    sceneActive &&
+    !body.classList.contains('no-3d') &&
+    !!(mqPointerFine && mqPointerFine.matches) &&
+    !!(mqWide && mqWide.matches);
+  const show = eligible && !sayHi.nearBook;
+  sayHi.el.hidden = !show;
+  if (sayHi.video) {
+    if (show) {
+      sayHi.video.muted = true;
+      const played = sayHi.video.play();
+      if (played && typeof played.catch === 'function') {
+        played.catch(() => {});
+      }
+    } else if (!sayHi.video.paused) {
+      sayHi.video.pause();
+    }
+  }
+}
+
+function sayHiEvaluate() {
+  sayHiUpdate();
+}
+
+function initSayHi() {
+  sayHi.el = document.querySelector('.say-hi');
+  if (!sayHi.el) return;
+  sayHi.video = sayHi.el.querySelector('video');
+
+  const book = document.getElementById('book');
+  if (book && 'IntersectionObserver' in window) {
+    new window.IntersectionObserver(
+      (entries) => {
+        for (let i = 0; i < entries.length; i++) {
+          sayHi.nearBook = entries[i].isIntersecting;
+        }
+        sayHiUpdate();
+      },
+      { threshold: 0 }
+    ).observe(book);
+  }
+
+  onMedia(mqPointerFine, sayHiUpdate);
+  onMedia(mqWide, sayHiUpdate);
+  sayHiUpdate();
+}
+
+/* ====================================================================
+ * Facebook Pixel. Deferred: loads after (window load + 1.5s) OR the
+ * first pointerdown/keydown, whichever comes first, once.
+ * ================================================================== */
+const PIXEL_ID = '1586557796001231';
+let pixelLoaded = false;
+
+function loadPixel() {
+  if (pixelLoaded) return;
+  pixelLoaded = true;
+  if (!window.fbq) {
+    const n = (window.fbq = function () {
+      if (n.callMethod) {
+        n.callMethod.apply(n, arguments);
+      } else {
+        n.queue.push(arguments);
+      }
+    });
+    if (!window._fbq) window._fbq = n;
+    n.push = n;
+    n.loaded = true;
+    n.version = '2.0';
+    n.queue = [];
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://connect.facebook.net/en_US/fbevents.js';
+    document.head.appendChild(script);
+  }
+  window.fbq('init', PIXEL_ID);
+  window.fbq('track', 'PageView');
+}
+
+function armPixel() {
+  window.addEventListener('pointerdown', loadPixel, { once: true, passive: true });
+  window.addEventListener('keydown', loadPixel, { once: true });
+  const afterLoad = () => window.setTimeout(loadPixel, 1500);
+  if (document.readyState === 'complete') {
+    afterLoad();
+  } else {
+    window.addEventListener('load', afterLoad, { once: true });
+  }
+}
+
+/* ====================================================================
+ * Boot
+ * ================================================================== */
+function init() {
+  initNav();
+  initYear();
+  initCalendly();
+  initSayHi();
+  armPixel();
+  scheduleBoot();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}

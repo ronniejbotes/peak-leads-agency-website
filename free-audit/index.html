@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Get Your Free Marketing Audit | Peak Leads</title>
+  <meta name="description" content="Eight quick questions about your business. Bradley reviews every audit request personally and replies within one business day with a clear plan and pricing.">
+  <link rel="canonical" href="https://peakleads.agency/free-audit/">
+  <meta name="theme-color" content="#0D0C0A">
+  <link rel="icon" href="/assets/images/logo.webp" type="image/webp">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Peak Leads">
+  <meta property="og:title" content="Get Your Free Marketing Audit | Peak Leads">
+  <meta property="og:description" content="Answer eight quick questions. We review your answers and reply within one business day with what we'd do, what it costs, and whether we're the right fit.">
+  <meta property="og:url" content="https://peakleads.agency/free-audit/">
+  <meta property="og:image" content="https://peakleads.agency/assets/images/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Peak Leads: websites, SEO and exclusive leads for home service businesses.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Get Your Free Marketing Audit | Peak Leads">
+  <meta name="twitter:description" content="Answer eight quick questions. We review your answers and reply within one business day with what we'd do, what it costs, and whether we're the right fit.">
+  <meta name="twitter:image" content="https://peakleads.agency/assets/images/og-image.jpg">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Get Your Free Marketing Audit",
+    "url": "https://peakleads.agency/free-audit/",
+    "description": "Eight quick questions about your business. Bradley reviews every audit request personally and replies within one business day with a clear plan and pricing.",
+    "publisher": { "@type": "Organization", "name": "Peak Leads", "url": "https://peakleads.agency" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://peakleads.agency/" },
+      { "@type": "ListItem", "position": 2, "name": "Free audit", "item": "https://peakleads.agency/free-audit/" }
+    ]
+  }
+  </script>
+  <script>document.documentElement.classList.add('js-enabled')</script>
+  <script type="module" src="/src/js/audit.js"></script>
+</head>
+<body>
+
+  <canvas id="scene-canvas" aria-hidden="true"></canvas>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="progress-track" aria-hidden="true"><i id="progress-fill"></i></div>
+
+  <div class="audit-shell">
+
+    <header>
+      <a href="/" aria-label="Peak Leads home">
+        <img src="/assets/images/logo.webp" alt="" width="40" height="40">
+        <strong>PeakLeads</strong>
+      </a>
+      <a href="/">peakleads.agency</a>
+      <a href="/" aria-label="Close the audit and go back to the homepage">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg>
+      </a>
+    </header>
+
+    <main id="main">
+
+      <div class="q-meta">
+        <button type="button" id="back-btn" hidden>&#8592; Back</button>
+        <span id="step-count" aria-live="polite"></span>
+      </div>
+
+      <div class="screen in" id="screen-intro">
+        <p class="eyebrow">Free audit</p>
+        <h1>Get your free audit.</h1>
+        <p class="q-sub">Eight quick questions. We review your answers and reply within one business day with what we'd do, what it costs, and whether we're the right fit.</p>
+        <div>
+          <button type="button" class="btn btn-primary" data-next>Start</button>
+          <small>press Enter &#8629;</small>
+        </div>
+      </div>
+
+      <div class="screen" id="screen-1" hidden>
+        <p class="q-num" aria-hidden="true">1 &#8594;</p>
+        <label class="q-label" for="f-name">What's your name?</label>
+        <input id="f-name" name="name" type="text" autocomplete="name" maxlength="100" placeholder="Your name" enterkeyhint="next" aria-describedby="err-name">
+        <p class="field-error" id="err-name" aria-live="polite"></p>
+        <div>
+          <button type="button" class="btn btn-primary" data-next>Next</button>
+          <small>press Enter &#8629;</small>
+        </div>
+      </div>
+
+      <div class="screen" id="screen-2" hidden>
+        <p class="q-num" aria-hidden="true">2 &#8594;</p>
+        <label class="q-label" for="f-email">What's your business email?</label>
+        <p class="q-sub">This is where we reply once we've reviewed your answers.</p>
+        <input id="f-email" name="email" type="email" autocomplete="email" maxlength="254" placeholder="you@company.com" enterkeyhint="next" aria-describedby="err-email">
+        <p class="field-error" id="err-email" aria-live="polite"></p>
+        <div>
+          <button type="button" class="btn btn-primary" data-next>Next</button>
+          <small>press Enter &#8629;</small>
+        </div>
+      </div>
+
+      <div class="screen" id="screen-3" hidden>
+        <p class="q-num" aria-hidden="true">3 &#8594;</p>
+        <label class="q-label" for="f-phone">What's the best contact number?</label>
+        <input id="f-phone" name="phone" type="tel" autocomplete="tel" maxlength="40" placeholder="+1 555 013 4297" enterkeyhint="next" aria-describedby="err-phone">
+        <p class="field-error" id="err-phone" aria-live="polite"></p>
+        <div>
+          <button type="button" class="btn btn-primary" data-next>Next</button>
+          <small>press Enter &#8629;</small>
+        </div>
+      </div>
+
+      <div class="screen" id="screen-4" hidden>
+        <p class="q-num" aria-hidden="true">4 &#8594;</p>
+        <label class="q-label" for="f-business">What's your business called?</label>
+        <input id="f-business" name="business" type="text" autocomplete="organization" maxlength="120" placeholder="Summit Roofing" enterkeyhint="next" aria-describedby="err-business">
+        <p class="field-error" id="err-business" aria-live="polite"></p>
+        <div>
+          <button type="button" class="btn btn-primary" data-next>Next</button>
+          <small>press Enter &#8629;</small>
+        </div>
+      </div>
+
+      <div class="screen" id="screen-5" hidden>
+        <p class="q-num" aria-hidden="true">5 &#8594;</p>
+        <label class="q-label" for="f-trade">What's your trade?</label>
+        <p class="q-sub">Pick one from the list or type your own.</p>
+        <input id="f-trade" name="trade" type="text" list="trade-list" autocomplete="off" maxlength="120" placeholder="e.g. Roofing" enterkeyhint="next" aria-describedby="err-trade">
+        <datalist id="trade-list">
+          <option value="Roofing"></option>
+          <option value="Plumbing"></option>
+          <option value="HVAC"></option>
+          <option value="Electrical"></option>
+          <option value="Solar"></option>
+          <option value="Construction"></option>
+          <option value="Landscaping"></option>
+          <option value="Painting"></option>
+          <option value="Garage Doors"></option>
+          <option value="Pest Control"></option>
+          <option value="Other"></option>
+        </datalist>
+        <p class="field-error" id="err-trade" aria-live="polite"></p>
+        <div>
+          <button type="button" class="btn btn-primary" data-next>Next</button>
+          <small>press Enter &#8629;</small>
+        </div>
+      </div>
+
+      <fieldset class="screen" id="screen-6" hidden>
+        <legend class="q-label"><span class="q-num" aria-hidden="true">6 &#8594;</span>Which service are you interested in?</legend>
+        <div class="option-grid">
+          <label class="option-card"><input type="radio" name="service" value="Web Design" aria-describedby="err-service"><span>Web Design</span></label>
+          <label class="option-card"><input type="radio" name="service" value="SEO" aria-describedby="err-service"><span>SEO</span></label>
+          <label class="option-card"><input type="radio" name="service" value="Google Ads and Meta Ads" aria-describedby="err-service"><span>Google Ads and Meta Ads</span></label>
+          <label class="option-card"><input type="radio" name="service" value="Lead Generation" aria-describedby="err-service"><span>Lead Generation</span></label>
+          <label class="option-card"><input type="radio" name="service" value="Not sure yet, recommend for me" aria-describedby="err-service"><span>Not sure yet, recommend for me</span></label>
+        </div>
+        <p class="field-error" id="err-service" aria-live="polite"></p>
+        <div>
+          <button type="button" class="btn btn-primary" data-next>Next</button>
+          <small>press Enter &#8629;</small>
+        </div>
+      </fieldset>
+
+      <fieldset class="screen" id="screen-7" hidden>
+        <legend class="q-label"><span class="q-num" aria-hidden="true">7 &#8594;</span>What's your current monthly ad spend?</legend>
+        <div class="option-grid">
+          <label class="option-card"><input type="radio" name="adSpend" value="Not spending yet" aria-describedby="err-spend"><span>Not spending yet</span></label>
+          <label class="option-card"><input type="radio" name="adSpend" value="Under $500" aria-describedby="err-spend"><span>Under $500</span></label>
+          <label class="option-card"><input type="radio" name="adSpend" value="$500 to $2,000" aria-describedby="err-spend"><span>$500 to $2,000</span></label>
+          <label class="option-card"><input type="radio" name="adSpend" value="$2,000 to $10,000" aria-describedby="err-spend"><span>$2,000 to $10,000</span></label>
+          <label class="option-card"><input type="radio" name="adSpend" value="Over $10,000" aria-describedby="err-spend"><span>Over $10,000</span></label>
+        </div>
+        <p class="field-error" id="err-spend" aria-live="polite"></p>
+        <div>
+          <button type="button" class="btn btn-primary" data-next>Next</button>
+          <small>press Enter &#8629;</small>
+        </div>
+      </fieldset>
+
+      <div class="screen" id="screen-8" hidden>
+        <p class="q-num" aria-hidden="true">8 &#8594;</p>
+        <label class="q-label" for="f-website">What's your website address?</label>
+        <p class="q-sub">We'll review it before your audit. No website yet? That's fine.</p>
+        <input id="f-website" name="website" type="text" inputmode="url" autocomplete="url" autocapitalize="none" spellcheck="false" maxlength="500" placeholder="yourbusiness.com" enterkeyhint="send" aria-describedby="err-website">
+        <p class="field-error" id="err-website" aria-live="polite"></p>
+        <div>
+          <button type="button" class="btn btn-primary" data-next>Send my answers</button>
+          <small>press Enter &#8629;</small>
+        </div>
+        <div>
+          <button type="button" class="btn btn-ghost" id="no-site-btn">I don't have a website yet</button>
+        </div>
+      </div>
+
+      <div class="screen" id="screen-thanks" hidden>
+        <h2 class="q-label" tabindex="-1">You're on the way up.</h2>
+        <p class="q-sub">Your answers are in. Bradley reviews every one personally and replies within one business day.</p>
+        <p class="field-error" id="send-fallback" aria-live="polite" hidden>Your answers could not be sent automatically. <a id="send-mailto" href="mailto:bradley@peakleads.agency">Email them to us</a> and we will take it from there.</p>
+        <div>
+          <a class="btn btn-primary" href="https://calendly.com/bradley-hart/30min">Book a call now</a>
+          <a class="btn btn-ghost" href="/">Back to the site</a>
+        </div>
+      </div>
+
+      <div aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;">
+        <label for="pl-extra">Leave this field empty</label>
+        <input id="pl-extra" name="pl_extra" type="text" tabindex="-1" autocomplete="off">
+      </div>
+
+      <noscript>
+        <p>This page needs JavaScript to run the eight question flow. Prefer to skip it? <a href="/contact/">Contact us directly</a>. We reply within one business day.</p>
+      </noscript>
+
+    </main>
+  </div>
+
+</body>
+</html>
