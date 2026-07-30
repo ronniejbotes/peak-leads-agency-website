@@ -106,6 +106,7 @@ export function initScrollChoreography(scene) {
   }
 
   function measureParks() {
+    viewportW = window.innerWidth;
     measurePark(heroCopy, 0);
     for (let i = 0; i < stations.length && i < 4; i++) {
       measurePark(stations[i].querySelector('.station-inner'), i + 1);
@@ -121,22 +122,39 @@ export function initScrollChoreography(scene) {
       sceneCall('setLateral', 0, 0);
       return;
     }
-    /* A content-avoidance zone owns the machine while active. */
-    if (zoneStack.length) return;
-    if (!lateralEnabled) {
+    if (!lateralEnabled && zoneT <= 0) {
       sceneCall('setLateral', 0, 0);
       return;
     }
-    /* parks are indexed hero 0, stations 1..4. Stations hold formations
-       2..5 (PEAK 0 and PLAY 1 both live above them), so formation space
-       maps to park space shifted down by 1. */
-    const pf = clamp(0, 4, f - 1);
-    const i = Math.min(Math.floor(pf), 3);
-    let t = clamp(0, 1, (pf - i - 0.25) / 0.5);
-    t = t * t * (3 - 2 * t); /* smoothstep */
-    const off = parkOffset[i] + (parkOffset[i + 1] - parkOffset[i]) * t;
-    const strip = parkStrip[i] + (parkStrip[i + 1] - parkStrip[i]) * t;
-    sceneCall('setLateral', off, strip);
+    /* Park target in viewport FRACTIONS (setLateral reads |v| <= 1 as a
+       fraction) so it can blend with the zone gutter below.
+       parks are indexed hero 0, stations 1..4. Stations hold formations
+       2..5 (ARROWS 0 and PLAY 1 both live above them), so formation
+       space maps to park space shifted down by 1. */
+    let offFrac = 0;
+    let stripFrac = 0;
+    if (lateralEnabled) {
+      const pf = clamp(0, 4, f - 1);
+      const i = Math.min(Math.floor(pf), 3);
+      let t = clamp(0, 1, (pf - i - 0.25) / 0.5);
+      t = t * t * (3 - 2 * t); /* smoothstep */
+      const halfW = viewportW / 2;
+      offFrac =
+        (parkOffset[i] + (parkOffset[i + 1] - parkOffset[i]) * t) / halfW;
+      stripFrac =
+        (parkStrip[i] + (parkStrip[i + 1] - parkStrip[i]) * t) / viewportW;
+    }
+    /* Scrubbed blend toward the #vsl left gutter. A park strip of 0
+       means "unconstrained", so blend from a full-width strip instead -
+       passing a near-zero strip through the mix would shrink the
+       machine to a dot on the way across. */
+    const zt = zoneT * zoneT * (3 - 2 * zoneT);
+    if (zt > 0) {
+      const baseStrip = stripFrac > 0 ? stripFrac : 1;
+      offFrac += (ZONE_SIDE * 0.86 - offFrac) * zt;
+      stripFrac = baseStrip + (ZONE_STRIP - baseStrip) * zt;
+    }
+    sceneCall('setLateral', offFrac, stripFrac);
   }
 
   /* ==================================================================
@@ -147,39 +165,30 @@ export function initScrollChoreography(scene) {
    * ================================================================== */
   const dimState = [false, false];
 
-  /* Content-avoidance zones (desktop): while a content section occupies
-     the viewport the machine swims to a gutter beside it, scaled down to
-     the strip and slightly dimmed, so copy is never obstructed. From
-     #work onward the machine is the endgame sphere and never dodges
-     again, so only the sections above it keep zones. Stack (not a flag)
-     so overlapping ranges hand off cleanly. */
-  const zoneStack = [];
+  /* Content-avoidance for #vsl (desktop): while the video occupies the
+     viewport the machine swims to the LEFT gutter beside it, scaled to
+     the strip and slightly dimmed. zoneT is SCRUBBED 0..1 by a trigger
+     inside the matchMedia block, and applyLateral blends the park target
+     toward the gutter by it - the swing across the screen is tied to
+     scroll position, so it can never snap the way the old on/off toggle
+     did. From #work onward the endgame sphere owns the machine and never
+     dodges again. */
+  let zoneT = 0;
+  const ZONE_SIDE = -1;
+  const ZONE_STRIP = 0.24;
+  const ZONE_DIM = 0.7;
+  let viewportW = window.innerWidth;
   /* 0..1 progress of the GROWTH -> SPHERE endgame morph. While > 0 the
      sphere owns the machine: dead center, no parking, no zones. */
   let sphereT = 0;
-  function zoneTop() {
-    return zoneStack.length ? zoneStack[zoneStack.length - 1] : null;
-  }
-  function applyZones() {
-    const z = zoneTop();
-    if (z) {
-      /* offset/strip as viewport fractions; the scene clamps and fits */
-      sceneCall('setLateral', z.side * 0.86, z.strip);
-    } else if (lateralEnabled) {
-      applyLateral(lastF);
-    } else {
-      sceneCall('setLateral', 0, 0);
-    }
-    applyDim();
-  }
 
   function applyDim() {
     let base = dimState[0] || dimState[1] ? 0.4 : 1;
     /* The endgame sphere recedes a touch so it reads as a background
        behind content, never a wash over it. */
     if (sphereT > 0) base = Math.min(base, 1 - 0.25 * sphereT);
-    const z = zoneTop();
-    sceneCall('setDim', Math.min(base, z ? z.dim : 1));
+    const zt = zoneT * zoneT * (3 - 2 * zoneT);
+    sceneCall('setDim', Math.min(base, 1 - (1 - ZONE_DIM) * zt));
   }
 
   const ctx = gsap.context(() => {
@@ -227,13 +236,15 @@ export function initScrollChoreography(scene) {
     }
 
     /* --------------------------------------------------------------
-     * 2b. Approach morph: PEAK -> PLAY (formation 0 -> 1) scrubbed over
-     * the run-up to the video section, at station pace, so the first
-     * change forms with the scroll instead of snapping. It starts while
-     * the proof ring is wrapping the stats (the melt hides under the
-     * ring) and completes with the video in the upper third.
-     * ScrollTrigger updates run in start-position order, so the station
-     * driver below outranks this one wherever they could both write.
+     * 2b. Approach morph: ARROWS -> PLAY (formation 0 -> 1), scrubbed
+     * over the video section's entry into the viewport. Starts exactly
+     * as #vsl's top crosses the fold - never before, so a fresh load at
+     * the top of the page always shows pure arrows (a start below the
+     * fold, like the old 'top 120%', is already inside the trigger on
+     * load and leaves the machine half-morphed at scroll 0). Fully
+     * formed once the section is ~a third of the way in; the play glyph
+     * then holds until #services starts entering, where the station
+     * driver takes over (its first leg starts at exactly f = 1).
      * -------------------------------------------------------------- */
     const vsl = document.querySelector('#vsl');
 
@@ -247,8 +258,8 @@ export function initScrollChoreography(scene) {
     if (vsl) {
       ScrollTrigger.create({
         trigger: vsl,
-        start: 'top 120%',
-        end: 'top 30%',
+        start: 'top bottom',
+        end: 'top 70%',
         scrub: 0.6,
         onUpdate: applyPlayMorph,
         onRefresh: applyPlayMorph
@@ -271,9 +282,20 @@ export function initScrollChoreography(scene) {
      *     a = 700/150 = 4.67  (one formation per 150vh of scroll)
      *     b = 2 - a * 125/700 = 1.166
      * scrub 0.6 smooths the small seam against the PLAY hold above.
+     *
+     * The first leg is piecewise so the driver activates at EXACTLY the
+     * held PLAY value (f = 1) instead of the linear map's 1.166 - that
+     * offset used to make the machine visibly jump the moment #services
+     * entered. PLAY starts melting into FRAME immediately as #services
+     * enters the viewport (~125vh of travel, station pace), landing on
+     * f = 2 at station 1's hold center where the linear map takes over -
+     * both legs meet at exactly 2, so no seam.
      * -------------------------------------------------------------- */
+    const CENTER1_P = 125 / 700; /* station 1 hold center */
     function applyFormation(self) {
-      const f = clamp(1, 5, self.progress * 4.67 + 1.166);
+      const p = self.progress;
+      const f =
+        p < CENTER1_P ? 1 + p / CENTER1_P : clamp(2, 5, p * 4.67 + 1.166);
       lastF = f;
       sceneCall('setFormation', f);
       applyLateral(f);
@@ -411,34 +433,32 @@ export function initScrollChoreography(scene) {
       }
 
       /* ------------------------------------------------------------
-       * Content-avoidance zones. Only the sections above the endgame
-       * sphere keep one: from #work onward the machine is a centered
-       * background and never dodges. Only >=900px: below that the
-       * canvas is already calmed by CSS (opacity + halos).
+       * Scrubbed #vsl gutter. zoneT ramps in as the video enters
+       * (p 0.10 -> 0.35 of its bottom-to-top pass) and back out as it
+       * leaves (p 0.70 -> 1.0), overlapping the PLAY -> FRAME morph,
+       * so the machine glides left-to-right across the handoff in
+       * lockstep with the scroll instead of lurching on a toggle.
+       * Only >=900px: below that the canvas is already calmed by CSS.
        * ------------------------------------------------------------ */
-      const ZONES = [['#vsl', -1, 0.7, 0.24]];
-      function zoneSet(zone, active) {
-        const idx = zoneStack.indexOf(zone);
-        if (active && idx === -1) zoneStack.push(zone);
-        if (!active && idx !== -1) zoneStack.splice(idx, 1);
-        applyZones();
-      }
-      ZONES.forEach(([sel, side, dim, strip]) => {
-        const el = document.querySelector(sel);
-        if (!el) return;
-        const zone = { side, dim, strip };
+      if (vsl) {
+        const applyZone = (self) => {
+          const p = self.progress;
+          zoneT = Math.min(
+            clamp(0, 1, (p - 0.1) / 0.25),
+            clamp(0, 1, (1 - p) / 0.3)
+          );
+          applyLateral(lastF);
+          applyDim();
+        };
         ScrollTrigger.create({
-          trigger: el,
-          start: 'top 60%',
-          end: 'bottom 40%',
-          onToggle(self) {
-            zoneSet(zone, self.isActive);
-          },
-          onRefresh(self) {
-            zoneSet(zone, self.isActive);
-          }
+          trigger: vsl,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true,
+          onUpdate: applyZone,
+          onRefresh: applyZone
         });
-      });
+      }
 
       /* #proof is special: instead of dodging to a gutter, the machine
          becomes a thin particle ring that lassos the stats strip
@@ -490,7 +510,7 @@ export function initScrollChoreography(scene) {
 
       return () => {
         lateralEnabled = false;
-        zoneStack.length = 0;
+        zoneT = 0;
         sceneCall('setRing', 0);
         sceneCall('setLateral', 0, 0);
         applyDim();

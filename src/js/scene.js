@@ -14,7 +14,7 @@
      setCondense(c)      // -1..1 implosion / bang
      resize(), destroy()
 
-   Formations: 0 PEAK, 1 PLAY, 2 FRAME, 3 RANKS, 4 FUNNEL, 5 GROWTH,
+   Formations: 0 ARROWS, 1 PLAY, 2 FRAME, 3 RANKS, 4 FUNNEL, 5 GROWTH,
    6 SPHERE (endgame globe, tumbles in place at screen center).
    Colors: chalk #D9C7A0 <-> bone #F2EFE9 uniforms only. Dust layer #6b6456.
    ========================================================================== */
@@ -59,48 +59,44 @@ function clamp(v, lo, hi) {
  * Formation generators - each returns Float32Array(count * 3)
  * ------------------------------------------------------------------ */
 
-// 0 - PEAK: gaussian mountain ridgeline with a sharp central summit.
-// Silhouette H(x) = sum of three gaussians: a tall NARROW central spike
-// (sigma 0.36 against a 4.8-unit base reads sharp) plus two lower shoulders,
-// with a small sine term for rocky texture. Depth (z, gaussian sigma 0.4)
-// thins the crest so it reads as a ridgeline, not a wall:
-// H *= 0.72 + 0.28 * exp(-z^2 / 0.24).
-// 30% of points trace the crest line itself (tight z, tiny jitter) for a
-// crisp silhouette; the rest fill the massif below via y = base + H*(1-u^2),
-// which piles density toward the surface. Half-width ~2.4.
-function buildPeak(count) {
+// 0 - ARROWS: three upward-pointing arrows (short, tall, medium) rising
+// side by side. Bases stay separate - no shared ground bar. Baseline sits
+// at -0.9 with the tall tip reaching ~2.0, so the group rides the UPPER
+// half of the hero frame. Points are split across arrows proportionally
+// to height; within an arrow ~45% fill the thin shaft strip and the rest
+// fill the triangular head (area-uniform, widest at the head base). Thin
+// z slab so it reads as a flat glyph.
+function buildArrows(count) {
   const arr = new Float32Array(count * 3);
-  const half = 2.4; // ridge half-width
-  const base = -0.95; // ground line, raised so the hero massif rides higher in frame
-  const crestN = Math.floor(count * 0.3);
-
-  const profile = (x) =>
-    2.6 * Math.exp((-x * x) / (2 * 0.36 * 0.36)) +
-    1.05 * Math.exp((-(x + 1.45) * (x + 1.45)) / (2 * 0.52 * 0.52)) +
-    0.85 * Math.exp((-(x - 1.35) * (x - 1.35)) / (2 * 0.46 * 0.46)) +
-    0.09 * Math.sin(x * 5.1) +
-    0.12;
+  const X = [-1.55, 0, 1.55]; // arrow centers
+  const H = [1.7, 2.9, 2.2]; // total heights, shaft + head
+  const BASE = -0.9;
+  const HEAD_H = 0.8;
+  const HEAD_W = 0.62; // head half-width
+  const SHAFT_W = 0.17; // shaft full width
+  const totalH = H[0] + H[1] + H[2];
 
   for (let i = 0; i < count; i++) {
-    // bias x toward the summit so density peaks at the peak
-    const x =
-      Math.random() < 0.45
-        ? clamp(gauss() * 0.85, -half, half)
-        : (Math.random() * 2 - 1) * half;
-    const z = clamp(gauss() * 0.4, -0.9, 0.9);
-    const H = profile(x) * (0.72 + 0.28 * Math.exp((-z * z) / 0.24));
+    const pick = Math.random() * totalH;
+    const a = pick < H[0] ? 0 : pick < H[0] + H[1] ? 1 : 2;
+    const tipY = BASE + H[a];
+    const headBase = tipY - HEAD_H;
+    let x;
     let y;
-    if (i < crestN) {
-      // crest silhouette line
-      y = base + H + (Math.random() - 0.5) * 0.06;
+    if (Math.random() < 0.45) {
+      // shaft: dense strip from the base up into the head
+      x = X[a] + (Math.random() - 0.5) * SHAFT_W;
+      y = BASE + Math.random() * (H[a] - HEAD_H * 0.65);
     } else {
-      // body fill, denser near the surface (dy/du -> 0 at u = 0)
-      const u = Math.random();
-      y = base + H * (1 - u * u);
+      // head: filled triangle, area-uniform so the base stays widest
+      const t = 1 - Math.sqrt(Math.random()); // 0 head base -> 1 tip
+      const w = HEAD_W * (1 - t);
+      x = X[a] + (Math.random() * 2 - 1) * w;
+      y = headBase + t * HEAD_H;
     }
-    arr[i * 3] = x;
-    arr[i * 3 + 1] = y;
-    arr[i * 3 + 2] = z * (i < crestN ? 0.45 : 1);
+    arr[i * 3] = x + (Math.random() - 0.5) * 0.04;
+    arr[i * 3 + 1] = y + (Math.random() - 0.5) * 0.04;
+    arr[i * 3 + 2] = (Math.random() - 0.5) * 0.15;
   }
   return arr;
 }
@@ -524,10 +520,10 @@ uniform float uRingCenter; // vertical center of the ellipse (local units)
 varying float vAlpha;
 
 // Per-formation idle motion, applied to raw formation positions.
-// Ids: 0 PEAK, 1 PLAY, 2 FRAME, 3 RANKS, 4 FUNNEL, 5 GROWTH, 6 SPHERE.
+// Ids: 0 ARROWS, 1 PLAY, 2 FRAME, 3 RANKS, 4 FUNNEL, 5 GROWTH, 6 SPHERE.
 vec3 animatePos(vec3 p, float form) {
   if (form < 0.5) {
-    // 0 PEAK: slight breathing of the massif
+    // 0 ARROWS: slight breathing of the group
     float b = 1.0 + 0.025 * sin(uTime * 0.7 + aSeed.x * 6.2831);
     return p * b;
   } else if (form < 1.5) {
@@ -872,7 +868,7 @@ function init(canvas, opts = {}) {
 
     // ---- formations -------------------------------------------------
     const formations = [
-      buildPeak(count),
+      buildArrows(count),
       buildPlay(count),
       buildFrame(count),
       buildRanks(count),
