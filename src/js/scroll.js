@@ -484,9 +484,14 @@ export function initScrollChoreography(scene) {
         };
         const applyRing = (self) => {
           const p = self.progress;
-          /* Wrap 0.12 -> 0.42, hold, release 0.58 -> 0.88. */
+          /* Wrap 0.28 -> 0.5 (stats centered), hold, release
+             0.58 -> 0.88. The wrap starts this late deliberately: the
+             stats strip already sits ~20% into its pass on a fresh load
+             at scroll 0, so any earlier threshold leaves the ring
+             partially formed at the top of the page - smearing the hero
+             arrows into a shapeless cloud before any scrolling. */
           const rt = Math.min(
-            clamp(0, 1, (p - 0.12) / 0.3),
+            clamp(0, 1, (p - 0.28) / 0.22),
             clamp(0, 1, (0.88 - p) / 0.3)
           );
           sceneCall('setRing', rt, ringShape.rx, ringShape.ry);
