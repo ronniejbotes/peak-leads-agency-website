@@ -87,8 +87,9 @@ from-states. Eyebrow budget: max 3 on the whole page.
    CTA pill "Book A Call" → `/#book`. Mobile <900px: burger → dropdown (js-enabled gated;
    no-JS gets static wrapped row). 2px `.nav-progress` bottom edge, scaleX = --scroll-progress.
 2. **`#hero`** (100svh, asymmetric: copy left max-w 620px, particles park RIGHT).
-   H1: "Build your presence." Sub (18 words): "Peak Leads builds websites, SEO and ad
-   campaigns that turn home service searches into booked jobs." CTAs: primary
+   H1: "Build your presence." Sub (19 words): "We've helped businesses generate over R114
+   million in sales through our websites, SEO, paid ads, and lead generation systems."
+   CTAs: primary
    "Get your free audit" → `/free-audit/`; ghost "Book a call" → `#book`. Nothing else.
 3. **`#proof`** - 4 stat tiles (2-col mobile / 4-col desktop, count-up on view):
    `4.9/5` average client rating · `70+` reviews · `$7M+` client revenue generated ·
