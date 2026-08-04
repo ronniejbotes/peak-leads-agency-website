@@ -3,27 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script>document.documentElement.classList.add('js-enabled')</script>
-  <title>Home Services Lead Generation Agency | Peak Leads</title>
-  <meta name="description" content="Peak Leads builds websites, SEO and ad campaigns that turn home service searches into booked jobs. Exclusive leads for roofers, plumbers, HVAC and contractors.">
+  <script>
+  /* Runs before any body markup: `js-enabled` gates JS-only UI in CSS, and
+     `data-region` picks the currency the money figures render in. Timezone is
+     the strongest signal available without a geo-IP round trip; language is
+     the fallback. Default (and what crawlers see) is USD — the US is the
+     primary market. The swap itself runs inline right after #proof. */
+  (function () {
+    var d = document.documentElement;
+    d.classList.add('js-enabled');
+    var za = false;
+    try {
+      za = /^Africa\/(Johannesburg|Maseru|Mbabane)$/.test(
+        Intl.DateTimeFormat().resolvedOptions().timeZone || ''
+      );
+    } catch (e) { /* no Intl: fall through to language */ }
+    if (!za) {
+      try {
+        var langs = navigator.languages || [navigator.language || ''];
+        for (var i = 0; i < langs.length; i++) {
+          if (/-ZA$|^(af|zu|xh|st|tn|ts|ve|nr|ss)\b/i.test(langs[i])) { za = true; break; }
+        }
+      } catch (e) { /* leave as intl */ }
+    }
+    d.setAttribute('data-region', za ? 'za' : 'intl');
+  })();
+  </script>
+  <title>Lead Generation, Web Development, SEO, Paid Ads | Peak Leads</title>
+  <meta name="description" content="Peak Leads has helped businesses generate over $7 million in sales through web development, SEO, paid ads and exclusive lead generation systems. Book a free call.">
   <link rel="canonical" href="https://peakleads.agency/">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
   <meta name="theme-color" content="#0D0C0A">
   <link rel="icon" href="/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="preconnect" href="https://assets.calendly.com" crossorigin>
+  <link rel="dns-prefetch" href="https://assets.calendly.com">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://peakleads.agency/">
   <meta property="og:site_name" content="Peak Leads">
   <meta property="og:locale" content="en_US">
-  <meta property="og:title" content="Home Services Lead Generation Agency | Peak Leads">
-  <meta property="og:description" content="Peak Leads builds websites, SEO and ad campaigns that turn home service searches into booked jobs. Exclusive leads for roofers, plumbers, HVAC and contractors.">
+  <meta property="og:title" content="Lead Generation, Web Development, SEO, Paid Ads | Peak Leads">
+  <meta property="og:description" content="Peak Leads has helped businesses generate over $7 million in sales through web development, SEO, paid ads and exclusive lead generation systems. Book a free call.">
   <meta property="og:image" content="https://peakleads.agency/assets/images/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Peak Leads, websites, SEO and exclusive leads for home service businesses">
+  <meta property="og:image:alt" content="Peak Leads: web development, SEO, paid ads and exclusive lead generation for home service businesses">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Home Services Lead Generation Agency | Peak Leads">
-  <meta name="twitter:description" content="Peak Leads builds websites, SEO and ad campaigns that turn home service searches into booked jobs. Exclusive leads for roofers, plumbers, HVAC and contractors.">
+  <meta name="twitter:title" content="Lead Generation, Web Development, SEO, Paid Ads | Peak Leads">
+  <meta name="twitter:description" content="Peak Leads has helped businesses generate over $7 million in sales through web development, SEO, paid ads and exclusive lead generation systems. Book a free call.">
   <meta name="twitter:image" content="https://peakleads.agency/assets/images/og-image.jpg">
 
   <script type="application/ld+json">
@@ -31,13 +59,25 @@
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "Organization",
+        "@type": ["Organization", "ProfessionalService"],
         "@id": "https://peakleads.agency/#organization",
         "name": "Peak Leads",
         "url": "https://peakleads.agency/",
         "logo": "https://peakleads.agency/assets/images/logo.webp",
+        "image": "https://peakleads.agency/assets/images/og-image.jpg",
         "email": "bradley@peakleads.agency",
-        "description": "Lead generation agency for US home service businesses. Websites, local SEO, Google Ads and exclusive leads for roofers, plumbers, HVAC and contractors.",
+        "description": "Lead generation agency for US home service businesses. Web development, local SEO, paid ads and exclusive leads for roofers, plumbers, HVAC and contractors.",
+        "slogan": "Build your presence.",
+        "priceRange": "$$",
+        "areaServed": { "@type": "Country", "name": "United States" },
+        "knowsAbout": [
+          "Lead generation",
+          "Web development",
+          "Search engine optimization",
+          "Paid advertising",
+          "Google Ads",
+          "Local SEO"
+        ],
         "founder": {
           "@type": "Person",
           "name": "Bradley Hart"
@@ -45,14 +85,86 @@
         "sameAs": [
           "https://www.instagram.com/bradley_mj_kid",
           "https://za.linkedin.com/in/bradley-hartmann-372785336"
-        ]
+        ],
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Peak Leads services",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "@id": "https://peakleads.agency/services/#web-design",
+                "name": "Web development",
+                "serviceType": "Web development",
+                "description": "Precision-built, fast, conversion-focused websites for home service businesses. Live in 2 to 3 weeks with daily progress updates.",
+                "provider": { "@id": "https://peakleads.agency/#organization" },
+                "areaServed": { "@type": "Country", "name": "United States" }
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "@id": "https://peakleads.agency/services/#seo",
+                "name": "SEO",
+                "serviceType": "Search engine optimization",
+                "description": "Local SEO for home services: Google Business Profile, technical and on-page SEO, and content that answers what customers actually search for.",
+                "provider": { "@id": "https://peakleads.agency/#organization" },
+                "areaServed": { "@type": "Country", "name": "United States" }
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "@id": "https://peakleads.agency/services/#ads",
+                "name": "Paid ads",
+                "serviceType": "Pay per click advertising",
+                "description": "Google Ads, Local Services Ads and Meta ads tuned for home services, tracked from the click through to the booked call.",
+                "provider": { "@id": "https://peakleads.agency/#organization" },
+                "areaServed": { "@type": "Country", "name": "United States" }
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "@id": "https://peakleads.agency/services/#leads",
+                "name": "Lead generation",
+                "serviceType": "Lead generation",
+                "description": "Exclusive leads generated under your own brand and delivered in real time to you alone. No shared lists, no bidding against other contractors.",
+                "provider": { "@id": "https://peakleads.agency/#organization" },
+                "areaServed": { "@type": "Country", "name": "United States" }
+              },
+              "priceSpecification": {
+                "@type": "PriceSpecification",
+                "price": "140",
+                "priceCurrency": "USD",
+                "minPrice": "140"
+              }
+            }
+          ]
+        }
       },
       {
         "@type": "WebSite",
         "@id": "https://peakleads.agency/#website",
         "url": "https://peakleads.agency/",
         "name": "Peak Leads",
+        "inLanguage": "en",
         "publisher": { "@id": "https://peakleads.agency/#organization" }
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://peakleads.agency/#webpage",
+        "url": "https://peakleads.agency/",
+        "name": "Lead Generation, Web Development, SEO & Paid Ads | Peak Leads",
+        "description": "Peak Leads has helped businesses generate over $7 million in sales through web development, SEO, paid ads and exclusive lead generation systems.",
+        "isPartOf": { "@id": "https://peakleads.agency/#website" },
+        "about": { "@id": "https://peakleads.agency/#organization" },
+        "primaryImageOfPage": "https://peakleads.agency/assets/images/og-image.jpg",
+        "inLanguage": "en"
       }
     ]
   }
@@ -154,7 +266,7 @@
       <div class="hero-inner">
         <div class="hero-copy">
           <h1>Build your presence.</h1>
-          <p>We&rsquo;ve helped businesses generate over R114 million in sales through our websites, SEO, paid ads, and lead generation systems.</p>
+          <p>We&rsquo;ve helped businesses generate over <span data-money-usd="$7 million" data-money-zar="R114 million">$7 million</span> in sales through our websites, SEO, paid ads, and lead generation systems.</p>
           <div>
             <a class="btn btn-primary" href="/free-audit/">Get your free audit</a>
             <a class="btn btn-ghost" href="#book">Book a call</a>
@@ -174,7 +286,7 @@
         <p class="stat-label">reviews</p>
       </div>
       <div class="stat">
-        <p class="stat-value" data-count="7" data-prefix="$" data-suffix="M+">$7M+</p>
+        <p class="stat-value" data-money-usd="$7M+" data-money-zar="R114M+" data-count="7" data-prefix="$" data-suffix="M+">$7M+</p>
         <p class="stat-label">client revenue generated</p>
       </div>
       <div class="stat">
@@ -183,11 +295,35 @@
       </div>
     </section>
 
+    <script>
+    /* Currency swap, inline and synchronous so it lands during parse — the
+       hero figure is the LCP text and must never be seen changing. Region
+       was resolved by the head script; $ stays put for everyone else.
+       data-count/prefix/suffix mirror the text for the #proof count-up,
+       which parses whatever it finds (scroll.js initStatCounters). */
+    (function () {
+      var key = document.documentElement.getAttribute('data-region') === 'za' ? 'zar' : 'usd';
+      var nodes = document.querySelectorAll('[data-money-' + key + ']');
+      for (var i = 0; i < nodes.length; i++) {
+        var el = nodes[i];
+        var text = el.getAttribute('data-money-' + key);
+        if (!text || el.textContent === text) continue;
+        el.textContent = text;
+        var m = /(\d+(?:\.\d+)?)/.exec(text);
+        if (m && el.hasAttribute('data-count')) {
+          el.setAttribute('data-count', m[1]);
+          el.setAttribute('data-prefix', text.slice(0, m.index));
+          el.setAttribute('data-suffix', text.slice(m.index + m[1].length));
+        }
+      }
+    })();
+    </script>
+
     <!-- 3. VSL -->
     <section id="vsl">
       <h2>Watch how we build.</h2>
       <figure>
-        <video src="/assets/videos/vsl.mp4" poster="/assets/images/vsl-poster.jpg" preload="metadata" controls playsinline width="1280" height="720" aria-label="Bradley walks through how Peak Leads builds websites, SEO and lead campaigns">
+        <video src="/assets/videos/vsl.mp4" poster="/assets/images/vsl-poster.jpg" preload="metadata" controls playsinline width="1280" height="720" aria-label="Bradley walks through how Peak Leads runs web development, SEO, paid ads and lead generation">
           <track kind="captions" src="/assets/videos/vsl.vtt" srclang="en" label="English">
         </video>
         <figcaption>Bradley walks through the exact system, in under a minute.</figcaption>
@@ -201,15 +337,15 @@
         <div>
           <div class="station-inner glass">
             <p class="ghost-num" aria-hidden="true">01</p>
-            <h2>Websites that win the job before the phone rings.</h2>
-            <p>Precision-built sites for roofers, plumbers and contractors. Live in 2 to 3 weeks with daily progress updates.</p>
+            <h2>Web development that wins the job before the phone rings.</h2>
+            <p>Precision-built websites for roofers, plumbers and contractors. Live in 2 to 3 weeks with daily progress updates.</p>
             <ul class="station-list">
               <li>Live in 2 to 3 weeks</li>
               <li>Built to rank and convert</li>
               <li>Daily progress updates</li>
               <li>Fast on every phone</li>
             </ul>
-            <a href="/services/#web-design">See web design <span aria-hidden="true">&rarr;</span></a>
+            <a href="/services/#web-design">See web development <span aria-hidden="true">&rarr;</span></a>
           </div>
         </div>
       </article>
@@ -218,8 +354,8 @@
         <div>
           <div class="station-inner glass">
             <p class="ghost-num" aria-hidden="true">02</p>
-            <h2>Climb the rankings your competitors camp on.</h2>
-            <p>Local SEO for home services: Google Business Profile, on-page work and content that answers what your customers actually ask.</p>
+            <h2>SEO that climbs the rankings your competitors camp on.</h2>
+            <p>Local SEO for home services: Google Business Profile, technical and on-page work, and content that answers what your customers actually ask.</p>
             <ul class="station-list">
               <li>Google Maps and local pack</li>
               <li>Technical and on-page SEO</li>
@@ -235,7 +371,7 @@
         <div>
           <div class="station-inner glass">
             <p class="ghost-num" aria-hidden="true">03</p>
-            <h2>Ads that buy jobs, not clicks.</h2>
+            <h2>Paid ads that buy jobs, not clicks.</h2>
             <p>Google Ads and Meta ads tuned for home services. Every dollar tracked from the click to the booked call.</p>
             <ul class="station-list">
               <li>Google Ads and Local Services Ads</li>
@@ -252,7 +388,7 @@
         <div>
           <div class="station-inner glass">
             <p class="ghost-num" aria-hidden="true">04</p>
-            <h2>Exclusive leads. Yours alone.</h2>
+            <h2>Lead generation that stays exclusive to you.</h2>
             <p>We generate leads under your brand and send them only to you. No shared lists, no bidding against five other contractors.</p>
             <ul class="station-list">
               <li>100% exclusive to you</li>
@@ -274,7 +410,7 @@
         <div class="conveyor-track">
           <figure class="work-card">
             <a href="https://andersonroofingrenovations.com" rel="noopener">
-              <img src="/assets/images/work-1.webp" alt="Anderson Roofing and Renovations website home page built by Peak Leads, web design for a roofing contractor" width="1200" height="675" loading="lazy">
+              <img src="/assets/images/work-1.webp" alt="Anderson Roofing and Renovations website home page built by Peak Leads, web development for a roofing contractor" width="1200" height="675" loading="lazy">
             </a>
             <figcaption><strong>Anderson Roofing &amp; Renovations</strong> <span>Roofing</span></figcaption>
           </figure>
@@ -286,7 +422,7 @@
           </figure>
           <figure class="work-card">
             <a href="https://theleakgeeks.com" rel="noopener">
-              <img src="/assets/images/work-3.webp" alt="The Leak Geeks website home page built by Peak Leads, web design for a leak detection and plumbing company" width="1200" height="675" loading="lazy">
+              <img src="/assets/images/work-3.webp" alt="The Leak Geeks website home page built by Peak Leads, web development for a leak detection and plumbing company" width="1200" height="675" loading="lazy">
             </a>
             <figcaption><strong>The Leak Geeks</strong> <span>Leak detection</span></figcaption>
           </figure>
@@ -450,7 +586,7 @@
       <span>PEAKLEADS</span><span>PEAKLEADS</span><span>PEAKLEADS</span><span>PEAKLEADS</span>
     </div>
     <div>
-      <p><strong>Peak Leads</strong><br>Websites, SEO and exclusive leads for home service businesses.</p>
+      <p><strong>Peak Leads</strong><br>Web development, SEO, paid ads and exclusive lead generation for home service businesses.</p>
       <p><a href="mailto:bradley@peakleads.agency">bradley@peakleads.agency</a></p>
       <nav aria-label="Footer">
         <a href="/">Home</a>

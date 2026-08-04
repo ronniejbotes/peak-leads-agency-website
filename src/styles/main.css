@@ -64,6 +64,10 @@ html {
   color-scheme: dark;
   overflow-x: clip; /* ghost numbers + marquee never cause page x-scroll */
   scroll-padding-top: calc(var(--nav-h) + var(--nav-top) + 16px);
+  /* iOS Safari inflates text when a phone is rotated to landscape; the
+     fluid type here is already sized for the viewport. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -417,6 +421,13 @@ main > section#services { padding-block: 0; }
     transform: none;
     transition: opacity 250ms ease, transform 250ms ease;
   }
+  /* Six 48px rows + CTA overflow a landscape phone (≈360px tall). Cap the
+     panel to what is actually on screen and let it scroll inside itself. */
+  :root.js-enabled .nav-links {
+    max-height: calc(100svh - var(--nav-h) - var(--nav-top) - 24px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
   :root.js-enabled .nav-links a:not(.btn):not(.nav-cta) {
     flex: 1;
     min-height: 48px;
@@ -552,6 +563,17 @@ main > section#services { padding-block: 0; }
   }
 }
 
+/* Phone held sideways: the 96px minimum of the hero's top clamp eats a third
+   of a ~360px-tall viewport and pushes the CTAs off screen. Trim the block
+   padding so headline, sub and both buttons still land above the fold. */
+@media (max-width: 899.98px) and (orientation: landscape) and (max-height: 540px) {
+  .hero {
+    padding-block: calc(var(--nav-h) + var(--nav-top) + 24px) 24px;
+  }
+  #proof { padding-block: clamp(32px, 7vh, 64px); }
+  main > section { padding-block: clamp(48px, 12vh, 96px); }
+}
+
 .hero-inner h1 {
   max-width: 620px;
   margin-bottom: 20px;
@@ -591,6 +613,9 @@ main > section#services { padding-block: 0; }
 .stat {
   text-align: center;
   padding-inline: clamp(12px, 2.5vw, 32px);
+  /* Numerals are sized against this column, not the viewport — see
+     .stat-value. Safe: the grid sets the width, never the contents. */
+  container-type: inline-size;
 }
 
 /* 2-col mobile: hairline before the 2nd column */
@@ -613,6 +638,19 @@ main > section#services { padding-block: 0; }
   letter-spacing: -0.02em;
   color: var(--text);
   max-width: none;
+}
+
+/* Viewport-sized numerals overflow their column once a value gets long:
+   "R114M+" is six glyphs where "$7M+" is four, and the ZA revenue figure
+   burst the 4-up grid between 900 and 1100px. Sizing against the column
+   instead fits any value at any width, and keeps all four numerals the
+   same size (a strip with one odd number out reads as broken).
+   26cqi: Geist Mono advances 0.6em and letter-spacing trims 0.02em, so six
+   glyphs need ~3.48em — 28cqi is the exact fit, 26 leaves ~10% headroom for
+   fallback-font metrics. Browsers without container units keep the vw clamp
+   above, since this declaration is invalid there and gets skipped. */
+.stat-value {
+  font-size: clamp(2rem, 26cqi, 4rem);
 }
 
 .stat-label {
@@ -1027,7 +1065,11 @@ main > section#services { padding-block: 0; }
 
 .calendly-inline-widget {
   width: 100%;
-  min-width: 320px;
+  /* NOT min-width: 320px. #book pads 20px a side, so on a 320-360px phone a
+     320px floor pushed the embed wider than the page and the right edge of
+     the calendar was clipped by html{overflow-x:clip}. Calendly's own iframe
+     is responsive below that; let the column decide. */
+  min-width: 0;
   /* Definite height, not min-height: Calendly's iframe is height:100%,
      which computes to auto against a min-height-only parent (the widget
      rendered ~450px tall with its calendar cut off). */

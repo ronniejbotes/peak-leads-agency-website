@@ -61,9 +61,9 @@ backdrop-filter on transform-animated elements.
 
 | Path | Entry JS | Title (≤60ch) |
 |---|---|---|
-| `/` index.html | src/js/main.js | Home Services Lead Generation Agency \| Peak Leads |
+| `/` index.html | src/js/main.js | Lead Generation, Web Development, SEO, Paid Ads \| Peak Leads |
 | `/about/` | src/js/pages/subpage.js | About Bradley Hart, Founder \| Peak Leads |
-| `/services/` | src/js/pages/subpage.js | Web Design, SEO & Google Ads for Contractors \| Peak Leads |
+| `/services/` | src/js/pages/subpage.js | Web Development, SEO & Paid Ads for Contractors \| Peak Leads |
 | `/contact/` | src/js/pages/subpage.js | Contact Peak Leads \| Book a Call |
 | `/free-audit/` | src/js/audit.js | Get Your Free Marketing Audit \| Peak Leads |
 | `/blog/` | src/js/pages/subpage.js | Contractor Marketing Insights \| Peak Leads Blog |
@@ -74,7 +74,9 @@ backdrop-filter on transform-animated elements.
 
 Canonical host: `https://peakleads.agency` with trailing slash on folders. Every page:
 unique meta description (150-160ch), canonical, OG (og:image `/assets/images/og-image.jpg`
-1200×630), twitter:card summary_large_image, `<html lang="en">`, theme-color `#0D0C0A`.
+1200×630), twitter:card summary_large_image, `<html lang="en">`, theme-color `#0D0C0A`,
+and `<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1,
+max-video-preview:-1">` (404.html is `noindex`).
 
 ## 4. Landing page section map (index.html)
 
@@ -87,13 +89,17 @@ from-states. Eyebrow budget: max 3 on the whole page.
    CTA pill "Book A Call" → `/#book`. Mobile <900px: burger → dropdown (js-enabled gated;
    no-JS gets static wrapped row). 2px `.nav-progress` bottom edge, scaleX = --scroll-progress.
 2. **`#hero`** (100svh, asymmetric: copy left max-w 620px, particles park RIGHT).
-   H1: "Build your presence." Sub (19 words): "We've helped businesses generate over R114
-   million in sales through our websites, SEO, paid ads, and lead generation systems."
-   CTAs: primary
-   "Get your free audit" → `/free-audit/`; ghost "Book a call" → `#book`. Nothing else.
+   H1: "Build your presence." Sub (19 words): "We've helped businesses generate over
+   \[$7 million | R114 million] in sales through our websites, SEO, paid ads, and lead
+   generation systems." The amount is a `<span data-money-usd data-money-zar>` — see §7.
+   CTAs: primary "Get your free audit" → `/free-audit/`; ghost "Book a call" → `#book`.
+   Nothing else.
 3. **`#proof`** - 4 stat tiles (2-col mobile / 4-col desktop, count-up on view):
-   `4.9/5` average client rating · `70+` reviews · `$7M+` client revenue generated ·
-   `2-3wk` from call to live site. Mono numerals, plain layout, hairline separators (no cards).
+   `4.9/5` average client rating · `70+` reviews · `$7M+` \| `R114M+` client revenue
+   generated (region-aware, §7) · `2-3wk` from call to live site. Mono numerals, plain
+   layout, hairline separators (no cards). `.stat` is an inline-size container and
+   `.stat-value` sizes in `cqi`, so a 6-glyph value ("R114M+") fits the column at every
+   width and all four numerals stay the same size.
 4. **`#vsl`** - H2 "Watch how we build." Video 16:9 max-w 960px: `/assets/videos/vsl.mp4`,
    poster `/assets/images/vsl-poster.jpg`, preload=metadata, controls. Accent 1.5px animated
    rim (conic gradient, chalk). One line under: "Bradley walks through the exact system,
@@ -102,21 +108,21 @@ from-states. Eyebrow budget: max 3 on the whole page.
    (`position:sticky; top:0; min-height:100svh; flex center`) with glass `.station-inner`
    (max-w 640px) alternating left/right (particles park opposite). Ghost outline numbers
    01-04. `data-formation` 1-4.
-   - 01 Web Design (formation FRAME): H2 "Websites that win the job before the phone rings."
-     Body: "Precision-built sites for roofers, plumbers and contractors. Live in 2 to 3
-     weeks with daily progress updates." Bullets: Live in 2 to 3 weeks / Built to rank and
-     convert / Daily progress updates / Fast on every phone. Link "See web design →"
-     `/services/#web-design`.
-   - 02 SEO (formation RANKS): H2 "Climb the rankings your competitors camp on."
-     Body: "Local SEO for home services: Google Business Profile, on-page work and content
-     that answers what your customers actually ask." Bullets: Google Maps and local pack /
+   - 01 Web Development (formation FRAME): H2 "Web development that wins the job before the
+     phone rings." Body: "Precision-built websites for roofers, plumbers and contractors.
+     Live in 2 to 3 weeks with daily progress updates." Bullets: Live in 2 to 3 weeks / Built
+     to rank and convert / Daily progress updates / Fast on every phone. Link "See web
+     development →" `/services/#web-design` (fragment keeps its old id; only the label moved).
+   - 02 SEO (formation RANKS): H2 "SEO that climbs the rankings your competitors camp on."
+     Body: "Local SEO for home services: Google Business Profile, technical and on-page work,
+     and content that answers what your customers actually ask." Bullets: Google Maps and local pack /
      Technical and on-page SEO / Content that answers real questions / Plain-English monthly
      reports. Link → `/services/#seo`.
-   - 03 Paid Ads (formation FUNNEL): H2 "Ads that buy jobs, not clicks."
+   - 03 Paid Ads (formation FUNNEL): H2 "Paid ads that buy jobs, not clicks."
      Body: "Google Ads and Meta ads tuned for home services. Every dollar tracked from the
      click to the booked call." Bullets: Google Ads and Local Services Ads / Meta ads that
      fill slow weeks / Tracked to the booked call / No lock-in contracts. Link → `/services/#ads`.
-   - 04 Lead Generation (formation GROWTH): H2 "Exclusive leads. Yours alone."
+   - 04 Lead Generation (formation GROWTH): H2 "Lead generation that stays exclusive to you."
      Body: "We generate leads under your brand and send them only to you. No shared lists,
      no bidding against five other contractors." Bullets: 100% exclusive to you / Under your
      own brand / Delivered in real time / Packages from $140. Link → `/services/#leads`.
@@ -149,7 +155,8 @@ from-states. Eyebrow budget: max 3 on the whole page.
     Which trades do you work with? / What happens on the call?
 11. **`footer.site-footer`** - giant outlined "PEAKLEADS" marquee (text-stroke
     `--accent-soft`, transparent fill, slow scrub-driven x-drift), then: tagline "Websites,
-    SEO and exclusive leads for home service businesses.", email bradley@peakleads.agency,
+    SEO, paid ads and exclusive lead generation for home service businesses.",
+    email bradley@peakleads.agency,
     links (nav + Free audit + Blog + Instagram @bradley_mj_kid, LinkedIn), © 2026 Peak Leads.
 12. **Floating "Say hi" bubble** - fixed bottom-right circular video `/assets/videos/bradley.mp4`
     (muted loop, 144px, border 3px bone), links to `#book`, hides while #book visible,
@@ -211,10 +218,28 @@ content zone only for `#vsl` (side -1); footer marquee drift; stat count-ups
 (IntersectionObserver once at 0.4, rAF ease-out, reduced-motion jumps to final);
 `gsap.matchMedia` for ≥900px set-pieces; kill + revert on re-init.
 
-## 7. Boot gate (`src/js/main.js`)
+## 7. Boot gate (`src/js/main.js`) + region-aware money
 
 `document.documentElement.classList.add('js-enabled')` inline in `<head>` (tiny inline
-script in HTML, before CSS). main.js: dynamic-import scene + scroll AFTER first paint
+script in HTML, before CSS).
+
+**Money.** The same head script resolves `<html data-region="za|intl">` from
+`Intl.DateTimeFormat().resolvedOptions().timeZone` (`Africa/Johannesburg|Maseru|Mbabane`),
+falling back to `navigator.languages` (`-ZA`, or an official SA language subtag). A second
+inline script directly after `#proof` rewrites every `[data-money-usd]` element to the
+matching `data-money-{usd,zar}` value. Both are inline and synchronous on purpose: the hero
+figure is LCP text and must never be seen changing, and it must still swap if the module
+bundle fails. Rules:
+- **HTML ships USD.** It is what crawlers, no-JS visitors and the primary (US) market get.
+  ZAR is the override, never the default.
+- `$7 million` ≡ `R114 million` — one claim, two currencies, no live FX. Update both
+  together or the site contradicts itself.
+- On `.stat-value` the swap also rewrites `data-count`/`-prefix`/`-suffix` so the count-up
+  (§6) animates the region's own figure. Prices (`$140`) stay USD everywhere — they are a
+  real price, not a converted claim.
+- Meta/OG/JSON-LD carry the USD figure only: one canonical value per page.
+
+main.js: dynamic-import scene + scroll AFTER first paint
 (`requestIdleCallback` fallback setTimeout 1); all-or-nothing gate → on any failure or
 `prefers-reduced-motion`: `body.no-3d` (canvas hidden, static warm radial-gradient backdrop,
 everything readable). Also: nav burger, footer year, Calendly lazy-load, "Say hi" bubble,
@@ -266,8 +291,10 @@ clutter. JSON-LD WebPage + BreadcrumbList.
   and family grounded, straight-talking; photo `/assets/images/bradley.webp` (from
   image1.png). Mention coaching arm one line. Personal, sincere, zero hype. CTA → /free-audit/.
 - **/services/**: H1 "What we do." 4 anchor sections `#web-design #seo #ads #leads`
-  expanding the stations (keyword-rich, per SEO map: contractor web design, SEO for
-  contractors, Google Ads for contractors, exclusive leads). Each: what you get list,
+  expanding the stations. H2s carry the exact target keywords: "Web development for
+  contractors." / "SEO for contractors." / "Paid ads for contractors." / "Exclusive lead
+  generation for contractors." Body copy keeps "web design" and "Google Ads" alive so both
+  the old and new phrasings still rank. Each: what you get list,
   who it's for, mini-FAQ line, CTA. Service JSON-LD ×4 (provider → Organization,
   areaServed US).
 - **/contact/**: H1 "Talk to us." Email, Calendly link, IG/LinkedIn, simple no-backend
@@ -284,13 +311,24 @@ clutter. JSON-LD WebPage + BreadcrumbList.
 ## 10. SEO layer
 
 - `public/robots.txt`: allow all + `Sitemap: https://peakleads.agency/sitemap.xml`.
-- `public/sitemap.xml`: all 10 URLs, lastmod 2026-07-30.
-- index.html JSON-LD `@graph`: Organization (name "Peak Leads", url, logo, email,
-  sameAs: instagram.com/bradley_mj_kid, za.linkedin.com/in/bradley-hartmann-372785336) +
-  WebSite. NO LocalBusiness (no physical address, do not fake one). FAQPage separate block
-  mirroring #faq exactly.
-- H1s keyword-aware via section H2s (home H1 stays brand voice; H2s carry "home services",
-  trades, service keywords naturally).
+- `public/sitemap.xml`: all 9 URLs, lastmod 2026-08-04.
+- **Primary target keywords: lead generation, web development, SEO, paid ads.** Every one
+  is claimed in a `<title>`, an `<h2>`, and body copy on both `/` and `/services/`. "Web
+  development" is the newest of the four; the site said "web design" everywhere before
+  2026-08-04, so both phrasings are kept in play (H2s and titles say development, image
+  alts and body copy still say design).
+- index.html JSON-LD `@graph`: Organization + ProfessionalService (name "Peak Leads", url,
+  logo, email, priceRange, areaServed US, knowsAbout the four keywords, sameAs:
+  instagram.com/bradley_mj_kid, za.linkedin.com/in/bradley-hartmann-372785336) with a
+  `hasOfferCatalog` of the 4 Services whose `@id`s point at `/services/#{web-design,seo,
+  ads,leads}` + WebSite + WebPage. NO postal address and NO aggregateRating (self-serving
+  review markup; the 4.9/5 stays plain on-page text). FAQPage separate block mirroring
+  #faq exactly.
+- H1s keyword-aware via section H2s (home H1 stays brand voice; H2s lead with the exact
+  service keyword: "Web development that wins...", "SEO that climbs...", "Paid ads that
+  buy...", "Lead generation that stays exclusive...").
+- `<link rel="preconnect">` to assets.calendly.com on the landing page (the embed is the
+  only third-party request).
 - Images: width/height attrs, lazy below fold, descriptive alt with trade keywords.
 - Three/GSAP dynamically imported after first paint → hero text is LCP, not canvas.
 
@@ -299,7 +337,8 @@ clutter. JSON-LD WebPage + BreadcrumbList.
 Short declarative sentences. Concrete over clever. Second person. Sentence case headings.
 No hype words (revolutionary, unleash, supercharge, next-level, elevate, seamless).
 No em-dashes or en-dashes anywhere, hyphens only. Climb/peak metaphor max ~1 use per
-section. Numbers stay real: 4.9/5, 70+, $7M+, 2-3 weeks, $140 packages, all from research.
+section. Numbers stay real: 4.9/5, 70+, $7M+ (R114M+ for ZA, see §7), 2-3 weeks,
+$140 packages, all from research.
 Trust chorus (reuse verbatim): "No upfront payments. If you are not happy, you do not pay."
 and "We reply within one business day."
 
