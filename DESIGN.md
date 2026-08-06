@@ -126,12 +126,23 @@ from-states. Eyebrow budget: max 3 on the whole page.
      Body: "We generate leads under your brand and send them only to you. No shared lists,
      no bidding against five other contractors." Bullets: 100% exclusive to you / Under your
      own brand / Delivered in real time / Packages from $140. Link → `/services/#leads`.
-6. **`#work`** - H2 "Recent work." Pinned horizontal conveyor (desktop ≥900px, GSAP
-   containerAnimation; mobile: scroll-snap strip, `tabindex=0 role=region aria-label`).
-   4 cards 16:9 with real screenshots `/assets/images/work-{1..4}.webp`:
-   Anderson Roofing & Renovations (andersonroofingrenovations.com) · Water Automation
-   (waterautomation.com) · The Leak Geeks (theleakgeeks.com) · GreaterGood (greatergood.co).
-   Caption under each: client + trade. No pills on images.
+6. **`#work`** - H2 "Recent work." Vertical 3D card cylinder (`src/js/cylinder.js`, own
+   rAF loop, `perspective: 1350px`). Not pinned and not GSAP-driven. Cards drift upward
+   continuously with a magnetic dwell at center, plus a page-scroll nudge; pointer
+   parallax tilts the front card; hovering stalls the drift so the cards stay clickable.
+   Progressive enhancement over the scroll-snap strip, which stays as-is under
+   prefers-reduced-motion and with JS off (`tabindex=0 role=region aria-label`); gated on
+   reduced motion ONLY, not on the WebGL boot. Each `<figure>` is rebuilt in place -
+   the `<a>` becomes the front face, the `<figcaption>` the back face (blurred reuse of
+   the same screenshot), with extruded edge slices between them. Nodes are moved, never
+   cloned, so the accessible copy stays single-sourced.
+   5 cards 16:9 with real screenshots — note the file numbering is NOT display order:
+   Anderson Roofing & Renovations (andersonroofingrenovations.com, `work-2.webp`) ·
+   Water Automation (waterautomation.com, `work-3.webp`) · The Leak Geeks
+   (theleakgeeks.com, `work-4.webp`) · GreaterGood (greatergood.co, `work-1.webp`) ·
+   Tiny Homes SA (tinyhomesa.com, `work-5.webp`). Front face carries browser chrome
+   (dots + domain) and a caption plate; back face carries client, trade and domain.
+   Needs ≥5 cards: below that the ring is too short to hide its own seam.
 7. **`#testimonials`** - H2 "Trusted by the trades." Asymmetric 2-col grid (1-col mobile) of
    4 quotes, each ≤3 lines, real names + avatars (`/assets/images/avatar-*.webp`):
    Greg (Water Automation), Michael Anderson (Anderson Roofing & Renovations),
@@ -162,8 +173,8 @@ from-states. Eyebrow budget: max 3 on the whole page.
     (muted loop, 144px, border 3px bone), links to `#book`, hides while #book visible,
     `aria-hidden` decorative label. Gated to js-enabled + pointer-fine; never on /free-audit/.
 
-Layout families used: split hero / stat strip / centered video / sticky stations / pinned
-conveyor / asymmetric quote grid / numbered rows / embed / accordions. ≥4 distinct ✓.
+Layout families used: split hero / stat strip / centered video / sticky stations / 3D card
+cylinder / asymmetric quote grid / numbered rows / embed / accordions. ≥4 distinct ✓.
 
 ## 5. Particle scene contract (`src/js/scene.js`)
 
@@ -213,8 +224,7 @@ progress > 0 the machine is centered, zones/parking suppressed, dim eased to 0.7
 parking above #work only (measure `.station-inner` rects, alternate sides, 0 <900px; park
 index = formation - 1); hero scrub-out; station reveals (`gsap.from` y32/opacity, stagger
 0.06, toggleActions play none none reverse; opacity NOT autoAlpha); ghost number ±6vh
-parallax scrub; conveyor pin (`ease:'none'`, function-based end, invalidateOnRefresh);
-content zone only for `#vsl` (side -1); footer marquee drift; stat count-ups
+parallax scrub; content zone only for `#vsl` (side -1); footer marquee drift; stat count-ups
 (IntersectionObserver once at 0.4, rAF ease-out, reduced-motion jumps to final);
 `gsap.matchMedia` for ≥900px set-pieces; kill + revert on re-init.
 
@@ -361,7 +371,7 @@ clean; `npm run build` passes; every page readable with JS disabled.
 | blog/ + 3 posts | agent D |
 | src/styles/main.css (everything) | agent E |
 | src/js/scene.js | agent F |
-| src/js/scroll.js + src/js/main.js + src/js/pages/subpage.js | agent G |
+| src/js/scroll.js + src/js/main.js + src/js/cylinder.js + src/js/pages/subpage.js | agent G |
 | vite.config.js, package.json, public/*, sitemap, robots | orchestrator (me) |
 
 Shared references: this file + `scratchpad/r-peak.json` (verbatim copy/testimonials) +

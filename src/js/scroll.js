@@ -20,8 +20,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
    refresh() measures triggers by snapping the scroller and reading rects;
    with smooth scrolling active that snap ANIMATES instead of jumping, so a
    refresh fired at a non-zero scroll (bfcache restore, resize) measures
-   every start/end off by the current offset and the pinned conveyor
-   collapses. Forcing scroll-behavior:auto around the measurement fixes it
+   every start/end off by the current offset and the pinned station stages
+   collapse. Forcing scroll-behavior:auto around the measurement fixes it
    for our refreshes AND ScrollTrigger's internal resize/load refreshes. */
 let refreshPatched = false;
 function patchSmoothSafeRefresh() {
@@ -395,9 +395,8 @@ export function initScrollChoreography(scene) {
     });
 
     /* --------------------------------------------------------------
-     * 5. Desktop set-pieces (>=900px): lateral parking + the pinned
-     *    #work conveyor. Below 900px the lateral stays centered and the
-     *    conveyor keeps its untouched scroll-snap strip fallback.
+     * 5. Desktop set-pieces (>=900px): lateral parking and the scrubbed
+     *    #vsl / #proof zones. Below 900px the lateral stays centered.
      *    gsap.matchMedia reverts everything created here on leave.
      * -------------------------------------------------------------- */
     const mm = gsap.matchMedia();
@@ -406,31 +405,8 @@ export function initScrollChoreography(scene) {
       measureParks();
       applyLateral(lastF);
 
-      const work = document.querySelector('#work');
-      const conveyor = work ? work.querySelector('.conveyor') : null;
-      const track = conveyor
-        ? conveyor.querySelector('.conveyor-track')
-        : null;
-
-      if (work && conveyor && track) {
-        /* Function-based so a resize (via invalidateOnRefresh) remeasures
-           both the travel distance and the pin duration. */
-        const distance = () =>
-          Math.max(0, track.scrollWidth - conveyor.clientWidth);
-        gsap.to(track, {
-          x: () => -distance(),
-          ease: 'none',
-          scrollTrigger: {
-            trigger: work,
-            pin: true,
-            anticipatePin: 1,
-            scrub: 1,
-            start: 'top top',
-            end: () => '+=' + distance(),
-            invalidateOnRefresh: true
-          }
-        });
-      }
+      /* #work is no longer pinned: cylinder.js owns that section's motion
+         with its own rAF loop, so the section scrolls like any other. */
 
       /* ------------------------------------------------------------
        * Scrubbed #vsl gutter. zoneT ramps in as the video enters
@@ -526,7 +502,7 @@ export function initScrollChoreography(scene) {
      * 5b. Endgame: GROWTH -> SPHERE (formation 5 -> 6). Starts the
      * moment #work's heading crosses 70% of the viewport and runs over
      * 150vh of scroll - station pace - so the growth curve slowly
-     * gathers itself into the tumbling globe while the conveyor pins.
+     * gathers itself into the tumbling globe while the cylinder turns.
      * From there the sphere holds dead center behind everything to the
      * end of the page. All sizes, not just desktop: below 900px the
      * machine is centered anyway. Updates run in start-position order,
@@ -557,8 +533,6 @@ export function initScrollChoreography(scene) {
 
     /* --------------------------------------------------------------
      * 6. Reading dim for #book and #faq.
-     * Created AFTER the conveyor pin in page order, so their start/end
-     * are measured with the pin's spacer in place.
      * -------------------------------------------------------------- */
     ['#book', '#faq'].forEach((sel, i) => {
       const section = document.querySelector(sel);

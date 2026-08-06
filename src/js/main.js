@@ -11,6 +11,9 @@
  *   tears everything down to no-3d. The page stays fully readable.
  * - Always-on utilities run with or without 3D: nav burger, footer year,
  *   Calendly lazy-load, "Say hi" bubble gating, Facebook Pixel.
+ * - #work's card cylinder is gated on prefers-reduced-motion ONLY, not on
+ *   the WebGL boot: it is plain CSS 3D, so a machine that fails scene.init
+ *   still gets it. Under reduced motion the scroll-snap strip stays.
  * - `js-enabled` is added by the tiny inline script in <head>, not here.
  * - No THREE and no GSAP imports in this file.
  */
@@ -181,22 +184,66 @@ function scheduleBoot() {
   };
   /* Double rAF lets the first paint land before any chunk work starts. */
   window.requestAnimationFrame(() => {
-    window.requestAnimationFrame(() => idle(boot3D));
+    window.requestAnimationFrame(() =>
+      idle(() => {
+        boot3D();
+        bootCylinder();
+      })
+    );
   });
+}
+
+/* ====================================================================
+ * #work card cylinder. Its own gate, its own rAF loop; see cylinder.js.
+ * Loaded lazily so it never competes with the hero paint.
+ * ================================================================== */
+let cylinderCleanup = null;
+let cylinderLoading = false;
+
+function bootCylinder() {
+  if (cylinderCleanup || cylinderLoading || prefersReducedMotion()) return;
+  if (!document.querySelector('.conveyor[data-cylinder]')) return;
+  cylinderLoading = true;
+  import('./cylinder.js')
+    .then((mod) => {
+      cylinderLoading = false;
+      if (prefersReducedMotion()) return;
+      try {
+        cylinderCleanup = mod.initWorkCylinder();
+      } catch (err) {
+        /* Decorative: the scroll-snap strip is still underneath. */
+        cylinderCleanup = null;
+      }
+    })
+    .catch(() => {
+      cylinderLoading = false;
+    });
+}
+
+function teardownCylinder() {
+  if (!cylinderCleanup) return;
+  try {
+    cylinderCleanup();
+  } catch (err) {
+    /* decorative only */
+  }
+  cylinderCleanup = null;
 }
 
 onMedia(motionQuery, () => {
   if (prefersReducedMotion()) {
     teardown3D();
+    teardownCylinder();
   } else {
     boot3D();
+    bootCylinder();
   }
 });
 
 /* Landing on a /#hash from another page: the browser performs its anchor
-   jump before ScrollTrigger inserts the conveyor's pin spacer, so the
-   target ends up further down than where the browser left us. Re-aim once
-   ScrollTrigger's own load refresh has run. */
+   jump before fonts, lazy images and ScrollTrigger's load refresh have
+   settled the layout, so the target drifts from where the browser left us.
+   Re-aim once those have run. */
 window.addEventListener('load', () => {
   if (!location.hash || location.hash.length < 2) return;
   let target = null;
@@ -213,10 +260,10 @@ window.addEventListener('load', () => {
   });
 });
 
-/* bfcache restore freezes the WebGL scene and every pin measurement at
-   their pre-navigation state; re-measuring mid-scroll is not reliable with
-   a pinned section. A fresh load rebuilds cleanly and scrollRestoration
-   puts the visitor back where they were. Only needed when 3D actually ran. */
+/* bfcache restore hands back a frozen WebGL context and stale trigger
+   measurements; re-measuring mid-scroll is not reliable. A fresh load
+   rebuilds cleanly and scrollRestoration puts the visitor back where they
+   were. Only needed when 3D actually ran. */
 window.addEventListener('pageshow', (event) => {
   if (event.persisted && sceneActive) window.location.reload();
 });
