@@ -136,13 +136,16 @@ from-states. Eyebrow budget: max 3 on the whole page.
    the `<a>` becomes the front face, the `<figcaption>` the back face (blurred reuse of
    the same screenshot), with extruded edge slices between them. Nodes are moved, never
    cloned, so the accessible copy stays single-sourced.
-   5 cards 16:9 with real screenshots — note the file numbering is NOT display order:
-   Anderson Roofing & Renovations (andersonroofingrenovations.com, `work-2.webp`) ·
-   Water Automation (waterautomation.com, `work-3.webp`) · The Leak Geeks
-   (theleakgeeks.com, `work-4.webp`) · GreaterGood (greatergood.co, `work-1.webp`) ·
-   Tiny Homes SA (tinyhomesa.com, `work-5.webp`). Front face carries browser chrome
-   (dots + domain) and a caption plate; back face carries client, trade and domain.
-   Needs ≥5 cards: below that the ring is too short to hide its own seam.
+   9 cards 16:9 with real screenshots — note the file numbering is NOT display order:
+   Cognexa (cognexa.co.za, `work-6.webp`) · Water Automation (waterautomation.com,
+   `work-3.webp`) · The Leak Geeks (theleakgeeks.com, `work-4.webp`) · GreaterGood
+   (greatergood.co, `work-1.webp`) · Tiny Homes SA (tinyhomesa.com, `work-5.webp`) ·
+   Cajee Botes (cajeebotes.com, `work-7.webp`) · Position Xero (positionxero.com,
+   `work-8.webp`) · Otaku Kulture (otakukulture.co.za, `work-9.webp`) · D&D Luxury
+   (dndlux.com, `work-10.webp`). Front face carries browser chrome (dots + domain) and a
+   caption plate; back face carries client, trade and domain.
+   Needs ≥5 cards: below that the ring is too short to hide its own seam. Adding one is
+   just another `<figure>` — the ring, wrap and fade all size themselves off the count.
 7. **`#testimonials`** - H2 "Trusted by the trades." Asymmetric 2-col grid (1-col mobile) of
    4 quotes, each ≤3 lines, real names + avatars (`/assets/images/avatar-*.webp`):
    Greg (Water Automation), Michael Anderson (Anderson Roofing & Renovations),
@@ -219,8 +222,15 @@ the pass, hold, release 0.58→0.88, ellipse measured + center-tracked; ≥900px
 approach morph (`#vsl` top 120%→30%, scrub 0.6, formation 0→1); formation driver mapped
 over `#services` (4 stations × 150vh hold formations 2..5:
 `setFormation(clamp(1,5, progress*4.67 + 1.166))` re-derived if heights change, scrub 0.6);
-endgame sphere (`#work` top 70% + 150vh, scrub 0.6, formation 5→6, all sizes; while its
-progress > 0 the machine is centered, zones/parking suppressed, dim eased to 0.75); lateral
+endgame sphere (`#work` `top bottom+=25%` → `top 25%`, scrub 0.6, formation 5→6, all sizes;
+timed to be COMPLETE before #work is on screen, so the card cylinder always turns in front
+of a finished globe. That window is the 125vh dead zone where the formation driver has
+already clamped to 5 — starts partway through station 04, no formation jump at the handoff.
+Two consequences that are load-bearing: `applyFormation` folds `sphereT` in itself (the
+morph ends while #services is still active, and two scrubbed triggers have no reliable
+ordering once one stops updating), and `applyLateral` eases the park out by `sphereT`
+rather than hard-centering, so the machine glides off station 04's panel on scroll instead
+of swooshing on its own easing. Dim eased to 0.75); lateral
 parking above #work only (measure `.station-inner` rects, alternate sides, 0 <900px; park
 index = formation - 1); hero scrub-out; station reveals (`gsap.from` y32/opacity, stagger
 0.06, toggleActions play none none reverse; opacity NOT autoAlpha); ghost number ±6vh

@@ -117,8 +117,8 @@ export function initScrollChoreography(scene) {
      handoff: the middle half of each formation-to-formation span does the
      travelling, so the particles are parked and still while you read. */
   function applyLateral(f) {
-    /* The endgame sphere never dodges: pinned dead center. */
-    if (sphereT > 0) {
+    /* The endgame sphere never dodges: pinned dead center once formed. */
+    if (sphereT >= 1) {
       sceneCall('setLateral', 0, 0);
       return;
     }
@@ -153,6 +153,19 @@ export function initScrollChoreography(scene) {
       const baseStrip = stripFrac > 0 ? stripFrac : 1;
       offFrac += (ZONE_SIDE * 0.86 - offFrac) * zt;
       stripFrac = baseStrip + (ZONE_STRIP - baseStrip) * zt;
+    }
+    /* Un-park on the way into the sphere. The morph now begins while station
+       04 is still being read, so the machine is parked beside its panel when
+       it starts: releasing the park in one go makes it swoosh to center on
+       its own 0.08/frame easing, untied to the scroll. Blending it out by
+       sphereT keeps the whole handoff scrub-driven, and rewinds identically.
+       Strip blends toward 1 (full width), never through 0 - a near-zero
+       strip on the way past would pinch the machine to a dot. */
+    if (sphereT > 0) {
+      const st = sphereT * sphereT * (3 - 2 * sphereT);
+      offFrac += (0 - offFrac) * st;
+      const baseStrip = stripFrac > 0 ? stripFrac : 1;
+      stripFrac = baseStrip + (1 - baseStrip) * st;
     }
     sceneCall('setLateral', offFrac, stripFrac);
   }
@@ -297,8 +310,24 @@ export function initScrollChoreography(scene) {
       const f =
         p < CENTER1_P ? 1 + p / CENTER1_P : clamp(2, 5, p * 4.67 + 1.166);
       lastF = f;
-      sceneCall('setFormation', f);
+      /* The endgame morph now finishes while #services is STILL active, and
+         two scrubbed triggers give no reliable ordering once one of them has
+         stopped updating - so this driver has to fold sphereT in itself
+         rather than trust the sphere to overwrite it. Without this the globe
+         snaps back to the curve for the last stretch before #work.
+         sphereT > 0 only ever happens where f is already clamped to 5. */
+      sceneCall('setFormation', sphereT > 0 ? 5 + sphereT : f);
       applyLateral(f);
+    }
+
+    /* Below the stations: GROWTH is held, PLUS whatever the endgame morph
+       has already done. Folding sphereT back in is load-bearing - that morph
+       now finishes BEFORE #services scrolls out, so without it the finished
+       sphere would snap back to the curve the moment the section leaves. */
+    function holdEndgame() {
+      lastF = 5;
+      sceneCall('setFormation', 5 + sphereT);
+      applyLateral(5);
     }
 
     if (services) {
@@ -319,11 +348,7 @@ export function initScrollChoreography(scene) {
                formation; just re-park with the fresh measurements. */
             applyLateral(lastF);
           } else {
-            /* Below the stations: hold GROWTH centered until the
-               endgame sphere scrub takes over. */
-            lastF = 5;
-            sceneCall('setFormation', 5);
-            sceneCall('setLateral', 0, 0);
+            holdEndgame();
           }
         },
         onToggle(self) {
@@ -331,9 +356,7 @@ export function initScrollChoreography(scene) {
           if (self.progress <= 0) {
             applyLateral(lastF);
           } else {
-            lastF = 5;
-            sceneCall('setFormation', 5);
-            sceneCall('setLateral', 0, 0);
+            holdEndgame();
           }
         }
       });
@@ -499,31 +522,43 @@ export function initScrollChoreography(scene) {
     });
 
     /* --------------------------------------------------------------
-     * 5b. Endgame: GROWTH -> SPHERE (formation 5 -> 6). Starts the
-     * moment #work's heading crosses 70% of the viewport and runs over
-     * 150vh of scroll - station pace - so the growth curve slowly
-     * gathers itself into the tumbling globe while the cylinder turns.
-     * From there the sphere holds dead center behind everything to the
-     * end of the page. All sizes, not just desktop: below 900px the
-     * machine is centered anyway. Updates run in start-position order,
-     * so this outranks the station driver in their overlap.
+     * 5b. Endgame: GROWTH -> SPHERE (formation 5 -> 6).
+     *
+     * The morph is timed to be COMPLETE by the time #work is on screen, so
+     * the card cylinder always turns in front of a finished globe rather
+     * than a curve still gathering itself.
+     *
+     * Window (re-derive alongside the formation driver above if station
+     * heights change). With S = the scroll where #services' top meets the
+     * viewport top, that driver clamps to formation 5 at p = 0.821 of its
+     * 700vh span, i.e. S + 475vh - which is 125vh before #work's top
+     * reaches the viewport top at S + 600vh. So GROWTH finishes forming
+     * partway through station 04 and then just sits there. That dead 125vh
+     * is exactly what the morph now uses:
+     *   start 'top bottom+=25%' -> #work's top 125vh below the fold = S+475
+     *   end   'top 25%'         -> #work's top 25vh from the top  = S+575
+     * Beginning right where GROWTH completes means there is no formation
+     * jump at the handoff, and 100vh of station-pace scroll to run in.
+     *
+     * All sizes, not just desktop: below 900px the machine is centered
+     * anyway. Updates run in start-position order, so this outranks the
+     * station driver throughout their overlap.
      * -------------------------------------------------------------- */
     const work = document.querySelector('#work');
 
     function applySphere(self) {
       sphereT = self.progress;
-      if (sphereT > 0) {
-        sceneCall('setFormation', 5 + sphereT);
-        sceneCall('setLateral', 0, 0);
-      }
+      if (sphereT > 0) sceneCall('setFormation', 5 + sphereT);
+      /* Not a hard re-center: applyLateral eases the park out by sphereT. */
+      applyLateral(lastF);
       applyDim();
     }
 
     if (work) {
       ScrollTrigger.create({
         trigger: work,
-        start: 'top 70%',
-        end: () => '+=' + window.innerHeight * 1.5,
+        start: 'top bottom+=25%',
+        end: 'top 25%',
         scrub: 0.6,
         invalidateOnRefresh: true,
         onUpdate: applySphere,
