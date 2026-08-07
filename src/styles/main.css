@@ -1161,6 +1161,245 @@ main > section#services { padding-block: 0; }
 }
 
 /* ==========================================================================
+   .arcade — the "spiderman" easter egg overlay (src/js/arcade.js)
+   Injected only when the word is typed; nothing here renders otherwise.
+   ========================================================================== */
+
+.arcade {
+  position: fixed;
+  inset: 0;
+  z-index: 900; /* above overlays, below nothing else we own */
+  display: grid;
+  place-items: center;
+  background: #050504;
+  animation: arcade-in 0.22s ease-out;
+}
+@keyframes arcade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arcade { animation: none; }
+}
+
+.arcade-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.arcade-canvas {
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.8);
+  touch-action: none;
+}
+
+.arcade-hud,
+.arcade-x,
+.arcade-mute {
+  font-family: var(--font-mono);
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  color: var(--text-2);
+}
+
+.arcade-hud {
+  position: absolute;
+  top: -28px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.arcade-score {
+  color: var(--accent);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.arcade-best { align-self: flex-end; }
+
+.arcade-controls {
+  position: absolute;
+  bottom: -42px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.arcade-x,
+.arcade-mute {
+  padding: 7px 14px;
+  min-height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-raise);
+}
+.arcade-mute[aria-pressed='true'] { color: var(--text-3); border-style: dashed; }
+.arcade-x:hover,
+.arcade-mute:hover { color: var(--accent); border-color: var(--accent-soft); }
+.arcade-x:focus-visible,
+.arcade-mute:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* High-score entry. Sits inside the game-over panel, which is otherwise
+   pointer-events:none, so it re-enables them for itself. */
+.arcade-form {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: min(300px, 82vw);
+  margin: 6px 0 2px;
+  text-align: left;
+}
+.arcade-form[hidden] { display: none; }
+.arcade-formlead {
+  margin: 0 0 2px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  text-align: center;
+}
+.arcade-form label {
+  display: grid;
+  gap: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: var(--text-3);
+}
+.arcade-form input {
+  width: 100%;
+  padding: 7px 10px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--text);
+  background: rgba(13, 12, 10, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.arcade-form input:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+.arcade-err {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--error);
+}
+.arcade-err[hidden] { display: none; }
+.arcade-formrow { display: flex; gap: 8px; margin-top: 2px; }
+.arcade-btn {
+  flex: 1;
+  padding: 8px 12px;
+  min-height: 36px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  color: var(--accent-ink);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+}
+.arcade-btn:disabled { opacity: 0.6; }
+.arcade-btn-ghost {
+  color: var(--text-2);
+  background: transparent;
+  border-color: var(--border);
+}
+.arcade-btn:hover:not(:disabled) { filter: brightness(1.08); }
+.arcade-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.arcade-fine {
+  margin: 2px 0 0;
+  font-size: 0.66rem;
+  line-height: 1.4;
+  color: var(--text-3);
+  text-align: center;
+}
+.arcade-cta[hidden] { display: none; }
+
+/* Title / game-over card, centred over the canvas. */
+.arcade-panel {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px;
+  text-align: center;
+  background: rgba(5, 5, 4, 0.82);
+  border-radius: 4px;
+  pointer-events: none;
+}
+.arcade-panel.is-open { display: flex; }
+
+.arcade-title {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: clamp(1.1rem, 3.4vw, 1.6rem);
+  letter-spacing: 0.18em;
+  color: var(--accent);
+}
+.arcade-sub {
+  margin: 0;
+  max-width: 34ch;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+.arcade-sub b { color: var(--text); }
+.arcade-cta {
+  margin: 4px 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  color: var(--text-3);
+}
+.arcade-cta b { color: var(--accent); }
+
+.arcade-board {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+  min-width: 128px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+.arcade-board { min-width: 190px; }
+.arcade-board li {
+  display: grid;
+  grid-template-columns: 1.4em 1fr auto;
+  gap: 10px;
+  align-items: baseline;
+  color: var(--text-3);
+  border-bottom: 1px solid rgba(43, 40, 34, 0.6);
+  padding-bottom: 1px;
+}
+.arcade-board li i {
+  font-style: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+.arcade-board li b { color: var(--text-2); font-weight: 500; }
+.arcade-board li:first-child,
+.arcade-board li:first-child b,
+.arcade-board li:first-child i { color: var(--accent); }
+
+/* ==========================================================================
    #testimonials — asymmetric quote grid
    ========================================================================== */
 

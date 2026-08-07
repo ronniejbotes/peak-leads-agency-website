@@ -267,6 +267,59 @@ Facebook Pixel `1586557796001231` (init + PageView; `CallScheduled` custom event
 Calendly `calendly.event_scheduled` postMessage fires; `Lead` on funnel submit). Pixel
 loads deferred (after load + 1.5s or first interaction).
 
+Easter egg: typing `spiderman` on the landing page dynamic-imports `src/js/arcade.js`
+(a 2D pixel web-swinging mini-game; see section 7b). The keystroke buffer ignores
+INPUT/TEXTAREA/SELECT/contenteditable targets and any modifier combo, so it can never
+swallow real typing, and the module is only fetched once the word completes.
+
+## 7b. Easter egg arcade (`src/js/arcade.js`)
+
+320x180 logical canvas, nearest-neighbour upscaled (integer factor above 2x). Fixed 60Hz
+physics accumulator so the swing arc is identical on 60Hz and 144Hz panels; only drawing
+is per-frame. Hold to fire a web at the ringed anchor, swing, release to launch, land on
+the next roof. Score = rooftops landed; top 5 persist in `localStorage` under
+`peak.arcade.scores` (`peak.arcade.muted` for audio).
+
+Physics rules that are load-bearing (each one fixed a bug that made the game unplayable):
+- One-sided rope constraint (pulls, never pushes) + a tangential **pump** while taut.
+  Launching from a rooftop starts you level with the bottom of the arc, so without the
+  pump there is no height to trade for speed and every swing is a limp drop.
+- Landing requires a real descent while roped (`vy > 0.5`); unroped it accepts `vy >= 0`
+  so simply *resting* on a roof keeps the grounded flag. Firing a web from a standstill
+  otherwise satisfies the landing test on frame one and drops the rope instantly.
+- The roof you launch from is intangible while the web is taut (`launchId`), so arcing
+  back across it is neither a landing nor a wall impact.
+- Consecutive roof heights are generated relative to each other, never absolutely -
+  absolute heights produce gaps no arc can clear, which reads as the game cheating.
+  Difficulty is gap width + roof width, and there is always one anchor per gap.
+
+High score capture: a run that makes the top 5 (and scored above 0) raises a name + email
+form before the board is repainted. SAVE posts `{name, email, score, source}` to the same
+`formsubmit.co/ajax/bradley@peakleads.agency` endpoint the free-audit funnel uses, so it
+lands in the same inbox; delivery failure is non-blocking because the local board already
+has the entry. SKIP (and ESC) still records the score, anonymously. The form is
+`novalidate` — the browser's native bubble would block submit before the handler runs, so
+its errors would never be seen; validation is ours and styled to match.
+
+Input guards that matter: SPACE is both "shoot a web" and a space character, and the game's
+key handler runs in the CAPTURE phase, so it stands down entirely when the event target is
+an INPUT/TEXTAREA. ESC is layered — it backs out of the form first, the game second.
+Pointer presses inside `.arcade-form` / `.arcade-controls` are controls, not swings.
+
+Assets: none. The hero is a string-map sprite (an original design; only the red/blue colour
+scheme is the familiar one) and the soundtrack is an original chiptune synthesised at
+runtime through the Web Audio API - square lead, triangle bass, filtered-noise drums,
+scheduled with a 25ms lookahead. Nothing is fetched, so the egg costs zero transfer until
+triggered and zero bytes of media ever. The AudioContext is created inside the trigger
+keydown, which is the user gesture autoplay policy requires. Music toggles from a labelled
+button under the canvas or the M key; the preference persists.
+
+Board entries are `{s, n}`; builds before names existed stored bare numbers, and those are
+normalised on read rather than discarded.
+
+`import.meta.env.DEV` gates a `root.__debug()` state accessor for driving the game from a
+headless browser; it is statically dropped from production builds.
+
 ## 8. Free-audit funnel (`/free-audit/` + `src/js/audit.js`)
 
 Full-screen dark shell, no site nav (brand wordmark + "peakleads.agency" link + X → `/`).
@@ -381,7 +434,7 @@ clean; `npm run build` passes; every page readable with JS disabled.
 | blog/ + 3 posts | agent D |
 | src/styles/main.css (everything) | agent E |
 | src/js/scene.js | agent F |
-| src/js/scroll.js + src/js/main.js + src/js/cylinder.js + src/js/pages/subpage.js | agent G |
+| src/js/scroll.js + src/js/main.js + src/js/cylinder.js + src/js/arcade.js + src/js/pages/subpage.js | agent G |
 | vite.config.js, package.json, public/*, sitemap, robots | orchestrator (me) |
 
 Shared references: this file + `scratchpad/r-peak.json` (verbatim copy/testimonials) +

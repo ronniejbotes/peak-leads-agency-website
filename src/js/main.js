@@ -465,6 +465,58 @@ function initSayHi() {
 }
 
 /* ====================================================================
+ * Easter egg: typing "spiderman" anywhere on the page opens the pixel
+ * web-swinging mini game. The module is only fetched once the word is
+ * actually completed, so visitors who never find it pay nothing for it.
+ * ================================================================== */
+const EGG = 'spiderman';
+
+function initEgg() {
+  let buffer = '';
+  let loading = false;
+  let closeArcade = null;
+
+  document.addEventListener('keydown', (event) => {
+    /* Never swallow real typing: fields, editable regions and shortcuts. */
+    const t = event.target;
+    if (
+      t &&
+      (t.tagName === 'INPUT' ||
+        t.tagName === 'TEXTAREA' ||
+        t.tagName === 'SELECT' ||
+        t.isContentEditable)
+    ) {
+      return;
+    }
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
+    if (!event.key || event.key.length !== 1) return;
+    if (closeArcade || loading) return;
+
+    buffer = (buffer + event.key.toLowerCase()).slice(-EGG.length);
+    if (buffer !== EGG) return;
+    buffer = '';
+    loading = true;
+    /* This keydown IS the user gesture the Web Audio API needs, and the
+       import resolves inside it, so the soundtrack is allowed to start. */
+    import('./arcade.js')
+      .then((mod) => {
+        loading = false;
+        closeArcade = mod.openArcade() || null;
+        if (closeArcade) {
+          const original = closeArcade;
+          closeArcade = () => {
+            original();
+            closeArcade = null;
+          };
+        }
+      })
+      .catch(() => {
+        loading = false;
+      });
+  });
+}
+
+/* ====================================================================
  * Boot
  * ================================================================== */
 function init() {
@@ -472,6 +524,7 @@ function init() {
   initYear();
   initCalendly();
   initSayHi();
+  initEgg();
   armPixel();
   scheduleBoot();
 }
