@@ -176,7 +176,7 @@ export function initScrollChoreography(scene) {
    * Two flags rather than toggling per section, so overlapping ranges
    * cannot blank each other on the way out.
    * ================================================================== */
-  const dimState = [false, false];
+  const dimState = [false, false, false, false];
 
   /* Content-avoidance for #vsl (desktop): while the video occupies the
      viewport the machine swims to the LEFT gutter beside it, scaled to
@@ -194,12 +194,24 @@ export function initScrollChoreography(scene) {
   /* 0..1 progress of the GROWTH -> SPHERE endgame morph. While > 0 the
      sphere owns the machine: dead center, no parking, no zones. */
   let sphereT = 0;
+  /* 0..1 daylight crossing (see section 5c). Read by applyDim: the machine
+     has to recede further once it is dark particles on a light ground. */
+  let dayT = 0;
 
   function applyDim() {
-    let base = dimState[0] || dimState[1] ? 0.4 : 1;
+    /* Reading-dim floor. 0.4 was tuned for chalk burning additively over the
+       dark half, where the machine sits BEHIND copy no matter how bright it
+       gets. Past the daylight seam the same particles are dark graphite on a
+       light ground, so an identical alpha stops reading as depth and starts
+       reading as haze laid across the text - worst over #process, the only
+       section down there with bare copy and no panel under it. Drop the
+       floor as --day comes up. */
+    const floor = 0.4 - 0.24 * dayT;
+    let base = dimState[0] || dimState[1] || dimState[2] || dimState[3] ? floor : 1;
     /* The endgame sphere recedes a touch so it reads as a background
-       behind content, never a wash over it. */
-    if (sphereT > 0) base = Math.min(base, 1 - 0.25 * sphereT);
+       behind content, never a wash over it. Same reasoning as the floor:
+       it has further to recede once the ground is light. */
+    if (sphereT > 0) base = Math.min(base, 1 - (0.25 + 0.2 * dayT) * sphereT);
     const zt = zoneT * zoneT * (3 - 2 * zoneT);
     sceneCall('setDim', Math.min(base, 1 - (1 - ZONE_DIM) * zt));
   }
@@ -567,9 +579,68 @@ export function initScrollChoreography(scene) {
     }
 
     /* --------------------------------------------------------------
+     * 5c. Daylight: the page crosses from the dark half into the light
+     * one over the station-04 -> #work handoff.
+     *
+     * Window 'top bottom' -> 'top top' on #work is exactly the 100vh in
+     * which station 04's panel rides up and off the top while the conveyor
+     * rises to meet it. Station 04 finishes its sticky hold at S+500vh,
+     * the same scroll this trigger starts at (re-derive against the
+     * endgame block above if station heights change), so nothing that is
+     * still being read gets recoloured mid-sentence.
+     *
+     * ONE number drives both sides: every token in .theme-day is a
+     * color-mix against --day, and setDay crossfades the particles to the
+     * matching ramp. That lockstep is load-bearing rather than tidy -
+     * #work's H2 enters the viewport within a few px of this trigger's
+     * start, so a class toggle at either end of the window would strand
+     * dark ink on a dark ground (or bone on bone) for most of the pass.
+     * Scrubbing the tokens keeps contrast intact the whole way across.
+     *
+     * Smoothstepped so both ends settle instead of arriving linearly, and
+     * scrubbed, so scrolling back rewinds it like everything else.
+     * -------------------------------------------------------------- */
+    const dayHost = document.body;
+    let lastDay = -1;
+
+    function applyDay(self) {
+      const p = self.progress;
+      const d = p * p * (3 - 2 * p);
+      /* Quantised: an inherited custom property change invalidates style
+         for the subtree that reads it, so skip the frames where the value
+         has not actually moved a visible amount. */
+      const q = Math.round(d * 500) / 500;
+      if (q === lastDay) return;
+      lastDay = q;
+      dayT = q;
+      dayHost.style.setProperty('--day', String(q));
+      sceneCall('setDay', q);
+      /* The reading-dim floor is a function of dayT, so it has to be
+         recomputed as the ground crosses over, not just on section toggle. */
+      applyDim();
+    }
+
+    if (work) {
+      ScrollTrigger.create({
+        trigger: work,
+        start: 'top bottom',
+        end: 'top top',
+        scrub: 0.6,
+        invalidateOnRefresh: true,
+        onUpdate: applyDay,
+        onRefresh: applyDay
+      });
+    }
+
+    /* --------------------------------------------------------------
      * 6. Reading dim for #book and #faq.
      * -------------------------------------------------------------- */
-    ['#book', '#faq'].forEach((sel, i) => {
+    /* #process joins #book and #faq: it is the one section in the daylight
+       half whose copy sits straight on the ground with no card or panel
+       between it and the machine, and the endgame sphere is at its densest
+       exactly there. #network is the same case: a typewriter headline and a
+       ring of avatars, both straight on the ground. */
+    ['#book', '#faq', '#process', '#network'].forEach((sel, i) => {
       const section = document.querySelector(sel);
       if (!section) return;
       ScrollTrigger.create({
@@ -744,9 +815,17 @@ export function initScrollChoreography(scene) {
       /* decorative only */
     }
     progressHost.style.setProperty('--scroll-progress', '0');
+    /* Drop the inline --day rather than zeroing it: removing it lets the
+       stylesheet's own fallback win, which is what paints the daylight half
+       once nothing is scrubbing it (teardown means no-3d or reduced motion,
+       where .theme-day carries its own ground). Leaving a mid value here
+       would freeze body::after as a half-lit wash over the whole page. */
+    document.body.style.removeProperty('--day');
+    dayT = 0;
     sceneCall('setDim', 1);
     sceneCall('setLateral', 0, 0);
     sceneCall('setRing', 0);
+    sceneCall('setDay', 0);
   }
 
   activeCleanup = cleanup;

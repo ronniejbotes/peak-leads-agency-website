@@ -19,6 +19,7 @@
  */
 import '../styles/main.css';
 import { armPixel } from './pixel.js';
+import { initNetwork } from './network.js';
 
 const docEl = document.documentElement;
 const body = document.body || docEl;
@@ -525,6 +526,9 @@ function init() {
   initCalendly();
   initSayHi();
   initEgg();
+  /* Always-on: the typewriter is plain DOM work, so it runs whether or not
+     the WebGL gate below opens. */
+  initNetwork();
   armPixel();
   scheduleBoot();
 }

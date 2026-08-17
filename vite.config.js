@@ -14,6 +14,7 @@ export default defineConfig({
         about: page('./about/index.html'),
         services: page('./services/index.html'),
         contact: page('./contact/index.html'),
+        pricing: page('./pricing/index.html'),
         freeAudit: page('./free-audit/index.html'),
         blog: page('./blog/index.html'),
         postRoofingLeads: page('./blog/how-much-do-roofing-leads-cost/index.html'),

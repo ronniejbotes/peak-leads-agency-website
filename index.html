@@ -133,7 +133,7 @@
                 "@id": "https://peakleads.agency/services/#leads",
                 "name": "Lead generation",
                 "serviceType": "Lead generation",
-                "description": "Exclusive leads generated under your own brand and delivered in real time to you alone. No shared lists, no bidding against other contractors.",
+                "description": "Exclusive leads generated under your own brand and delivered in real time to you alone. No shared lists, no bidding against other contractors. Lead packs start at $140 for 150 leads; managed retainers are priced separately at https://peakleads.agency/pricing/.",
                 "provider": { "@id": "https://peakleads.agency/#organization" },
                 "areaServed": { "@type": "Country", "name": "United States" }
               },
@@ -187,7 +187,7 @@
         "name": "What does it cost?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Lead generation packages start from $140. Websites, SEO and ad campaigns are scoped on the call, so the price matches your market and your goals. No lock-in contracts."
+          "text": "Two ways in. Exclusive lead packs start from $140 for 150 leads. Managed lead generation, where we run appointment setting, email outreach or LinkedIn ads for you, starts from $1,999 per month in the US and R19,950 in South Africa, as at August 2026. Websites, SEO and ad campaigns are scoped on the call. No lock-in contracts."
         }
       },
       {
@@ -203,7 +203,7 @@
         "name": "Do I pay upfront?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "No upfront payments. If you are not happy, you do not pay."
+          "text": "No upfront payments on websites, SEO or ad campaigns. If you are not happy, you do not pay. Managed lead generation retainers are the exception: those are prepaid monthly, because the data and the ad spend start on day one."
         }
       },
       {
@@ -246,6 +246,7 @@
         <a href="/services/">What We Do</a>
         <a href="/#testimonials">Testimonials</a>
         <a href="/blog/">Blog</a>
+        <a href="/pricing/">Pricing</a>
         <a class="nav-cta" href="/#book">Book A Call</a>
       </div>
       <button class="nav-burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav-links">
@@ -394,7 +395,7 @@
               <li>100% exclusive to you</li>
               <li>Under your own brand</li>
               <li>Delivered in real time</li>
-              <li>Packages from $140</li>
+              <li>Lead packs from $140</li>
             </ul>
             <a href="/services/#leads">See lead generation <span aria-hidden="true">&rarr;</span></a>
           </div>
@@ -403,8 +404,11 @@
 
     </section>
 
-    <!-- 5. Work conveyor -->
-    <section id="work">
+    <!-- 5. Work conveyor — first section of the daylight half. Everything
+         from here down carries .theme-day; scroll.js scrubs --day across
+         the handoff above so the ground, the copy and the particles all
+         cross over together. -->
+    <section id="work" class="theme-day">
       <h2>Recent work.</h2>
       <div class="conveyor" data-cylinder tabindex="0" role="region" aria-label="Recent client websites, horizontally scrollable">
         <div class="conveyor-track">
@@ -467,7 +471,7 @@
     </section>
 
     <!-- 6. Testimonials -->
-    <section id="testimonials">
+    <section id="testimonials" class="theme-day">
       <h2>Trusted by the trades.</h2>
       <div class="quote-grid">
 
@@ -543,7 +547,7 @@
     </section>
 
     <!-- 7. Process -->
-    <section id="process">
+    <section id="process" class="theme-day">
       <h2>From first call to first lead.</h2>
       <ol class="process-rows">
         <li class="process-row">
@@ -570,8 +574,111 @@
       </ol>
     </section>
 
+    <!-- 7b. Network — orbiting client proof, the last beat before booking.
+         Ported from a React/Vite hero spec: concentric spinning orbits with
+         avatars, typewriter heading, count-up core, conic-gradient button
+         border and a marquee strip. Every face and screenshot here is a real
+         Peak Leads client from #work, and the core counts to the same
+         verified figure as #proof - nothing on this page is a stock avatar
+         or an invented number. -->
+    <section id="network" class="theme-day">
+      <div class="network-inner">
+
+        <div class="network-copy">
+          <p class="eyebrow">The bench</p>
+          <!-- Full text lives in the markup so it survives JS being off;
+               network.js empties it and types it back. data-split is the
+               character index where the ink half hands over to the accent. -->
+          <h2 class="typewriter" data-typewriter data-split="50">The businesses above trust us with their pipeline. Yours could be next.</h2>
+          <p>Nine businesses, four channels, one small team that answers the phone.
+          The same people who built the sites above will build yours, and you will
+          know all of their names by the second week.</p>
+
+          <div class="btn-border-wrap">
+            <a class="btn btn-primary network-cta" href="#book">
+              Start your project
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M9 18l6-6-6-6"></path>
+              </svg>
+            </a>
+          </div>
+
+          <p class="network-cursor" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" focusable="false">
+              <path d="M5 2l14 8.5-6.2 1.4L9.6 19z"></path>
+            </svg>
+            <span>Bradley</span>
+          </p>
+        </div>
+
+        <!-- Decorative: every client named here is read out by the strip
+             below, so the spinning copy stays out of the a11y tree. -->
+        <div class="orbits" aria-hidden="true">
+         <div class="orbits-stage">
+          <div class="orbit orbit-4">
+            <span class="orbit-item" style="--a:30deg"><span class="orbit-face" style="--glow:rgba(217,199,160,0.55)"><img src="/assets/images/avatar-david.webp" alt="" width="160" height="160" loading="lazy"></span></span>
+            <span class="orbit-item" style="--a:95deg"><span class="orbit-face is-tile is-lg" style="--glow:rgba(217,164,65,0.5)"><img src="/assets/images/work-3.webp" alt="" width="1200" height="675" loading="lazy"></span></span>
+            <span class="orbit-item" style="--a:220deg"><span class="orbit-face is-lg" style="--glow:rgba(196,160,110,0.55)"><img src="/assets/images/bradley.webp" alt="" width="160" height="160" loading="lazy"></span></span>
+            <span class="orbit-item" style="--a:320deg"><span class="orbit-face is-tile" style="--glow:rgba(217,199,160,0.45)"><img src="/assets/images/work-5.webp" alt="" width="1200" height="675" loading="lazy"></span></span>
+          </div>
+          <div class="orbit orbit-3">
+            <span class="orbit-item" style="--a:130deg"><span class="orbit-face is-tile is-lg" style="--glow:rgba(217,164,65,0.45)"><img src="/assets/images/work-8.webp" alt="" width="1200" height="675" loading="lazy"></span></span>
+          </div>
+          <div class="orbit orbit-2">
+            <span class="orbit-item" style="--a:60deg"><span class="orbit-face" style="--glow:rgba(217,164,65,0.55)"><img src="/assets/images/avatar-sarah.webp" alt="" width="160" height="160" loading="lazy"></span></span>
+            <span class="orbit-item" style="--a:180deg"><span class="orbit-face is-md" style="--glow:rgba(217,199,160,0.5)"><img src="/assets/images/avatar-michael.webp" alt="" width="160" height="160" loading="lazy"></span></span>
+            <span class="orbit-item" style="--a:300deg"><span class="orbit-face is-tile" style="--glow:rgba(196,160,110,0.5)"><img src="/assets/images/work-6.webp" alt="" width="1200" height="675" loading="lazy"></span></span>
+          </div>
+          <div class="orbit orbit-1">
+            <span class="orbit-item" style="--a:270deg"><span class="orbit-face is-tile" style="--glow:rgba(217,199,160,0.6)"><img src="/assets/images/avatar-greg.webp" alt="" width="160" height="160" loading="lazy"></span></span>
+          </div>
+          <!-- Deliberately NOT .stat/.stat-value: those are global classes
+               carrying container-type + 26cqi sizing for #proof's grid, which
+               collapses on an auto-width absolute box. network.js counts this
+               one up instead. -->
+          <div class="orbit-core">
+            <p class="orbit-count" data-count-to="7" data-money-usd="$7M+" data-money-zar="R114M+" data-prefix="$" data-suffix="M+">$7M+</p>
+            <p class="orbit-label">in client revenue</p>
+          </div>
+         </div>
+        </div>
+      </div>
+
+      <div class="ticker">
+        <ul class="ticker-track">
+          <li>Cognexa</li><li>Water Automation</li><li>The Leak Geeks</li><li>GreaterGood</li><li>Tiny Homes SA</li><li>Cajee Botes</li><li>Position Xero</li><li>Otaku Kulture</li><li>D&amp;D Luxury</li>
+        </ul>
+        <ul class="ticker-track" aria-hidden="true">
+          <li>Cognexa</li><li>Water Automation</li><li>The Leak Geeks</li><li>GreaterGood</li><li>Tiny Homes SA</li><li>Cajee Botes</li><li>Position Xero</li><li>Otaku Kulture</li><li>D&amp;D Luxury</li>
+        </ul>
+      </div>
+    </section>
+
+    <script>
+    /* Currency swap for #network's core figure. The #proof swap above ran at
+       parse time and this section did not exist yet, so it needs its own
+       pass - same key, same data-count rewrite so the count-up lands on the
+       right number. */
+    (function () {
+      var key = document.documentElement.getAttribute('data-region') === 'za' ? 'zar' : 'usd';
+      var nodes = document.querySelectorAll('#network [data-money-' + key + ']');
+      for (var i = 0; i < nodes.length; i++) {
+        var el = nodes[i];
+        var text = el.getAttribute('data-money-' + key);
+        if (!text || el.textContent === text) continue;
+        el.textContent = text;
+        var m = /(\d+(?:\.\d+)?)/.exec(text);
+        if (m && el.hasAttribute('data-count-to')) {
+          el.setAttribute('data-count-to', m[1]);
+          el.setAttribute('data-prefix', text.slice(0, m.index));
+          el.setAttribute('data-suffix', text.slice(m.index + m[1].length));
+        }
+      }
+    })();
+    </script>
+
     <!-- 8. Book a call -->
-    <section id="book">
+    <section id="book" class="theme-day">
       <h2>Let&rsquo;s talk about your project.</h2>
       <p>30 minutes with Bradley. Free, direct, no pitch deck.</p>
       <div class="calendly-inline-widget" id="calendly" data-url="https://calendly.com/bradley-hart/30min?hide_gdpr_banner=1"></div>
@@ -579,7 +686,7 @@
     </section>
 
     <!-- 9. FAQ -->
-    <section id="faq">
+    <section id="faq" class="theme-day">
       <h2>Questions, answered.</h2>
       <div class="faq-list">
         <details class="glass">
@@ -588,7 +695,7 @@
         </details>
         <details class="glass">
           <summary>What does it cost?</summary>
-          <p>Lead generation packages start from $140. Websites, SEO and ad campaigns are scoped on the call, so the price matches your market and your goals. No lock-in contracts.</p>
+          <p>Two ways in. Exclusive lead packs start from $140 for 150 leads. Managed lead generation, where we run appointment setting, email outreach or LinkedIn ads for you, starts from $1,999 per month in the US and R19,950 in South Africa (August 2026) &mdash; the full breakdown is on the <a href="/pricing/">pricing</a> page. Websites, SEO and ad campaigns are scoped on the call. No lock-in contracts.</p>
         </details>
         <details class="glass">
           <summary>How fast is the website live?</summary>
@@ -596,7 +703,7 @@
         </details>
         <details class="glass">
           <summary>Do I pay upfront?</summary>
-          <p>No upfront payments. If you are not happy, you do not pay.</p>
+          <p>No upfront payments on websites, SEO or ad campaigns. If you are not happy, you do not pay. Managed lead generation retainers are the exception: those are prepaid monthly, because the data and the ad spend start on day one. Rates are on the <a href="/pricing/">pricing</a> page.</p>
         </details>
         <details class="glass">
           <summary>Which trades do you work with?</summary>
@@ -611,7 +718,7 @@
 
   </main>
 
-  <footer class="site-footer">
+  <footer class="site-footer theme-day">
     <div class="footer-marquee" aria-hidden="true">
       <span>PEAKLEADS</span><span>PEAKLEADS</span><span>PEAKLEADS</span><span>PEAKLEADS</span>
     </div>
@@ -622,6 +729,7 @@
         <a href="/">Home</a>
         <a href="/about/">About</a>
         <a href="/services/">What We Do</a>
+        <a href="/pricing/">Pricing</a>
         <a href="/#testimonials">Testimonials</a>
         <a href="/blog/">Blog</a>
         <a href="/free-audit/">Free audit</a>

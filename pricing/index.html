@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+    /* Same region probe as the homepage: picks which currency the cards open
+       on. Timezone first, language as the fallback, USD as the default (and
+       what crawlers see). The swap itself runs inline just after the cards. */
+    (function () {
+      var d = document.documentElement;
+      d.classList.add('js-enabled');
+      var za = false;
+      try {
+        za = /^Africa\/(Johannesburg|Maseru|Mbabane)$/.test(
+          Intl.DateTimeFormat().resolvedOptions().timeZone || ''
+        );
+      } catch (e) { /* no Intl: fall through to language */ }
+      if (!za) {
+        try {
+          var langs = navigator.languages || [navigator.language || ''];
+          for (var i = 0; i < langs.length; i++) {
+            if (/-ZA$|^(af|zu|xh|st|tn|ts|ve|nr|ss)\b/i.test(langs[i])) { za = true; break; }
+          }
+        } catch (e) { /* leave as intl */ }
+      }
+      d.setAttribute('data-region', za ? 'za' : 'intl');
+    })();
+    </script>
+    <title>Lead Generation Pricing 2026 | Peak Leads</title>
+    <meta name="description" content="Lead generation packages for South Africa and the US. Appointment setting, email outreach and LinkedIn ads. Month to month, cancel any time." />
+    <link rel="canonical" href="https://peakleads.agency/pricing/" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="theme-color" content="#0D0C0A" />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Peak Leads" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content="Lead Generation Pricing 2026 | Peak Leads" />
+    <meta property="og:description" content="Lead generation packages for South Africa and the US. Appointment setting, email outreach and LinkedIn ads. Month to month, cancel any time." />
+    <meta property="og:url" content="https://peakleads.agency/pricing/" />
+    <meta property="og:image" content="https://peakleads.agency/assets/images/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Lead Generation Pricing 2026 | Peak Leads" />
+    <meta name="twitter:description" content="Lead generation packages for South Africa and the US. Appointment setting, email outreach and LinkedIn ads. Month to month, cancel any time." />
+    <meta name="twitter:image" content="https://peakleads.agency/assets/images/og-image.jpg" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://peakleads.agency/#organization",
+          "name": "Peak Leads",
+          "url": "https://peakleads.agency/",
+          "email": "bradley@peakleads.agency"
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://peakleads.agency/pricing/#breadcrumbs",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://peakleads.agency/" },
+            { "@type": "ListItem", "position": 2, "name": "Pricing", "item": "https://peakleads.agency/pricing/" }
+          ]
+        },
+        {
+          "@type": "WebPage",
+          "@id": "https://peakleads.agency/pricing/#webpage",
+          "url": "https://peakleads.agency/pricing/",
+          "name": "Lead Generation Pricing 2026 | Peak Leads",
+          "description": "Lead generation packages for South Africa and the US. Appointment setting, email outreach and LinkedIn ads. Month to month, cancel any time.",
+          "inLanguage": "en",
+          "dateModified": "2026-08-18",
+          "about": { "@id": "https://peakleads.agency/#organization" }
+        },
+        {
+          "@type": "Service",
+          "@id": "https://peakleads.agency/pricing/#appointments",
+          "name": "Appointment setting",
+          "serviceType": "Lead generation",
+          "url": "https://peakleads.agency/pricing/#packages",
+          "description": "Outbound appointment setting. We work a prospect list and book qualified meetings straight into your calendar.",
+          "provider": { "@id": "https://peakleads.agency/#organization" },
+          "areaServed": [{ "@type": "Country", "name": "South Africa" }, { "@type": "Country", "name": "United States" }],
+          "offers": [
+            { "@type": "Offer", "price": "19950", "priceCurrency": "ZAR", "eligibleRegion": { "@type": "Country", "name": "South Africa" }, "priceValidUntil": "2026-12-31" },
+            { "@type": "Offer", "price": "1999", "priceCurrency": "USD", "eligibleRegion": { "@type": "Country", "name": "United States" }, "priceValidUntil": "2026-12-31" }
+          ]
+        },
+        {
+          "@type": "Service",
+          "@id": "https://peakleads.agency/pricing/#email",
+          "name": "Email outreach",
+          "serviceType": "Lead generation",
+          "url": "https://peakleads.agency/pricing/#packages",
+          "description": "Sequenced sales email campaigns run to a compliant prospect list, with replies routed to your team.",
+          "provider": { "@id": "https://peakleads.agency/#organization" },
+          "areaServed": [{ "@type": "Country", "name": "South Africa" }, { "@type": "Country", "name": "United States" }],
+          "offers": [
+            { "@type": "Offer", "price": "23950", "priceCurrency": "ZAR", "eligibleRegion": { "@type": "Country", "name": "South Africa" }, "priceValidUntil": "2026-12-31" },
+            { "@type": "Offer", "price": "2900", "priceCurrency": "USD", "eligibleRegion": { "@type": "Country", "name": "United States" }, "priceValidUntil": "2026-12-31" }
+          ]
+        },
+        {
+          "@type": "Service",
+          "@id": "https://peakleads.agency/pricing/#linkedin",
+          "name": "LinkedIn ads",
+          "serviceType": "Lead generation",
+          "url": "https://peakleads.agency/pricing/#packages",
+          "description": "LinkedIn ad campaigns built and managed to produce a steady stream of enquiries, scaled up or down to your capacity. Includes Google and Meta ad management and a conversion-built landing page.",
+          "provider": { "@id": "https://peakleads.agency/#organization" },
+          "areaServed": [{ "@type": "Country", "name": "South Africa" }, { "@type": "Country", "name": "United States" }],
+          "offers": [
+            { "@type": "Offer", "price": "25950", "priceCurrency": "ZAR", "eligibleRegion": { "@type": "Country", "name": "South Africa" }, "priceValidUntil": "2026-12-31" },
+            { "@type": "Offer", "price": "2900", "priceCurrency": "USD", "eligibleRegion": { "@type": "Country", "name": "United States" }, "priceValidUntil": "2026-12-31" }
+          ]
+        },
+        {
+          "@type": "Service",
+          "@id": "https://peakleads.agency/pricing/#full",
+          "name": "The Full Climb",
+          "serviceType": "Lead generation",
+          "url": "https://peakleads.agency/pricing/#packages",
+          "description": "Appointment setting, email outreach and LinkedIn ads running together on one retainer, plus Google and Meta ad management and a full website build.",
+          "provider": { "@id": "https://peakleads.agency/#organization" },
+          "areaServed": [{ "@type": "Country", "name": "South Africa" }, { "@type": "Country", "name": "United States" }],
+          "offers": [
+            { "@type": "Offer", "price": "39950", "priceCurrency": "ZAR", "eligibleRegion": { "@type": "Country", "name": "South Africa" }, "priceValidUntil": "2026-12-31" },
+            { "@type": "Offer", "price": "4999", "priceCurrency": "USD", "eligibleRegion": { "@type": "Country", "name": "United States" }, "priceValidUntil": "2026-12-31" }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://peakleads.agency/pricing/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Is there a contract?",
+              "acceptedAnswer": { "@type": "Answer", "text": "No lock-in contract. Every package runs month to month and you can cancel any month. The month you have already paid for runs to the end of its term." }
+            },
+            {
+              "@type": "Question",
+              "name": "What does the setup fee cover?",
+              "acceptedAnswer": { "@type": "Answer", "text": "The setup fee pays for the build month, before a single message goes out. That covers sourcing and cleaning the prospect list, writing the sequences or the ads, wiring up tracking so every reply is attributed, and connecting the campaign to your calendar or CRM. It is charged once, in month one, on top of that month's fee." }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I use my own prospect list?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Yes. We can supply the list or work from yours. If you bring your own, we clean and verify it first, and the setup fee stays the same because the sequence and tracking work is unchanged." }
+            },
+            {
+              "@type": "Question",
+              "name": "Do the prices include VAT?",
+              "acceptedAnswer": { "@type": "Answer", "text": "South African prices exclude VAT. US prices carry no VAT. Your invoice will show the VAT line separately where it applies." }
+            },
+            {
+              "@type": "Question",
+              "name": "How soon do leads start arriving?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Month one is the build: list, sequences, tracking and approvals. Campaigns go live at the end of it, so the first replies and bookings land in month two. Anyone promising leads in week one is either running an old list or guessing." }
+            },
+            {
+              "@type": "Question",
+              "name": "What happens if it does not work?",
+              "acceptedAnswer": { "@type": "Answer", "text": "You cancel. There is no notice period and no exit fee. We would rather you leave after two months than stay on a retainer that is not paying for itself." }
+            },
+            {
+              "@type": "Question",
+              "name": "Do you do websites and SEO as well?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Yes. Paid ads and web design are already built into the LinkedIn Ads and Full Climb packages. If you want any of it on its own, or you want SEO alongside it, that is scoped separately." }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I get a package that is not on this page?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Yes, and most clients end up there. If you want a different mix of channels, a bigger website build, a lower volume to start with, or something that scales as you take on staff, we scope it on the call and price it around what you actually need." }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+  </head>
+
+  <body class="page-static">
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-nav">
+      <div class="nav-inner">
+        <a class="nav-brand" href="/">
+          <img src="/assets/images/logo.webp" alt="Peak Leads logo" width="40" height="40" />
+          <strong>PeakLeads</strong>
+        </a>
+        <button class="nav-burger" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Menu">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" focusable="false">
+            <line x1="4" y1="6" x2="20" y2="6"></line>
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <line x1="4" y1="18" x2="20" y2="18"></line>
+          </svg>
+        </button>
+        <nav class="nav-links" id="nav-links" aria-label="Primary">
+          <a href="/">Home</a>
+          <a href="/about/">About</a>
+          <a href="/services/">What We Do</a>
+          <a href="/pricing/" aria-current="page">Pricing</a>
+          <a href="/blog/">Blog</a>
+          <a class="nav-cta" href="/#book">Book A Call</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" tabindex="-1">
+      <div class="post post-pricing">
+        <p class="eyebrow">Pricing</p>
+        <h1>Lead generation pricing.</h1>
+
+        <p class="answer-block">Peak Leads runs lead generation on fixed monthly packages in
+        South Africa and the United States. Appointment setting starts at R19,950 per month in
+        South Africa and $1,999 per month in the US (August 2026). Every package is month to
+        month, paid up front, and you can cancel any month without a penalty.</p>
+
+        <p class="price-meta">Prices current as at 18 August 2026. South African prices exclude VAT.</p>
+
+        <!-- ============================================================
+             Region switch. Doubles as the page's one moment of delight:
+             flipping it re-counts every price and fires the confetti.
+             With JS off it is hidden and the cards show the region the
+             inline head probe picked, with both currencies still listed
+             in full in the comparison table below.
+             ============================================================ -->
+        <div class="region-switch" data-region-switch hidden>
+          <span class="region-switch-label" id="region-switch-label">Show prices for</span>
+          <div class="region-switch-track" role="radiogroup" aria-labelledby="region-switch-label">
+            <button type="button" class="region-switch-btn" data-region-btn="za" role="radio" aria-checked="false">
+              South Africa <span aria-hidden="true">ZAR</span>
+            </button>
+            <button type="button" class="region-switch-btn" data-region-btn="us" role="radio" aria-checked="true">
+              United States <span aria-hidden="true">USD</span>
+            </button>
+            <span class="region-switch-thumb" aria-hidden="true"></span>
+          </div>
+        </div>
+
+        <section id="packages" aria-labelledby="packages-title">
+          <h2 id="packages-title">What does lead generation cost?</h2>
+          <p><strong>Lead generation with Peak Leads costs between R19,950 and R39,950 per
+          month in South Africa, or between $1,999 and $4,999 per month in the United States
+          (August 2026),</strong> depending on which channel you run. Each package carries a
+          once-off setup fee in month one. There is no lock-in contract on any of them.</p>
+
+          <div class="pricing-grid" data-pricing-grid>
+
+            <article class="pricing-card" data-tilt>
+              <div class="pricing-card-glow" aria-hidden="true"></div>
+              <div class="pricing-card-body">
+                <p class="pricing-card-name">Appointments</p>
+                <p class="pricing-card-price">
+                  <span class="pricing-amount" data-price data-za="19950" data-us="1999" data-prefix-za="R" data-prefix-us="$">$1,999</span>
+                  <span class="pricing-period">per month</span>
+                </p>
+                <p class="pricing-card-setup">
+                  <span data-setup data-za="R9,950" data-us="$950">$950</span> once-off setup, charged in month one
+                </p>
+                <ul class="pricing-features">
+                  <li>We bring the prospect list, or we work from yours</li>
+                  <li>South African or US data, sourced for your market</li>
+                  <li>At least five qualified appointments a month</li>
+                  <li>Qualified means the prospect has shown real interest, not a cold name</li>
+                  <li>Booked straight into your calendar</li>
+                  <li>Paid up front each month by debit order</li>
+                  <li>Cancel any month, no lock-in</li>
+                </ul>
+                <a class="btn btn-ghost pricing-cta" href="#book">Book a call</a>
+                <p class="pricing-card-foot">Best if your sales team can close but has nothing in the diary.</p>
+              </div>
+            </article>
+
+            <article class="pricing-card" data-tilt>
+              <div class="pricing-card-glow" aria-hidden="true"></div>
+              <div class="pricing-card-body">
+                <p class="pricing-card-name">Email Outreach</p>
+                <p class="pricing-card-price">
+                  <span class="pricing-amount" data-price data-za="23950" data-us="2900" data-prefix-za="R" data-prefix-us="$">$2,900</span>
+                  <span class="pricing-period">per month</span>
+                </p>
+                <p class="pricing-card-setup">
+                  <span data-setup data-za="R9,950" data-us="$3,500">$3,500</span> once-off setup, charged in month one
+                </p>
+                <ul class="pricing-features">
+                  <li>We bring the prospect list, or we work from yours</li>
+                  <li>POPIA compliant in South Africa, privacy compliant in the US</li>
+                  <li>Sequenced drip campaigns, not one-off blasts</li>
+                  <li>Written, tested and tuned on reply rate</li>
+                  <li>Replies routed straight to your team</li>
+                  <li>Paid up front each month by debit order</li>
+                  <li>Cancel any month, no lock-in</li>
+                </ul>
+                <a class="btn btn-ghost pricing-cta" href="#book">Book a call</a>
+                <p class="pricing-card-foot">Best for reaching a lot of the right people quickly.</p>
+              </div>
+            </article>
+
+            <article class="pricing-card" data-tilt>
+              <div class="pricing-card-glow" aria-hidden="true"></div>
+              <div class="pricing-card-body">
+                <p class="pricing-card-name">LinkedIn Ads</p>
+                <p class="pricing-card-price">
+                  <span class="pricing-amount" data-price data-za="25950" data-us="2900" data-prefix-za="R" data-prefix-us="$">$2,900</span>
+                  <span class="pricing-period">per month</span>
+                </p>
+                <p class="pricing-card-setup">
+                  <span data-setup data-za="R9,950" data-us="$1,999">$1,999</span> once-off setup, charged in month one
+                </p>
+                <ul class="pricing-features">
+                  <li>We build and run the ads on LinkedIn</li>
+                  <li>We know which formats convert and how to write them</li>
+                  <li><strong>Google and Meta ads managed alongside them</strong></li>
+                  <li><strong>A conversion-built landing page, designed and hosted by us</strong></li>
+                  <li>Scaled up or down to match the volume you can handle</li>
+                  <li>Reported on what it cost you per enquiry</li>
+                  <li>Paid up front each month by debit order</li>
+                  <li>Cancel any month, no lock-in</li>
+                </ul>
+                <a class="btn btn-ghost pricing-cta" href="#book">Book a call</a>
+                <p class="pricing-card-foot">Best if your buyer is a business and lives on LinkedIn.</p>
+              </div>
+            </article>
+
+            <article class="pricing-card is-featured" data-tilt>
+              <div class="pricing-card-glow" aria-hidden="true"></div>
+              <p class="pricing-badge"><span aria-hidden="true">&#9733;</span> Best value</p>
+              <div class="pricing-card-body">
+                <p class="pricing-card-name">The Full Climb</p>
+                <p class="pricing-card-price">
+                  <span class="pricing-amount" data-price data-za="39950" data-us="4999" data-prefix-za="R" data-prefix-us="$">$4,999</span>
+                  <span class="pricing-period">per month</span>
+                </p>
+                <p class="pricing-card-setup">
+                  <span data-setup data-za="R15,000" data-us="$4,999">$4,999</span> once-off setup, charged in month one
+                </p>
+                <ul class="pricing-features">
+                  <li>Appointment setting, everything included</li>
+                  <li>Email outreach, everything included</li>
+                  <li>LinkedIn ads, everything included</li>
+                  <li>All three channels feeding one pipeline</li>
+                  <li><strong>Google, Meta and LinkedIn ads all managed</strong></li>
+                  <li><strong>A full website build, not just a landing page</strong></li>
+                  <li><strong>Saves <span data-saving data-za="R29,900" data-us="$2,800">$2,800</span> a month against buying the three lead channels separately</strong></li>
+                  <li>Paid up front each month by debit order</li>
+                  <li>Cancel any month, no lock-in</li>
+                </ul>
+                <a class="btn btn-primary pricing-cta" href="#book">Book a call</a>
+                <p class="pricing-card-foot">Best if you want volume and you have the capacity to take it.</p>
+              </div>
+            </article>
+
+          </div>
+
+          <script>
+          /* Currency swap, inline and synchronous so it lands during parse and
+             the opening price is never seen changing. Region was resolved by
+             the head script. Mirrors the homepage's #proof swap. */
+          (function () {
+            var za = document.documentElement.getAttribute('data-region') === 'za';
+            var key = za ? 'za' : 'us';
+            var fmt = function (n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); };
+            var prices = document.querySelectorAll('[data-price]');
+            for (var i = 0; i < prices.length; i++) {
+              var el = prices[i];
+              el.textContent = el.getAttribute('data-prefix-' + key) + fmt(el.getAttribute('data-' + key));
+            }
+            var swaps = document.querySelectorAll('[data-setup], [data-saving]');
+            for (var j = 0; j < swaps.length; j++) {
+              swaps[j].textContent = swaps[j].getAttribute('data-' + key);
+            }
+            var btns = document.querySelectorAll('[data-region-btn]');
+            for (var k = 0; k < btns.length; k++) {
+              btns[k].setAttribute(
+                'aria-checked',
+                btns[k].getAttribute('data-region-btn') === key ? 'true' : 'false'
+              );
+            }
+            var sw = document.querySelector('[data-region-switch]');
+            if (sw) { sw.removeAttribute('hidden'); sw.setAttribute('data-active', key); }
+          })();
+          </script>
+        </section>
+
+        <section id="compare" aria-labelledby="compare-title">
+          <h2 id="compare-title">Which package should you choose?</h2>
+          <p><strong>Choose appointment setting if your problem is an empty diary, email
+          outreach if you need reach, and LinkedIn ads if your buyer is another business.</strong>
+          The two larger packages also carry the paid ads and web design work, so the traffic
+          and the page it lands on are built together rather than bought from two suppliers.
+          Both currencies are listed below so you can compare without switching.</p>
+
+          <div class="table-scroll">
+            <table>
+              <caption>Peak Leads lead generation packages, monthly fee and once-off setup, August 2026. South African prices exclude VAT. Paid ads and web design are included in the LinkedIn Ads and Full Climb packages only.</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Package</th>
+                  <th scope="col">South Africa, per month</th>
+                  <th scope="col">SA setup, once off</th>
+                  <th scope="col">United States, per month</th>
+                  <th scope="col">US setup, once off</th>
+                  <th scope="col">Ads and web design</th>
+                  <th scope="col">Best for</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Appointments</th>
+                  <td>R19,950</td>
+                  <td>R9,950</td>
+                  <td>$1,999</td>
+                  <td>$950</td>
+                  <td>Not included</td>
+                  <td>An empty sales diary</td>
+                </tr>
+                <tr>
+                  <th scope="row">Email Outreach</th>
+                  <td>R23,950</td>
+                  <td>R9,950</td>
+                  <td>$2,900</td>
+                  <td>$3,500</td>
+                  <td>Not included</td>
+                  <td>Reach, at volume</td>
+                </tr>
+                <tr>
+                  <th scope="row">LinkedIn Ads</th>
+                  <td>R25,950</td>
+                  <td>R9,950</td>
+                  <td>$2,900</td>
+                  <td>$1,999</td>
+                  <td>Google and Meta ads, plus a landing page</td>
+                  <td>Business-to-business buyers</td>
+                </tr>
+                <tr>
+                  <th scope="row">The Full Climb</th>
+                  <td>R39,950</td>
+                  <td>R15,000</td>
+                  <td>$4,999</td>
+                  <td>$4,999</td>
+                  <td>Google, Meta and LinkedIn ads, plus a full website</td>
+                  <td>All three channels at once</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Buying the three single channels separately comes to R69,850 a month in South
+          Africa or $7,799 in the US. The Full Climb is R39,950 or $4,999, so the bundle saves
+          R29,900 or $2,800 every month (August 2026).</p>
+        </section>
+
+        <section id="setup" aria-labelledby="setup-title">
+          <h2 id="setup-title">What does the setup fee cover?</h2>
+          <p><strong>The setup fee pays for the build month, before a single message goes
+          out.</strong> That covers sourcing and cleaning the prospect list, writing the
+          sequences or the ads, wiring up tracking so every reply is attributed, and connecting
+          the campaign to your calendar or CRM. It is charged once, in month one, on top of
+          that month's fee.</p>
+          <p>Month one is build. Campaigns go live at the end of it, which means the first
+          replies and booked meetings land in month two. We would rather tell you that now than
+          have you counting leads in week one and wondering what you paid for.</p>
+        </section>
+
+        <section id="not-for-you" aria-labelledby="not-for-you-title">
+          <h2 id="not-for-you-title">When is this not worth it for you?</h2>
+          <p><strong>Outbound lead generation is the wrong spend for some businesses, and it is
+          cheaper for both of us to say so on this page than on the call.</strong> Skip it for
+          now if any of the following is true.</p>
+          <ul>
+            <li>Nobody on your side can follow up within a day. Booked meetings go cold faster
+            than most owners expect, and a full diary you cannot work is money burnt.</li>
+            <li>Your average job is small. If a customer is worth a few thousand rand once, the
+            monthly fee will outrun the margin.</li>
+            <li>You sell to the general public rather than to businesses. Search and paid ads
+            will reach them far more cheaply, which is what our
+            <a href="/services/#ads">paid ads</a> and <a href="/services/#seo">SEO</a> work is for.</li>
+            <li>You have not got the capacity to deliver more work. More leads make that worse,
+            not better.</li>
+          </ul>
+          <p>If one of those is you, book the call anyway and say so. We will tell you which of
+          the other services is the better spend, or that you do not need us yet.</p>
+        </section>
+
+        <section id="faq" aria-labelledby="faq-title">
+          <h2 id="faq-title">Questions people ask</h2>
+
+          <h3>Is there a contract?</h3>
+          <p>No lock-in contract. Every package runs month to month and you can cancel any
+          month. The month you have already paid for runs to the end of its term.</p>
+
+          <h3>Can I use my own prospect list?</h3>
+          <p>Yes. We can supply the list or work from yours. If you bring your own, we clean and
+          verify it first, and the setup fee stays the same because the sequence and tracking
+          work is unchanged.</p>
+
+          <h3>Do the prices include VAT?</h3>
+          <p>South African prices exclude VAT. US prices carry no VAT. Your invoice will show
+          the VAT line separately where it applies.</p>
+
+          <h3>How soon do leads start arriving?</h3>
+          <p>Month one is the build: list, sequences, tracking and approvals. Campaigns go live
+          at the end of it, so the first replies and bookings land in month two. Anyone
+          promising leads in week one is either running an old list or guessing.</p>
+
+          <h3>What happens if it does not work?</h3>
+          <p>You cancel. There is no notice period and no exit fee. We would rather you leave
+          after two months than stay on a retainer that is not paying for itself.</p>
+
+          <h3>Do you do websites and SEO as well?</h3>
+          <p>Yes. Paid ads and web design are already built into the LinkedIn Ads and Full
+          Climb packages above. If you want any of it on its own, or you want SEO alongside it,
+          that is scoped separately on the <a href="/services/">what we do</a> page, and the
+          <a href="/free-audit/">free audit</a> will tell you which one your business actually
+          needs first.</p>
+
+          <h3>Can I get a package that is not on this page?</h3>
+          <p>Yes, and most clients end up there. If you want a different mix of channels, a
+          bigger website build, a lower volume to start with, or something that scales as you
+          take on staff, we scope it on the call and price it around what you actually need.
+          <a href="#book">Book a call</a> and say what you are after.</p>
+        </section>
+
+        <!-- ============================================================
+             Closing CTA. The Calendly embed lives on this page rather than
+             sending people back to the homepage to scroll: every card CTA
+             above is an in-page #book jump, so nobody leaves /pricing/ to
+             book. Widget script is lazy-loaded by pricing.js.
+             ============================================================ -->
+        <section id="book" class="pricing-final" aria-labelledby="book-title">
+          <p class="eyebrow">Custom solution</p>
+          <h2 id="book-title">None of these quite fit? Let's build one that does.</h2>
+          <p class="pricing-final-lead">Most businesses do not land neatly in a package. If you
+          want a different mix of channels, a bigger website build, a different volume, or a
+          package that starts small and scales as you take on staff, we will put it together
+          around what you actually need.</p>
+          <p>Thirty minutes with Bradley. He maps your market, your average job value and where
+          the pipeline is leaking, then tells you which package makes sense, what a custom
+          build would look like, and what it would cost. Free, direct, no pitch deck.</p>
+
+          <div class="calendly-inline-widget" id="calendly" data-url="https://calendly.com/bradley-hart/30min?hide_gdpr_banner=1"></div>
+
+          <p class="pricing-final-alt">Prefer not to use the widget?
+          <a href="https://calendly.com/bradley-hart/30min" rel="noopener">Book directly on Calendly</a>,
+          email <a href="mailto:bradley@peakleads.agency">bradley@peakleads.agency</a>, or
+          <a href="/free-audit/">get your free audit</a> first if you would rather see the gaps
+          in writing before you talk to anyone.</p>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-about">
+          <p class="footer-brand">PeakLeads</p>
+          <p class="footer-tagline">Websites, SEO and exclusive leads for home service businesses.</p>
+          <p class="footer-contact"><a href="mailto:bradley@peakleads.agency">bradley@peakleads.agency</a></p>
+        </div>
+        <nav class="footer-nav" aria-label="Footer">
+          <a href="/">Home</a>
+          <a href="/about/">About</a>
+          <a href="/services/">What We Do</a>
+          <a href="/pricing/">Pricing</a>
+          <a href="/free-audit/">Free audit</a>
+          <a href="/blog/">Blog</a>
+          <a href="/contact/">Contact</a>
+          <a href="https://www.instagram.com/bradley_mj_kid/" target="_blank" rel="noopener">Instagram</a>
+          <a href="https://za.linkedin.com/in/bradley-hartmann-372785336" target="_blank" rel="noopener">LinkedIn</a>
+        </nav>
+      </div>
+      <p class="footer-copy">&copy; <span id="year" data-year>2026</span> Peak Leads</p>
+    </footer>
+
+    <script type="module" src="/src/js/pages/pricing.js"></script>
+  </body>
+</html>

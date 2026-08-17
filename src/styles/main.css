@@ -24,6 +24,10 @@
   --bg-raise:      #161411;
   --panel:         rgba(24, 22, 18, 0.55);
   --panel-strong:  rgba(24, 22, 18, 0.78);
+  /* Opaque stand-in for --panel where backdrop-filter is unsupported. A
+     token rather than a literal so the daylight half can restate it at the
+     same specificity as the @supports rule that overrides it. */
+  --panel-solid:   rgba(24, 22, 18, 0.94);
   --border:        #2B2822;
   --text:          #F2EFE9;
   --text-2:        #A9A296;
@@ -51,6 +55,93 @@
 ::selection {
   background: var(--accent);
   color: var(--accent-ink);
+}
+
+/* ==========================================================================
+   Daylight half — #work down to the footer
+
+   Everything below station 04 runs the SAME token names against a light
+   ground. The flip is scrubbed, never toggled: scroll.js writes --day 0..1
+   across the station-04 -> #work handoff and every token here is a
+   color-mix against it, so ground, copy and particles brighten in lockstep
+   and contrast never dips through the middle of the transition. A plain
+   class toggle would strand dark ink on a dark ground for ~40vh.
+
+   The ground is body::after, a fixed layer BEHIND #scene-canvas (z-index
+   -1 vs 0). The day sections themselves stay transparent so the particles
+   keep compositing over them - painting the sections would bury the canvas.
+
+   Night stops are written literally rather than as var(--bg) etc: these
+   declarations ARE the override, so referring to the tokens they replace
+   would be self-referential.
+   ========================================================================== */
+
+:root { --day: 0; }
+
+.theme-day {
+  /* Re-assert the inherited color from the day token. Redefining --text
+     alone is NOT enough: body sets `color: var(--text)` once, against the
+     :root value, and anything with no color rule of its own (every bare
+     h2 down here) inherits that computed bone rather than re-resolving the
+     variable. Without this line the headings stay near-invisible on the
+     light ground. .site-footer keeps its own --text-2 rule - that block is
+     later in the sheet at equal specificity. */
+  color: var(--text);
+
+  --bg:           color-mix(in oklab, #0D0C0A, #F4F1EA calc(var(--day) * 100%));
+  --bg-raise:     color-mix(in oklab, #161411, #E8E2D5 calc(var(--day) * 100%));
+  --panel:        color-mix(in oklab, rgba(24, 22, 18, 0.55), rgba(251, 249, 244, 0.72) calc(var(--day) * 100%));
+  --panel-strong: color-mix(in oklab, rgba(24, 22, 18, 0.78), rgba(251, 249, 244, 0.88) calc(var(--day) * 100%));
+  --panel-solid:  color-mix(in oklab, rgba(24, 22, 18, 0.94), rgba(252, 250, 246, 0.97) calc(var(--day) * 100%));
+  --border:       color-mix(in oklab, #2B2822, #CFC6B4 calc(var(--day) * 100%));
+  --text:         color-mix(in oklab, #F2EFE9, #171410 calc(var(--day) * 100%));
+  --text-2:       color-mix(in oklab, #A9A296, #4A443A calc(var(--day) * 100%));
+  --text-3:       color-mix(in oklab, #837D72, #6B6459 calc(var(--day) * 100%));
+  --accent:       color-mix(in oklab, #D9C7A0, #7A5C24 calc(var(--day) * 100%));
+  --accent-ink:   color-mix(in oklab, #14120E, #FFFDF7 calc(var(--day) * 100%));
+  --accent-soft:  color-mix(in oklab, rgba(217, 199, 160, 0.25), rgba(122, 92, 36, 0.30) calc(var(--day) * 100%));
+  --star:         color-mix(in oklab, #D9A441, #96650B calc(var(--day) * 100%));
+  --glow-accent:  0 6px 28px color-mix(in oklab, rgba(217, 199, 160, 0.25), rgba(122, 92, 36, 0.22) calc(var(--day) * 100%));
+}
+
+/* The daylight ground. Fixed and full-viewport like the canvas it sits
+   behind, so it cannot band or seam as sections scroll across it.
+
+   Two background declarations, not opacity: the first is what a browser
+   without color-mix keeps, and it MUST be the one that leaves the page
+   night. The tokens above degrade to their night stops in exactly that
+   browser, so a ground that lit up on its own would strand bone copy on
+   bone. Mixing from #0000 rather than fading an opaque layer also keeps
+   the ramp premultiplied, so it never greys out through the middle. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: transparent;
+  background: color-mix(in oklab, #0000, #F4F1EA calc(var(--day) * 100%));
+}
+
+/* No JS, no WebGL, reduced motion, or a static subpage: nothing is driving
+   --day and there is no canvas to protect, so the day sections simply paint
+   their own ground. main > section carries padding but no margin, so these
+   stack flush; the footer's margin-top is the one gap and becomes padding
+   so the light runs unbroken to the bottom of the page. */
+:root:not(.js-enabled) .theme-day,
+body.no-3d .theme-day,
+body.page-static .theme-day {
+  --day: 1;
+  /* Same two-declaration guard as body::after: without color-mix the tokens
+     stay night, so the ground has to stay night with them. */
+  background-color: transparent;
+  background-color: color-mix(in oklab, #0000, #F4F1EA calc(var(--day) * 100%));
+}
+:root:not(.js-enabled) .site-footer.theme-day,
+body.no-3d .site-footer.theme-day,
+body.page-static .site-footer.theme-day {
+  margin-top: 0;
+  padding-top: clamp(48px, 8vh, 96px);
 }
 
 /* ==========================================================================
@@ -207,7 +298,7 @@ body.page-static::before {
 .station-inner,
 .quote-card,
 .post-cta {
-  background: rgba(24, 22, 18, 0.94);
+  background: var(--panel-solid);
   border: 1px solid var(--border);
   border-radius: var(--radius);
 }
@@ -240,7 +331,7 @@ main > section {
   padding-inline: var(--pad-x);
 }
 
-main > section:is(#hero, #services, #work) {
+main > section:is(#hero, #services, #work, #network) {
   max-width: none;
   padding-inline: 0;
 }
@@ -518,7 +609,7 @@ main > section#services { padding-block: 0; }
   color: var(--text);
   border-color: var(--accent-soft);
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(217, 199, 160, 0.12);
+  box-shadow: 0 6px 20px color-mix(in oklab, rgba(217, 199, 160, 0.12), rgba(122, 92, 36, 0.16) calc(var(--day) * 100%));
 }
 .btn-ghost:active { transform: translateY(0); box-shadow: none; }
 
@@ -965,6 +1056,23 @@ main > section#services { padding-block: 0; }
      one opens the site. The frame loop drops this on cards that have faded
      too far to aim at. */
   cursor: pointer;
+}
+
+/* The card faces stay NIGHT through the daylight half. They are the device
+   the screenshot is mounted in, and half the portfolio is light-background
+   sites: a light frame would let those bleed straight into the page, and the
+   near-solid plate under the caption (see .wc-plate) only works dark. The
+   screenshots themselves are untouched in either theme.
+   Scoped to .wc-face on purpose - in the 2D fallback the caption is a plain
+   figcaption without that class, so it stays day and sits on the page. */
+.wc-face {
+  --bg-raise:   #161411;
+  --border:     #2B2822;
+  --text:       #F2EFE9;
+  --text-2:     #A9A296;
+  --text-3:     #837D72;
+  --accent:     #D9C7A0;
+  --accent-ink: #14120E;
 }
 
 /* Both faces sit on the outer slices; ±1.47px = SLICE in cylinder.js. */
@@ -1571,7 +1679,7 @@ main > section#services { padding-block: 0; }
 }
 
 .faq-list details {
-  background: rgba(24, 22, 18, 0.94);
+  background: var(--panel-solid);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
@@ -1640,7 +1748,7 @@ main > section#services { padding-block: 0; }
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.03em;
-  color: rgba(217, 199, 160, 0.12);
+  color: color-mix(in oklab, rgba(217, 199, 160, 0.12), rgba(122, 92, 36, 0.16) calc(var(--day) * 100%));
   pointer-events: none;
   user-select: none;
 }
@@ -2247,6 +2355,753 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
    Print — posts read clean on paper
    ========================================================================== */
 
+/* ==========================================================================
+   /pricing/ — package cards, region switch, comparison table
+
+   Ported from a React/shadcn reference block. The layout, the lifted
+   "featured" card and the specular hover all survive; the implementation is
+   plain CSS driven by custom properties that pricing.js writes per pointer
+   frame (--mx/--my for the glow, --rx/--ry for the tilt). Keeping the motion
+   in the sheet means JS never touches layout and the rest-state transition
+   is free.
+   ========================================================================== */
+
+/* The prose column stays at a readable measure; the wrapper widens so the
+   four-card grid and the comparison table get the room they need. */
+.post-pricing { max-width: var(--content-max); }
+.post-pricing > p,
+.post-pricing > section > p,
+.post-pricing > section > ul li,
+.post-pricing > section > h2,
+.post-pricing > section > h3,
+.post-pricing > h1,
+.post-pricing > .eyebrow { max-width: 68ch; }
+
+.answer-block {
+  font-size: 1.12rem !important;
+  line-height: 1.7 !important;
+  color: var(--text) !important;
+}
+
+.price-meta {
+  font-family: var(--font-mono);
+  font-size: 0.78rem !important;
+  letter-spacing: 0.04em;
+  color: var(--text-3) !important;
+}
+
+/* -- region switch -------------------------------------------------------- */
+
+.region-switch {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 28px 0 8px;
+}
+:root:not(.js-enabled) .region-switch { display: none; }
+
+.region-switch-label {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.region-switch-track {
+  position: relative;
+  display: inline-flex;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-raise);
+}
+
+.region-switch-btn {
+  position: relative;
+  z-index: 1;
+  padding: 9px 18px;
+  min-height: 40px;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-2);
+  white-space: nowrap;
+  transition: color 200ms ease;
+}
+.region-switch-btn span {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  opacity: 0.7;
+  margin-left: 6px;
+}
+.region-switch-btn[aria-checked='true'] { color: var(--accent-ink); }
+.region-switch-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* The thumb slides between the two halves. Width is 50% of the track less
+   the padding, so it tracks the real button width at any font size. */
+.region-switch-thumb {
+  position: absolute;
+  z-index: 0;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: var(--glow-accent);
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.region-switch[data-active='us'] .region-switch-thumb { transform: translateX(100%); }
+.region-switch[data-active='za'] .region-switch-thumb { transform: translateX(0); }
+
+/* -- card grid ------------------------------------------------------------ */
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  margin: 32px 0 8px;
+  /* The tilt is a real 3D rotation, so the grid owns the perspective. */
+  perspective: 1400px;
+}
+@media (min-width: 640px)  { .pricing-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1080px) { .pricing-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.pricing-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 26px 22px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--panel-solid);
+  overflow: hidden;
+  transform-style: preserve-3d;
+  transform:
+    perspective(1400px)
+    rotateX(var(--rx, 0deg))
+    rotateY(var(--ry, 0deg))
+    translateY(var(--lift, 0px));
+  transition:
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 260ms ease,
+    box-shadow 420ms ease,
+    opacity 520ms ease;
+}
+@supports ((backdrop-filter: blur(16px)) or (-webkit-backdrop-filter: blur(16px))) {
+  .pricing-card {
+    background: var(--panel-strong);
+    -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    backdrop-filter: blur(16px) saturate(1.2);
+  }
+}
+
+/* Pointer is inside: lift, warm the border, and drop a real shadow. The
+   tilt itself comes from --rx/--ry, written per frame by pricing.js. */
+.pricing-card[data-hover] {
+  --lift: -6px;
+  border-color: var(--accent-soft);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.45);
+}
+
+/* The featured card sits proud of the row at rest, the way the reference
+   block lifted its popular plan. Below the 4-up breakpoint it drops back
+   in line - a card lifted out of a single column just looks misaligned. */
+@media (min-width: 1080px) {
+  .pricing-card.is-featured { --lift: -18px; }
+  .pricing-card.is-featured[data-hover] { --lift: -24px; }
+}
+.pricing-card.is-featured {
+  border-color: var(--accent);
+  border-width: 2px;
+}
+
+/* Specular glow that tracks the cursor across the face. Pure paint: it
+   never changes layout, and it is invisible until a pointer arrives. */
+.pricing-card-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 320ms ease;
+  background: radial-gradient(
+    260px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(217, 199, 160, 0.16),
+    transparent 70%
+  );
+}
+.pricing-card[data-hover] .pricing-card-glow { opacity: 1; }
+
+/* Reveal from-state, set by JS only (CSS never pre-hides content). */
+.pricing-card[data-enter] {
+  opacity: 0;
+  transform: translateY(26px);
+}
+
+.pricing-card-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.pricing-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  margin: 0;
+  padding: 5px 12px;
+  border-bottom-left-radius: 12px;
+  font-size: 0.74rem !important;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--accent-ink) !important;
+  background: var(--accent);
+}
+
+.pricing-card-name {
+  font-family: var(--font-mono);
+  font-size: 0.78rem !important;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-3) !important;
+  margin-bottom: 14px !important;
+}
+
+.pricing-card-price {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px !important;
+}
+
+.pricing-amount {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.4vw, 2.6rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--text);
+  /* Tabular figures: without these the counter jitters the card width as
+     it rolls through different digits. */
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+.pricing-period {
+  font-size: 0.86rem;
+  color: var(--text-3);
+}
+
+.pricing-card-setup {
+  font-size: 0.84rem !important;
+  color: var(--text-3) !important;
+  margin-bottom: 18px !important;
+}
+.pricing-card-setup span { color: var(--text-2); font-weight: 600; }
+
+.pricing-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  flex: 1;
+}
+.pricing-features li {
+  position: relative;
+  padding-left: 26px;
+  font-size: 0.92rem !important;
+  line-height: 1.5 !important;
+  max-width: none !important;
+}
+/* Tick drawn in CSS rather than an icon font or an inline SVG per item. */
+.pricing-features li::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 6px;
+  width: 10px;
+  height: 6px;
+  border-left: 2px solid var(--accent);
+  border-bottom: 2px solid var(--accent);
+  transform: rotate(-45deg);
+}
+
+.pricing-cta { width: 100%; }
+
+.pricing-card-foot {
+  margin: 14px 0 0 !important;
+  font-size: 0.82rem !important;
+  line-height: 1.5 !important;
+  color: var(--text-3) !important;
+  max-width: none !important;
+}
+
+/* -- comparison table ----------------------------------------------------- */
+
+/* .post table is display:block to make itself scrollable; here the wrapper
+   scrolls instead, so the table can go back to being a real table and keep
+   its caption and row-header semantics intact. */
+.table-scroll {
+  overflow-x: auto;
+  margin: 24px 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.post-pricing .table-scroll table {
+  display: table;
+  width: 100%;
+  margin: 0;
+  overflow: visible;
+}
+.post-pricing .table-scroll caption {
+  caption-side: bottom;
+  padding: 12px 14px;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  text-align: left;
+  color: var(--text-3);
+  border-top: 1px solid var(--border);
+}
+.post-pricing .table-scroll tbody th[scope='row'] {
+  color: var(--text);
+  font-weight: 600;
+}
+.post-pricing .table-scroll tbody tr:last-child th,
+.post-pricing .table-scroll tbody tr:last-child td { border-bottom: 0; }
+/* .post td is nowrap so money columns never break mid-figure. The "Best for"
+   column is prose, though, and nowrap pushed it past the container and had it
+   clipping mid-word at desktop widths. */
+.post-pricing .table-scroll th:last-child,
+.post-pricing .table-scroll td:last-child {
+  white-space: normal;
+  min-width: 16ch;
+}
+
+/* ==========================================================================
+   #network — orbiting client proof
+
+   Ported from a React/Vite hero spec. Everything here is CSS animation plus
+   two small JS helpers (typewriter, and the existing #proof count-up reused
+   via .stat) - no animation library, matching the rest of the site.
+
+   The orbits are built at their real pixel sizes inside a fixed box and then
+   scaled as one unit at each breakpoint, so the avatar radii never have to
+   be recomputed per viewport.
+   ========================================================================== */
+
+/* Animatable angle for the conic border. Falls back to a static gradient
+   where @property is unsupported - the border still draws, it just does not
+   rotate, which is why ::before also carries a plain background below. */
+@property --border-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+#network {
+  overflow: hidden; /* the outermost orbit is wider than the content column */
+}
+
+.network-inner {
+  padding-inline: var(--pad-x);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(24px, 4vw, 64px);
+  max-width: var(--content-max);
+  margin-inline: auto;
+}
+
+.network-copy { flex: 0 1 560px; min-width: 0; }
+
+/* -- typewriter heading --------------------------------------------------- */
+
+.typewriter {
+  font-size: clamp(1.75rem, 3vw, 2.7rem);
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  margin-bottom: 18px;
+  /* Reserve the wrapped height so the block below does not jump line by
+     line as the text types in. */
+  min-height: 3.2em;
+}
+.typewriter .tw-head { color: var(--text); }
+.typewriter .tw-tail { color: var(--accent); }
+.typewriter .tw-caret {
+  display: inline-block;
+  width: 3px;
+  height: 0.9em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--accent);
+  animation: tw-blink 1s steps(1, end) infinite;
+}
+.typewriter[data-done] .tw-caret { display: none; }
+@keyframes tw-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+
+/* -- rotating conic border ------------------------------------------------ */
+
+.btn-border-wrap {
+  position: relative;
+  display: inline-block;
+  border-radius: 999px;
+  isolation: isolate;
+}
+.btn-border-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 3px;
+  background: conic-gradient(
+    from var(--border-angle),
+    var(--accent), transparent, var(--accent), transparent, var(--accent)
+  );
+  /* Mask out the middle so only the ring paints. */
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: border-spin 3s linear infinite;
+}
+@keyframes border-spin {
+  to { --border-angle: 360deg; }
+}
+
+.network-cta {
+  gap: 10px;
+  border-radius: 999px;
+}
+.network-cta svg { transition: transform 220ms ease; }
+.network-cta:hover svg { transform: translateX(3px); }
+
+/* -- the "Bradley" cursor ------------------------------------------------- */
+
+.network-cursor {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 28px 0 0 clamp(40px, 14vw, 220px) !important;
+  color: var(--accent);
+}
+.network-cursor span {
+  padding: 7px 15px;
+  border-radius: 20px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* -- orbits --------------------------------------------------------------- */
+
+/* Two boxes on purpose. .orbits is the LAYOUT footprint and tracks the
+   scale, so the copy column beside it gets the space back at every
+   breakpoint; .orbits-stage is the fixed 720px coordinate space the avatar
+   radii are measured in, scaled as one unit. Transform alone would have left
+   a 720px hole in the flex row at every size. */
+.orbits {
+  --orbit-scale: 0.82;
+  position: relative;
+  flex: 0 0 auto;
+  width: calc(720px * var(--orbit-scale));
+  height: calc(720px * var(--orbit-scale));
+}
+.orbits-stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 720px;
+  height: 720px;
+  transform: translate(-50%, -50%) scale(var(--orbit-scale));
+}
+
+.orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+/* The hairline lives on a pseudo-element, NOT on .orbit itself: the
+   mask-composite trick that turns a gradient into a 1px ring clips
+   everything inside the element it is applied to, and .orbit holds the
+   avatars. Putting it here keeps the ring and leaves the faces alone. */
+.orbit::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  padding: 1px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--accent), transparent 100%) 0%,
+    color-mix(in oklab, var(--accent), transparent 15%) 43%,
+    color-mix(in oklab, var(--accent), transparent 100%) 100%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.orbit-1 { width: 353px; height: 353px; animation: orbit-spin 30s linear infinite reverse; }
+.orbit-2 { width: 501px; height: 501px; animation: orbit-spin 40s linear infinite; }
+.orbit-3 { width: 649px; height: 649px; animation: orbit-spin 50s linear infinite; }
+.orbit-4 { width: 797px; height: 797px; animation: orbit-spin 60s linear infinite reverse; }
+
+@keyframes orbit-spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Placement: out to the radius along --a, then the face un-rotates so it
+   never tips over. The orbit's own spin is cancelled on .orbit-face below. */
+.orbit-item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: rotate(var(--a)) translate(var(--r)) rotate(calc(var(--a) * -1));
+}
+.orbit-1 .orbit-item { --r: 177px; }
+.orbit-2 .orbit-item { --r: 251px; }
+.orbit-3 .orbit-item { --r: 325px; }
+.orbit-4 .orbit-item { --r: 399px; }
+
+.orbit-face {
+  display: block;
+  width: 58px;
+  height: 58px;
+  margin: -29px 0 0 -29px; /* centre on the orbit line */
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--border), 0 6px 26px var(--glow, transparent);
+}
+/* Cancel the parent ring's spin so faces stay upright rather than tumbling.
+   Each face turns the OPPOSITE way to its ring, at the same duration, so the
+   two rotations sum to zero. Orbits 1 and 4 run `reverse`, so their faces
+   have to go clockwise - getting this backwards adds the rotations instead
+   of cancelling them and every avatar cartwheels. */
+@keyframes face-cw  { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes face-ccw { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+.orbit-1 .orbit-face { animation: face-cw  30s linear infinite; }
+.orbit-2 .orbit-face { animation: face-ccw 40s linear infinite; }
+.orbit-3 .orbit-face { animation: face-ccw 50s linear infinite; }
+.orbit-4 .orbit-face { animation: face-cw  60s linear infinite; }
+
+.orbit-face img { width: 100%; height: 100%; object-fit: cover; }
+/* Screenshots are 16:9, so show the top of the page rather than the middle. */
+.orbit-face.is-tile { border-radius: 18px; }
+.orbit-face.is-tile img { object-position: top center; }
+.orbit-face.is-md { width: 78px; height: 78px; margin: -39px 0 0 -39px; }
+.orbit-face.is-lg { width: 88px; height: 88px; margin: -44px 0 0 -44px; }
+
+/* -- core figure ---------------------------------------------------------- */
+
+/* Sits outside the rings rather than counter-rotating inside orbit-1: same
+   result on screen, nothing to keep in sync with the spin. */
+.orbit-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300px;
+  margin: -50px 0 0 -150px;
+  text-align: center;
+}
+.orbit-core .orbit-count {
+  font-family: var(--font-display);
+  font-size: 4rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--text) !important;
+  margin: 0 0 6px !important;
+  max-width: none;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+.orbit-core .orbit-label {
+  font-size: 1rem !important;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--text-2) !important;
+  margin: 0 !important;
+  max-width: none;
+  white-space: nowrap;
+}
+
+/* -- client strip --------------------------------------------------------- */
+
+.ticker {
+  display: flex;
+  gap: 64px;
+  margin-top: clamp(32px, 6vh, 72px);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+}
+.ticker-track {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 64px;
+  list-style: none;
+  margin: 0;
+  padding: 0 32px 0 0;
+  animation: ticker-run 28s linear infinite;
+}
+.ticker-track li {
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--text-3);
+}
+@keyframes ticker-run { to { transform: translateX(-100%); } }
+.ticker:hover .ticker-track { animation-play-state: paused; }
+
+/* -- responsive ----------------------------------------------------------- */
+
+@media (max-width: 1280px) { .orbits { --orbit-scale: 0.72; } }
+@media (max-width: 1140px) {
+  .network-inner { flex-direction: column; text-align: center; }
+  .network-copy { flex: 1 1 auto; }
+  .network-copy p { margin-inline: auto; }
+  .typewriter { min-height: 0; }
+  .network-cursor { justify-content: center; margin-left: 0 !important; }
+  .orbits { --orbit-scale: 0.72; margin-top: 8px; }
+}
+@media (max-width: 900px)  { .orbits { --orbit-scale: 0.58; } }
+@media (max-width: 640px)  { .orbits { --orbit-scale: 0.45; } .ticker, .ticker-track { gap: 36px; } }
+@media (max-width: 420px)  { .orbits { --orbit-scale: 0.36; } }
+
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit,
+  .orbit-face,
+  .ticker-track,
+  .btn-border-wrap::before { animation: none; }
+  .typewriter .tw-caret { display: none; }
+}
+
+/* ==========================================================================
+   #process — clearing the copy off the machine
+
+   Every other section in the daylight half puts a card or a panel between
+   its copy and the particles. #process is bare text on hairline rules, and
+   the endgame sphere is at its densest right where it sits, so the dim alone
+   is not enough for the lighter --text-2 body lines.
+
+   This is a feathered wash of the ground colour, NOT a panel: strongest
+   under the text column, gone to nothing before it reaches any edge, so it
+   reads as calmer ground rather than a box. Tied to --day so it does not
+   exist on the dark half and fades in with the crossing.
+
+   isolation keeps the z-index:-1 layer inside this section - main already
+   carries z-index 1, so the wash still sits above the canvas either way.
+   ========================================================================== */
+#process.theme-day {
+  position: relative;
+  isolation: isolate;
+}
+#process.theme-day::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 2% -8% 2% -8%;
+  pointer-events: none;
+  background: radial-gradient(
+    64% 54% at 40% 50%,
+    color-mix(in oklab, #0000, #F4F1EA calc(var(--day) * 88%)) 0%,
+    color-mix(in oklab, #0000, #F4F1EA calc(var(--day) * 66%)) 42%,
+    color-mix(in oklab, #0000, #F4F1EA calc(var(--day) * 28%)) 66%,
+    transparent 82%
+  );
+}
+/* No canvas behind it in these states, so the wash has nothing to do. */
+:root:not(.js-enabled) #process.theme-day::before,
+body.no-3d #process.theme-day::before { display: none; }
+
+/* -- closing CTA + on-page Calendly --------------------------------------- */
+
+.pricing-final {
+  margin-top: 56px;
+  padding: clamp(28px, 5vw, 48px);
+  border: 1px solid var(--accent-soft);
+  border-radius: 20px;
+  background: var(--panel-solid);
+  text-align: center;
+  /* Warm pool behind the heading so the closing block reads as the end of
+     the page rather than one more section. */
+  background-image: radial-gradient(
+    120% 80% at 50% 0%,
+    rgba(217, 199, 160, 0.10),
+    transparent 60%
+  );
+}
+@supports ((backdrop-filter: blur(16px)) or (-webkit-backdrop-filter: blur(16px))) {
+  .pricing-final {
+    background-color: var(--panel-strong);
+    -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    backdrop-filter: blur(16px) saturate(1.2);
+  }
+}
+
+.pricing-final .eyebrow { margin-bottom: 10px; }
+.pricing-final h2 { margin-top: 0 !important; }
+.pricing-final p { margin-inline: auto; }
+
+.pricing-final-lead {
+  font-size: 1.1rem !important;
+  line-height: 1.7 !important;
+  color: var(--text) !important;
+}
+
+.pricing-final .calendly-inline-widget {
+  margin-top: 28px;
+  border: 1px solid var(--border);
+}
+
+.pricing-final-alt {
+  margin-top: 18px !important;
+  font-size: 0.9rem !important;
+}
+
+/* -- confetti ------------------------------------------------------------- */
+
+.confetti-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* -- reduced motion ------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .pricing-card,
+  .region-switch-thumb,
+  .pricing-card-glow { transition: none; }
+  .pricing-card { transform: none; }
+  .pricing-card[data-hover] { --lift: 0px; }
+}
+
 @media print {
   #scene-canvas,
   .site-nav,
@@ -2265,6 +3120,13 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
     color: #000 !important;
   }
   body::before, body.page-static::before { display: none !important; }
+  body::after { display: none !important; }
+  /* Print is white paper: the daylight half must not carry its own ground
+     or its scrubbed tokens, or the copy prints mid-grey on mid-grey. */
+  .theme-day {
+    --day: 0;
+    background-color: transparent !important;
+  }
 
   main, .post { padding-top: 0; }
 

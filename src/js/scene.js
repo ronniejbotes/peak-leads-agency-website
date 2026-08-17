@@ -11,12 +11,16 @@
      setLateral(offset, strip)  // park the formation left/right of panels
      setPointer(x, y)    // -1..1; drives the cursor-repulsion field (particles dodge the pointer)
      setDim(d)           // brightness 0.35 reading dim .. 1 full
+     setDay(d)           // 0 chalk/additive over the dark half .. 1 ink/normal over the light half
      setCondense(c)      // -1..1 implosion / bang
      resize(), destroy()
 
    Formations: 0 ARROWS, 1 PLAY, 2 FRAME, 3 RANKS, 4 FUNNEL, 5 GROWTH,
    6 SPHERE (endgame globe, tumbles in place at screen center).
-   Colors: chalk #D9C7A0 <-> bone #F2EFE9 uniforms only. Dust layer #6b6456.
+   Colors: chalk #D9C7A0 <-> bone #F2EFE9 uniforms only, dust layer #6b6456,
+   over the dark half. Below #work setDay() crossfades to the daylight ramp
+   ink #2A2115 <-> umber #6E5B3C (dust #A2947C) and swaps additive blending
+   for premultiplied-normal, so the same machine reads on a light ground.
    ========================================================================== */
 
 import * as THREE from 'three';
@@ -25,10 +29,29 @@ let state = null; // all mutable engine state; null = not inited
 
 /* ------------------------------------------------------------------ *
  * Palette (the only hues in the scene)
+ *
+ * Two sets. NIGHT is the original chalk/bone ramp that burns additively
+ * over the dark half. DAY is its inverse for the light half below #work:
+ * ink and umber, composited normally so the points read as graphite dust
+ * settling on paper rather than light thrown at a wall.
+ * setDay() crossfades between them; see applyPairColors for the handoff.
  * ------------------------------------------------------------------ */
 const CHALK = '#D9C7A0';
 const BONE = '#F2EFE9';
 const DUST = '#6b6456';
+
+/* Day counterparts. INK is the darkest stop (chalk's opposite), UMBER the
+   lighter one (bone's opposite) - the ramp inverts along with the ground,
+   so the near/far reading of the formation survives the flip. */
+const INK = '#2A2115';
+const UMBER = '#6E5B3C';
+const DUST_DAY = '#A2947C';
+
+/* Where the blend mode swaps, as a value of day 0..1. At the midpoint the
+   ground is a mid tone AND the particles have ramped to roughly that same
+   mid tone, so additive and normal compositing land on nearly the same
+   pixels - which is what makes an inherently discrete switch invisible. */
+const BLEND_SWAP = 0.5;
 
 /* ------------------------------------------------------------------ *
  * Small math helpers
@@ -825,9 +848,38 @@ function uploadPair(idx) {
   g.attributes.aEnd.needsUpdate = true;
   state.uniforms.uFormA.value = idx;
   state.uniforms.uFormB.value = Math.min(idx + 1, 6);
-  state.uniforms.uColorA.value.copy(state.colors[idx]);
-  state.uniforms.uColorB.value.copy(state.colors[Math.min(idx + 1, 6)]);
   state.pairIndex = idx;
+  applyPairColors();
+}
+
+/* Write the active pair's two color stops, crossfaded to the current day
+   value. Two callers: uploadPair on a formation change, and setDay on a
+   scroll tick - day moves independently of the pair, so neither can own it. */
+function applyPairColors() {
+  const idx = state.pairIndex;
+  const jdx = Math.min(idx + 1, 6);
+  const d = state.day;
+  state.uniforms.uColorA.value.copy(state.colors[idx]).lerp(state.colorsDay[idx], d);
+  state.uniforms.uColorB.value.copy(state.colors[jdx]).lerp(state.colorsDay[jdx], d);
+  state.dustMat.uniforms.uColor.value.copy(state.dustNight).lerp(state.dustDay, d);
+}
+
+/* Both fragment shaders emit PREMULTIPLIED color - vec4(col * alpha, alpha).
+   The matching "normal" blend for that is One / OneMinusSrcAlpha, NOT
+   THREE.NormalBlending: NormalBlending's SrcAlpha source factor would fold
+   alpha in a second time and leave every point washed out over the light
+   ground. Additive needs no such care, hence the plain enum on the night
+   side. */
+function applyBlend(mat, day) {
+  if (day) {
+    mat.blending = THREE.CustomBlending;
+    mat.blendEquation = THREE.AddEquation;
+    mat.blendSrc = THREE.OneFactor;
+    mat.blendDst = THREE.OneMinusSrcAlphaFactor;
+  } else {
+    mat.blending = THREE.AdditiveBlending;
+  }
+  mat.needsUpdate = true;
 }
 
 /* ------------------------------------------------------------------ *
@@ -893,11 +945,19 @@ function init(canvas, opts = {}) {
       return widest * IDLE_HEADROOM;
     });
 
-    // ---- formation colors: chalk-to-bone ramp only ------------------
+    // ---- formation colors -------------------------------------------
+    // Two parallel ramps, same seven stops: chalk-to-bone for the dark half,
+    // ink-to-umber for the daylight half. setDay() crossfades stop for stop,
+    // so the near/far reading of a formation survives the flip.
     const chalk = new THREE.Color(CHALK);
     const bone = new THREE.Color(BONE);
+    const ink = new THREE.Color(INK);
+    const umber = new THREE.Color(UMBER);
     const colors = [0, 1, 2, 3, 4, 5, 6].map((i) =>
       chalk.clone().lerp(bone, i / 6)
+    );
+    const colorsDay = [0, 1, 2, 3, 4, 5, 6].map((i) =>
+      ink.clone().lerp(umber, i / 6)
     );
 
     // ---- main particle system --------------------------------------
@@ -1005,6 +1065,13 @@ function init(canvas, opts = {}) {
       formations,
       formHalfW,
       colors,
+      colorsDay,
+      dustNight: new THREE.Color(DUST),
+      dustDay: new THREE.Color(DUST_DAY),
+      /* 0 = night (additive over the dark half), 1 = day (normal over the
+         light half). Driven by scroll.js across the #work handoff. */
+      day: 0,
+      dayBlend: false,
       uniforms,
       pairIndex: -1,
       /* Sideways parking spot. rawOffset/rawStrip keep whatever units the
@@ -1142,6 +1209,29 @@ function setDim(d) {
   state.dimTarget = clamp(Number.isFinite(+d) ? +d : 1, 0, 1);
 }
 
+/* Crossfade the scene onto the daylight ground. 0 = chalk burning additively
+   over the dark half, 1 = ink settling normally over the light half.
+   Scrubbed by scroll.js across the station-04 -> #work handoff, in lockstep
+   with the --day custom property that drives the CSS side, so the ground and
+   the particles never disagree about which half of the page we are in.
+   Not eased here: the caller is already scroll-driven, and easing a scrubbed
+   value would desync it from the ground it has to match. */
+function setDay(d) {
+  if (!state) return;
+  d = clamp(Number.isFinite(+d) ? +d : 0, 0, 1);
+  if (d === state.day) return;
+  state.day = d;
+  applyPairColors();
+  /* Blend mode cannot be interpolated, so it flips once, at the midpoint
+     where both modes resolve to nearly the same pixels (see BLEND_SWAP). */
+  const wantDay = d >= BLEND_SWAP;
+  if (wantDay !== state.dayBlend) {
+    state.dayBlend = wantDay;
+    applyBlend(state.material, wantDay);
+    applyBlend(state.dustMat, wantDay);
+  }
+}
+
 /* +1 = fully imploded into a small dense ball; 0 = normal; negative values
    (down to -1) blast the particles outward. */
 function setCondense(c) {
@@ -1191,6 +1281,7 @@ export const PeakScene = {
   setRing,
   setRingCenter,
   setDim,
+  setDay,
   setCondense,
   resize,
   destroy
