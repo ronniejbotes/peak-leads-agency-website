@@ -171,12 +171,17 @@ export function initScrollChoreography(scene) {
   }
 
   /* ==================================================================
-   * Reading dim: while #book or #faq occupies the viewport the particles
-   * recede to 0.4 so the Calendly embed and accordions stay readable.
+   * Reading dim: while a copy-heavy section occupies the viewport the
+   * particles recede so the text stays readable.
+   *
+   * #faq is deliberately NOT in this list any more. Its question marks are
+   * built to sit in the gutters either side of the 880px accordion column
+   * (see buildQuestions), so there is nothing for them to obscure - and
+   * dimming them would hide the one formation meant to be looked at.
    * Two flags rather than toggling per section, so overlapping ranges
    * cannot blank each other on the way out.
    * ================================================================== */
-  const dimState = [false, false, false, false];
+  const dimState = [false];
 
   /* Content-avoidance for #vsl (desktop): while the video occupies the
      viewport the machine swims to the LEFT gutter beside it, scaled to
@@ -197,6 +202,21 @@ export function initScrollChoreography(scene) {
   /* 0..1 daylight crossing (see section 5c). Read by applyDim: the machine
      has to recede further once it is dark particles on a light ground. */
   let dayT = 0;
+  /* 0..1 SPHERE -> QUESTIONS morph across the #book to #faq handoff, and the
+     blackout that hides the machine while the Calendly embed is on screen.
+     See section 5d. */
+  let questionT = 0;
+  let hideT = 0;
+  let footerHideT = 0;
+
+  /* The formation value below the stations. sphereT carries GROWTH(5) up to
+     SPHERE(6), questionT carries SPHERE(6) on to QUESTIONS(7). Every driver
+     that can fire down here routes through this: holdEndgame runs on any
+     ScrollTrigger refresh, so without it a resize while you are reading the
+     FAQ snaps the question marks back to the globe. */
+  function endgameF() {
+    return 5 + sphereT + questionT;
+  }
 
   function applyDim() {
     /* Reading-dim floor. 0.4 was tuned for chalk burning additively over the
@@ -207,13 +227,21 @@ export function initScrollChoreography(scene) {
        section down there with bare copy and no panel under it. Drop the
        floor as --day comes up. */
     const floor = 0.4 - 0.24 * dayT;
-    let base = dimState[0] || dimState[1] || dimState[2] || dimState[3] ? floor : 1;
+    let base = dimState[0] ? floor : 1;
     /* The endgame sphere recedes a touch so it reads as a background
        behind content, never a wash over it. Same reasoning as the floor:
        it has further to recede once the ground is light. */
     if (sphereT > 0) base = Math.min(base, 1 - (0.25 + 0.2 * dayT) * sphereT);
     const zt = zoneT * zoneT * (3 - 2 * zoneT);
-    sceneCall('setDim', Math.min(base, 1 - (1 - ZONE_DIM) * zt));
+    base = Math.min(base, 1 - (1 - ZONE_DIM) * zt);
+    /* Presence envelope for the back half, applied LAST so it can force a
+       true zero rather than merely dimming. The machine fades out across
+       #process, stays gone through #network and the Calendly embed, and
+       comes back only as the question marks - hence the max(): questionT is
+       the one thing allowed to overrule the blackout. footerHideT then takes
+       it out again so nothing bleeds into the footer. */
+    const vis = Math.max(1 - hideT, questionT) * (1 - footerHideT);
+    sceneCall('setDim', base * vis);
   }
 
   const ctx = gsap.context(() => {
@@ -328,7 +356,7 @@ export function initScrollChoreography(scene) {
          rather than trust the sphere to overwrite it. Without this the globe
          snaps back to the curve for the last stretch before #work.
          sphereT > 0 only ever happens where f is already clamped to 5. */
-      sceneCall('setFormation', sphereT > 0 ? 5 + sphereT : f);
+      sceneCall('setFormation', sphereT > 0 ? endgameF() : f);
       applyLateral(f);
     }
 
@@ -338,7 +366,7 @@ export function initScrollChoreography(scene) {
        sphere would snap back to the curve the moment the section leaves. */
     function holdEndgame() {
       lastF = 5;
-      sceneCall('setFormation', 5 + sphereT);
+      sceneCall('setFormation', endgameF());
       applyLateral(5);
     }
 
@@ -560,7 +588,7 @@ export function initScrollChoreography(scene) {
 
     function applySphere(self) {
       sphereT = self.progress;
-      if (sphereT > 0) sceneCall('setFormation', 5 + sphereT);
+      if (sphereT > 0) sceneCall('setFormation', endgameF());
       /* Not a hard re-center: applyLateral eases the park out by sphereT. */
       applyLateral(lastF);
       applyDim();
@@ -633,6 +661,106 @@ export function initScrollChoreography(scene) {
     }
 
     /* --------------------------------------------------------------
+     * 5d. Into the calendar, out as question marks.
+     *
+     * Two scrubbed values, both rewinding like everything else:
+     *
+     *   hideT     blackout while #book holds the viewport. The Calendly
+     *             iframe is the one piece of UI on this page whose inside we
+     *             do not control, so the machine leaves entirely rather than
+     *             sitting behind it at reading dim.
+     *
+     *   questionT SPHERE(6) -> QUESTIONS(7) as #faq climbs in, paired with
+     *             setCondense. At 0 the machine is imploded to a dot at dead
+     *             center - which is exactly where the embed was - so
+     *             releasing it while the glyphs form reads as the particles
+     *             pouring out of the calendar and settling either side of
+     *             the accordions.
+     *
+     * The two windows overlap deliberately: the blackout is releasing while
+     * the marks are forming, so the emergence is the part you actually see.
+     * -------------------------------------------------------------- */
+    const processEl = document.querySelector('#process');
+    const faqEl = document.querySelector('#faq');
+    const footerEl = document.querySelector('.site-footer');
+
+    /* Imploded only while the blackout is on AND the marks have not formed.
+       hideT alone would crush the machine above #process; questionT alone
+       would crush it for the whole page above #faq. */
+    function applyCondense() {
+      sceneCall('setCondense', hideT * (1 - questionT));
+    }
+
+    /* The machine leaves the page well before the Calendly embed, not at it.
+       The fade runs across the whole of #process: it starts the moment that
+       section clears the fold and is complete by the time its bottom gets
+       there, which is exactly when #network is about to enter. So the orbit
+       visual and the embed each get the page to themselves, and the question
+       marks are the machine's re-entrance rather than a change of shape. */
+    function applyHide(self) {
+      const p = self.progress;
+      hideT = p * p * (3 - 2 * p); /* smoothstep: settle at both ends */
+      applyCondense();
+      applyDim();
+    }
+
+    if (processEl) {
+      ScrollTrigger.create({
+        trigger: processEl,
+        start: 'top bottom',
+        end: 'bottom bottom',
+        scrub: 0.5,
+        invalidateOnRefresh: true,
+        onUpdate: applyHide,
+        onRefresh: applyHide
+      });
+    }
+
+    /* The canvas is fixed, so the marks sit at the viewport centre and do not
+       scroll away with #faq - without this they ride straight down over the
+       footer. The glyphs span roughly 29% to 65% of the viewport height (top
+       of hook to bottom of dot, see buildQuestions), so the fade has to be
+       finished by the time the footer's top passes 68%. */
+    function applyFooterHide(self) {
+      const p = self.progress;
+      footerHideT = p * p * (3 - 2 * p);
+      applyDim();
+    }
+
+    if (footerEl) {
+      ScrollTrigger.create({
+        trigger: footerEl,
+        start: 'top bottom',
+        end: 'top 68%',
+        scrub: 0.5,
+        invalidateOnRefresh: true,
+        onUpdate: applyFooterHide,
+        onRefresh: applyFooterHide
+      });
+    }
+
+    function applyQuestions(self) {
+      const p = self.progress;
+      questionT = p * p * (3 - 2 * p); /* smoothstep */
+      sceneCall('setFormation', endgameF());
+      applyCondense();
+      applyLateral(5);
+      applyDim();
+    }
+
+    if (faqEl) {
+      ScrollTrigger.create({
+        trigger: faqEl,
+        start: 'top bottom',
+        end: 'top 40%',
+        scrub: 0.6,
+        invalidateOnRefresh: true,
+        onUpdate: applyQuestions,
+        onRefresh: applyQuestions
+      });
+    }
+
+    /* --------------------------------------------------------------
      * 6. Reading dim for #book and #faq.
      * -------------------------------------------------------------- */
     /* #process joins #book and #faq: it is the one section in the daylight
@@ -640,7 +768,7 @@ export function initScrollChoreography(scene) {
        between it and the machine, and the endgame sphere is at its densest
        exactly there. #network is the same case: a typewriter headline and a
        ring of avatars, both straight on the ground. */
-    ['#book', '#faq', '#process', '#network'].forEach((sel, i) => {
+    ['#book'].forEach((sel, i) => {
       const section = document.querySelector(sel);
       if (!section) return;
       ScrollTrigger.create({
@@ -822,10 +950,14 @@ export function initScrollChoreography(scene) {
        would freeze body::after as a half-lit wash over the whole page. */
     document.body.style.removeProperty('--day');
     dayT = 0;
+    questionT = 0;
+    hideT = 0;
+    footerHideT = 0;
     sceneCall('setDim', 1);
     sceneCall('setLateral', 0, 0);
     sceneCall('setRing', 0);
     sceneCall('setDay', 0);
+    sceneCall('setCondense', 0);
   }
 
   activeCleanup = cleanup;

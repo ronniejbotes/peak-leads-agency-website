@@ -520,6 +520,65 @@ function buildSphere(count) {
   return arr;
 }
 
+// 7 - QUESTIONS: two question marks, one in each gutter beside #faq. The
+// machine implodes to a point behind the Calendly embed and then flies out
+// into these as the accordions arrive, so the particles read as spilling out
+// of the calendar.
+//
+// Placement is in world units, not pixels: the camera is at z 7 with a 50deg
+// fov, so the frame is ~6.53 units tall and (6.53 * aspect) wide. At desktop
+// that puts the frame edge near x 4.95 and the 880px .faq-list column near
+// x 3.0, which is why the glyphs sit at +/-3.7 - clear of the copy, inside
+// the frame. On narrow viewports the frame is far too small to reach 3.7 and
+// they simply fall off screen, which is the wanted behaviour: there is no
+// gutter to sit in there, and the accordions are opaque anyway.
+function buildQuestions(count) {
+  const arr = new Float32Array(count * 3);
+  const SIDE = [-3.7, 3.7];
+  const R = 0.5;      // hook radius
+  const CY = 0.86;    // hook centre height
+  const A0 = 205;     // hook sweeps clockwise from lower-left...
+  const A1 = -42;     // ...over the top and down to lower-right
+  const STEM_TOP = 0.16;
+  const STEM_BOT = -0.36;
+  const DOT_Y = -0.82;
+  const THICK = 0.05; // gaussian stroke scatter
+
+  const ex = Math.cos((A1 * Math.PI) / 180) * R; // hook end, = tail start
+  const ey = CY + Math.sin((A1 * Math.PI) / 180) * R;
+
+  for (let i = 0; i < count; i++) {
+    // Alternate sides so both glyphs fill evenly however many points there are.
+    const s = SIDE[i % 2];
+    const r = Math.random();
+    let x;
+    let y;
+    if (r < 0.52) {
+      const a = ((A0 + (A1 - A0) * Math.random()) * Math.PI) / 180;
+      x = Math.cos(a) * R;
+      y = CY + Math.sin(a) * R;
+    } else if (r < 0.7) {
+      // quadratic tail curling from the hook end in to the stem
+      const t = Math.random();
+      const mt = 1 - t;
+      x = mt * mt * ex + 2 * mt * t * 0.34 + t * t * 0;
+      y = mt * mt * ey + 2 * mt * t * 0.3 + t * t * STEM_TOP;
+    } else if (r < 0.86) {
+      x = 0;
+      y = STEM_TOP + (STEM_BOT - STEM_TOP) * Math.random();
+    } else {
+      const a = Math.random() * Math.PI * 2;
+      const rr = Math.sqrt(Math.random()) * 0.15;
+      x = Math.cos(a) * rr;
+      y = DOT_Y + Math.sin(a) * rr;
+    }
+    arr[i * 3] = s + x + gauss() * THICK;
+    arr[i * 3 + 1] = y + gauss() * THICK;
+    arr[i * 3 + 2] = (Math.random() - 0.5) * 0.22;
+  }
+  return arr;
+}
+
 /* ------------------------------------------------------------------ *
  * Shaders
  * ------------------------------------------------------------------ */
@@ -584,21 +643,33 @@ vec3 animatePos(vec3 p, float form) {
     p.x += 0.05 * sin(uTime * 0.5 + aSeed.y * 6.2831);
     p.y += 0.02 * sin(uTime * 0.9 + aSeed.x * 6.2831);
     return p;
+  } else if (form < 6.5) {
+    // 6 SPHERE: stately tumble, spinning about y with a slow cross-roll
+    // about x, the whole assembly leaned 33 degrees on both screen axes
+    // (cos 33 = 0.8387, sin 33 = 0.5446). Pure rotation about the origin:
+    // the center never moves.
+    float a1 = uTime * 0.30;
+    float c1 = cos(a1);
+    float s1 = sin(a1);
+    p = vec3(c1 * p.x + s1 * p.z, p.y, -s1 * p.x + c1 * p.z);
+    float a2 = uTime * 0.11;
+    float c2 = cos(a2);
+    float s2 = sin(a2);
+    p = vec3(p.x, c2 * p.y - s2 * p.z, s2 * p.y + c2 * p.z);
+    p = vec3(p.x, 0.8387 * p.y - 0.5446 * p.z, 0.5446 * p.y + 0.8387 * p.z);
+    p = vec3(0.8387 * p.x - 0.5446 * p.y, 0.5446 * p.x + 0.8387 * p.y, p.z);
+    return p;
   }
-  // 6 SPHERE: stately tumble, spinning about y with a slow cross-roll
-  // about x, the whole assembly leaned 33 degrees on both screen axes
-  // (cos 33 = 0.8387, sin 33 = 0.5446). Pure rotation about the origin:
-  // the center never moves.
-  float a1 = uTime * 0.30;
-  float c1 = cos(a1);
-  float s1 = sin(a1);
-  p = vec3(c1 * p.x + s1 * p.z, p.y, -s1 * p.x + c1 * p.z);
-  float a2 = uTime * 0.11;
-  float c2 = cos(a2);
-  float s2 = sin(a2);
-  p = vec3(p.x, c2 * p.y - s2 * p.z, s2 * p.y + c2 * p.z);
-  p = vec3(p.x, 0.8387 * p.y - 0.5446 * p.z, 0.5446 * p.y + 0.8387 * p.z);
-  p = vec3(0.8387 * p.x - 0.5446 * p.y, 0.5446 * p.x + 0.8387 * p.y, p.z);
+  // 7 QUESTIONS: no tumble. These are glyphs that have to stay upright and
+  // legible in the gutters, not an object turning in space.
+  //
+  // Guarding the SPHERE branch above is what makes that possible. It used to
+  // be the unguarded fall-through, so every index past 5.5 inherited its
+  // 33 degree screen-plane lean - which sheared the two marks apart, one
+  // high and one low, and swung them through z so perspective inflated them.
+  // Only a faint breath here, enough that they are not dead on the page.
+  p.x += 0.035 * sin(uTime * 0.6 + aSeed.y * 6.2831);
+  p.y += 0.030 * sin(uTime * 0.8 + aSeed.x * 6.2831);
   return p;
 }
 
@@ -688,8 +759,12 @@ void main() {
   float d = length(gl_PointCoord - 0.5);
   float disc = smoothstep(0.5, 0.1, d);
   if (disc < 0.004) discard;
-  // dust dims less than the machine so the backdrop never dies fully
-  float alpha = disc * 0.32 * (0.5 + 0.5 * vTone) * (0.6 + 0.4 * uDim);
+  // Dust dims less than the machine so the backdrop never dies fully - but
+  // the smoothstep lets a true blackout (uDim -> 0, the Calendly section)
+  // take it all the way out. It only bites below 0.25, and reading dim
+  // bottoms out at 0.35, so every existing state is untouched.
+  float alpha = disc * 0.32 * (0.5 + 0.5 * vTone)
+              * (0.6 + 0.4 * uDim) * smoothstep(0.0, 0.25, uDim);
   gl_FragColor = vec4(uColor * alpha, alpha);
 }
 `;
@@ -726,6 +801,9 @@ const STRIP_MARGIN = 0.035;
    so geometry measured off the formation arrays runs slightly narrow.
    Pad it rather than let a formation breathe over the edge it was just
    fitted inside. */
+/* Highest formation index. QUESTIONS (7) is the last one. */
+const MAX_FORM = 7;
+
 const IDLE_HEADROOM = 1.07;
 
 /* Resolve setLateral inputs to fractions each frame. Magnitudes <= 1 are
@@ -780,7 +858,7 @@ function tick() {
   const halfW = halfH * cam.aspect;
   const mixV = state.uniforms.uMix.value;
   const reachA = state.formHalfW[state.pairIndex];
-  const reachB = state.formHalfW[Math.min(state.pairIndex + 1, 6)];
+  const reachB = state.formHalfW[Math.min(state.pairIndex + 1, MAX_FORM)];
   // half-width of the formation currently on screen, before fitting
   const reach = (reachA + (reachB - reachA) * mixV) * state.baseScale;
 
@@ -843,11 +921,11 @@ function uploadPair(idx) {
   // idx = lower formation of the active pair (0..5)
   const g = state.geometry;
   g.attributes.aStart.array.set(state.formations[idx]);
-  g.attributes.aEnd.array.set(state.formations[Math.min(idx + 1, 6)]);
+  g.attributes.aEnd.array.set(state.formations[Math.min(idx + 1, MAX_FORM)]);
   g.attributes.aStart.needsUpdate = true;
   g.attributes.aEnd.needsUpdate = true;
   state.uniforms.uFormA.value = idx;
-  state.uniforms.uFormB.value = Math.min(idx + 1, 6);
+  state.uniforms.uFormB.value = Math.min(idx + 1, MAX_FORM);
   state.pairIndex = idx;
   applyPairColors();
 }
@@ -857,7 +935,7 @@ function uploadPair(idx) {
    scroll tick - day moves independently of the pair, so neither can own it. */
 function applyPairColors() {
   const idx = state.pairIndex;
-  const jdx = Math.min(idx + 1, 6);
+  const jdx = Math.min(idx + 1, MAX_FORM);
   const d = state.day;
   state.uniforms.uColorA.value.copy(state.colors[idx]).lerp(state.colorsDay[idx], d);
   state.uniforms.uColorB.value.copy(state.colors[jdx]).lerp(state.colorsDay[jdx], d);
@@ -926,7 +1004,8 @@ function init(canvas, opts = {}) {
       buildRanks(count),
       buildFunnel(count),
       buildGrowth(count),
-      buildSphere(count)
+      buildSphere(count),
+      buildQuestions(count)
     ];
 
     // How far each formation reaches sideways, in world units. Measured
@@ -953,12 +1032,16 @@ function init(canvas, opts = {}) {
     const bone = new THREE.Color(BONE);
     const ink = new THREE.Color(INK);
     const umber = new THREE.Color(UMBER);
+    /* 8th stop clones the 7th rather than re-spacing the ramp over i/7: that
+       would move every existing stop and repaint the whole dark half. */
     const colors = [0, 1, 2, 3, 4, 5, 6].map((i) =>
       chalk.clone().lerp(bone, i / 6)
     );
+    colors.push(colors[6].clone());
     const colorsDay = [0, 1, 2, 3, 4, 5, 6].map((i) =>
       ink.clone().lerp(umber, i / 6)
     );
+    colorsDay.push(colorsDay[6].clone());
 
     // ---- main particle system --------------------------------------
     const geometry = new THREE.BufferGeometry();
@@ -1137,8 +1220,8 @@ function init(canvas, opts = {}) {
 
 function setFormation(f) {
   if (!state) return;
-  f = clamp(Number.isFinite(+f) ? +f : 0, 0, 6);
-  const idx = Math.min(Math.floor(f), 5);
+  f = clamp(Number.isFinite(+f) ? +f : 0, 0, MAX_FORM);
+  const idx = Math.min(Math.floor(f), MAX_FORM - 1);
   const frac = f - idx;
   if (idx !== state.pairIndex) uploadPair(idx); // re-upload only on pair change
   state.uniforms.uMix.value = frac; // shader applies smoothstep
