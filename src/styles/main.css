@@ -2786,24 +2786,6 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
 .network-cta svg { transition: transform 220ms ease; }
 .network-cta:hover svg { transform: translateX(3px); }
 
-/* -- the "Bradley" cursor ------------------------------------------------- */
-
-.network-cursor {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 28px 0 0 clamp(40px, 14vw, 220px) !important;
-  color: var(--accent);
-}
-.network-cursor span {
-  padding: 7px 15px;
-  border-radius: 20px;
-  background: var(--accent);
-  color: var(--accent-ink);
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-
 /* -- orbits --------------------------------------------------------------- */
 
 /* Two boxes on purpose. .orbits is the LAYOUT footprint and tracks the
@@ -2994,7 +2976,6 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
   .network-copy { flex: 1 1 auto; }
   .network-copy p { margin-inline: auto; }
   .typewriter { min-height: 0; }
-  .network-cursor { justify-content: center; margin-left: 0 !important; }
   .orbits { --orbit-scale: 0.72; margin-top: 8px; }
 }
 @media (max-width: 900px)  { .orbits { --orbit-scale: 0.58; } }
