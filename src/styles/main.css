@@ -2907,6 +2907,14 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
 .orbit-face.is-md { width: 78px; height: 78px; margin: -39px 0 0 -39px; }
 .orbit-face.is-lg { width: 88px; height: 88px; margin: -44px 0 0 -44px; }
 
+/* Client marks rather than screenshots. A logo has to sit INSIDE its frame
+   with air around it, so this pair overrides the `cover` + top-align the
+   screenshot tiles use - and the tile needs its own light ground, because the
+   marks are transparent single-ink PNGs and the orbit hairline would
+   otherwise show straight through them. */
+.orbit-face.is-logo { background: var(--panel-solid); }
+.orbit-face.is-logo img { object-fit: contain; object-position: center; }
+
 /* -- core figure ---------------------------------------------------------- */
 
 /* Sits outside the rings rather than counter-rotating inside orbit-1: same
@@ -2961,15 +2969,19 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
   padding: 0 32px 0 0;
   animation: ticker-run 28s linear infinite;
 }
+/* Logos, not names. Every mark ships on a canvas of the same height with
+   its own optical sizing already baked in, so one `height` here lines all
+   nine up - setting a width instead would undo that. */
 .ticker-track li {
   flex: 0 0 auto;
-  font-family: var(--font-mono);
-  font-size: 0.92rem;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: var(--text-3);
+  display: flex;
+  align-items: center;
+}
+.ticker-track li img {
+  display: block;
+  height: 56px;
+  width: auto;
+  opacity: 0.85;
 }
 @keyframes ticker-run { to { transform: translateX(-100%); } }
 .ticker:hover .ticker-track { animation-play-state: paused; }
@@ -2986,7 +2998,8 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
   .orbits { --orbit-scale: 0.72; margin-top: 8px; }
 }
 @media (max-width: 900px)  { .orbits { --orbit-scale: 0.58; } }
-@media (max-width: 640px)  { .orbits { --orbit-scale: 0.45; } .ticker, .ticker-track { gap: 36px; } }
+@media (max-width: 900px)  { .ticker-track li img { height: 46px; } }
+@media (max-width: 640px)  { .orbits { --orbit-scale: 0.45; } .ticker, .ticker-track { gap: 36px; } .ticker-track li img { height: 38px; } }
 @media (max-width: 420px)  { .orbits { --orbit-scale: 0.36; } }
 
 

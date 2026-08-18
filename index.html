@@ -577,10 +577,12 @@
     <!-- 7b. Network — orbiting client proof, the last beat before booking.
          Ported from a React/Vite hero spec: concentric spinning orbits with
          avatars, typewriter heading, count-up core, conic-gradient button
-         border and a marquee strip. Every face and screenshot here is a real
-         Peak Leads client from #work, and the core counts to the same
-         verified figure as #proof - nothing on this page is a stock avatar
-         or an invented number. -->
+         border and a logo marquee. Every face and mark here is a real Peak
+         Leads client from #work, and the core counts to the same verified
+         figure as #proof - nothing on this page is a stock avatar or an
+         invented number. The logos are the clients' own artwork silhouetted
+         to a single ink so nine unrelated brands read as one strip; see
+         tools/logos/README.md for how each one was sourced. -->
     <section id="network" class="theme-day">
       <div class="network-inner">
 
@@ -611,23 +613,24 @@
           </p>
         </div>
 
-        <!-- Decorative: every client named here is read out by the strip
-             below, so the spinning copy stays out of the a11y tree. -->
+        <!-- Decorative: every client whose mark appears here is read out by
+             the logo strip below, so the spinning copy stays out of the a11y
+             tree. -->
         <div class="orbits" aria-hidden="true">
          <div class="orbits-stage">
           <div class="orbit orbit-4">
             <span class="orbit-item" style="--a:30deg"><span class="orbit-face" style="--glow:rgba(217,199,160,0.55)"><img src="/assets/images/avatar-david.webp" alt="" width="160" height="160" loading="lazy"></span></span>
-            <span class="orbit-item" style="--a:95deg"><span class="orbit-face is-tile is-lg" style="--glow:rgba(217,164,65,0.5)"><img src="/assets/images/work-3.webp" alt="" width="1200" height="675" loading="lazy"></span></span>
+            <span class="orbit-item" style="--a:95deg"><span class="orbit-face is-tile is-logo is-lg" style="--glow:rgba(217,164,65,0.5)"><img src="/assets/logos/water-automation-mark.png" alt="" width="256" height="256" loading="lazy"></span></span>
             <span class="orbit-item" style="--a:220deg"><span class="orbit-face is-lg" style="--glow:rgba(196,160,110,0.55)"><img src="/assets/images/bradley.webp" alt="" width="160" height="160" loading="lazy"></span></span>
-            <span class="orbit-item" style="--a:320deg"><span class="orbit-face is-tile" style="--glow:rgba(217,199,160,0.45)"><img src="/assets/images/work-5.webp" alt="" width="1200" height="675" loading="lazy"></span></span>
+            <span class="orbit-item" style="--a:320deg"><span class="orbit-face is-tile is-logo" style="--glow:rgba(217,199,160,0.45)"><img src="/assets/logos/tiny-homes-mark.png" alt="" width="256" height="256" loading="lazy"></span></span>
           </div>
           <div class="orbit orbit-3">
-            <span class="orbit-item" style="--a:130deg"><span class="orbit-face is-tile is-lg" style="--glow:rgba(217,164,65,0.45)"><img src="/assets/images/work-8.webp" alt="" width="1200" height="675" loading="lazy"></span></span>
+            <span class="orbit-item" style="--a:130deg"><span class="orbit-face is-tile is-logo is-lg" style="--glow:rgba(217,164,65,0.45)"><img src="/assets/logos/position-xero-mark.png" alt="" width="256" height="256" loading="lazy"></span></span>
           </div>
           <div class="orbit orbit-2">
             <span class="orbit-item" style="--a:60deg"><span class="orbit-face" style="--glow:rgba(217,164,65,0.55)"><img src="/assets/images/avatar-sarah.webp" alt="" width="160" height="160" loading="lazy"></span></span>
             <span class="orbit-item" style="--a:180deg"><span class="orbit-face is-md" style="--glow:rgba(217,199,160,0.5)"><img src="/assets/images/avatar-michael.webp" alt="" width="160" height="160" loading="lazy"></span></span>
-            <span class="orbit-item" style="--a:300deg"><span class="orbit-face is-tile" style="--glow:rgba(196,160,110,0.5)"><img src="/assets/images/work-6.webp" alt="" width="1200" height="675" loading="lazy"></span></span>
+            <span class="orbit-item" style="--a:300deg"><span class="orbit-face is-tile is-logo" style="--glow:rgba(196,160,110,0.5)"><img src="/assets/logos/cognexa-mark.png" alt="" width="256" height="256" loading="lazy"></span></span>
           </div>
           <div class="orbit orbit-1">
             <span class="orbit-item" style="--a:270deg"><span class="orbit-face is-tile" style="--glow:rgba(217,199,160,0.6)"><img src="/assets/images/avatar-greg.webp" alt="" width="160" height="160" loading="lazy"></span></span>
@@ -646,10 +649,26 @@
 
       <div class="ticker">
         <ul class="ticker-track">
-          <li>Cognexa</li><li>Water Automation</li><li>The Leak Geeks</li><li>GreaterGood</li><li>Tiny Homes SA</li><li>Cajee Botes</li><li>Position Xero</li><li>Otaku Kulture</li><li>D&amp;D Luxury</li>
+          <li><img src="/assets/logos/cognexa.png" alt="Cognexa" width="417" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/water-automation.png" alt="Water Automation" width="315" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/leak-geeks.png" alt="The Leak Geeks" width="454" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/greatergood.png" alt="GreaterGood" width="393" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/tiny-homes.png" alt="Tiny Homes SA" width="257" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/cajee-botes.png" alt="Cajee Botes" width="438" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/position-xero.png" alt="Position Xero" width="454" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/otaku-kulture.png" alt="Otaku Kulture" width="292" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/dnd-luxury.png" alt="D&amp;D Luxury" width="148" height="168" loading="lazy"></li>
         </ul>
         <ul class="ticker-track" aria-hidden="true">
-          <li>Cognexa</li><li>Water Automation</li><li>The Leak Geeks</li><li>GreaterGood</li><li>Tiny Homes SA</li><li>Cajee Botes</li><li>Position Xero</li><li>Otaku Kulture</li><li>D&amp;D Luxury</li>
+          <li><img src="/assets/logos/cognexa.png" alt="" width="417" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/water-automation.png" alt="" width="315" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/leak-geeks.png" alt="" width="454" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/greatergood.png" alt="" width="393" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/tiny-homes.png" alt="" width="257" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/cajee-botes.png" alt="" width="438" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/position-xero.png" alt="" width="454" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/otaku-kulture.png" alt="" width="292" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/dnd-luxury.png" alt="" width="148" height="168" loading="lazy"></li>
         </ul>
       </div>
     </section>

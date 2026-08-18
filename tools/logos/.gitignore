@@ -1,0 +1,5 @@
+# Regenerable inputs and outputs — see README.md
+src/
+fonts/
+out/
+__pycache__/
