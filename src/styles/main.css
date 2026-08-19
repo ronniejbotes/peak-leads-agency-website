@@ -3140,6 +3140,13 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
    isolation keeps the z-index:-1 layer inside this section - main already
    carries z-index 1, so the wash still sits above the canvas either way.
    ========================================================================== */
+/* The daylight wash below deliberately bleeds 8% past both edges. The left
+   overhang is harmless, but the right one widened the document by that 8% —
+   34px of horizontal scroll on a 420px phone. `clip` rather than `hidden`:
+   it trims the bleed without creating a scroll container, so nothing inside
+   loses position: sticky. */
+#process { overflow-x: clip; }
+
 #process.theme-day {
   position: relative;
   isolation: isolate;
