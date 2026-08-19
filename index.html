@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-ZA">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +7,10 @@
   /* Runs before any body markup: `js-enabled` gates JS-only UI in CSS, and
      `data-region` picks the currency the money figures render in. Timezone is
      the strongest signal available without a geo-IP round trip; language is
-     the fallback. Default (and what crawlers see) is USD — the US is the
-     primary market. The swap itself runs inline right after #proof. */
+     the fallback. South Africa is the primary market, so the ZA figures are
+     the ones written into the markup — that is what a crawler and anyone
+     without JS gets. The swap runs inline right after #proof and only fires
+     for visitors detected OUTSIDE South Africa, rewriting them to USD. */
   (function () {
     var d = document.documentElement;
     d.classList.add('js-enabled');
@@ -29,8 +31,8 @@
     d.setAttribute('data-region', za ? 'za' : 'intl');
   })();
   </script>
-  <title>Lead Generation, Web Development, SEO, Paid Ads | Peak Leads</title>
-  <meta name="description" content="Peak Leads has helped businesses generate over $7 million in sales through web development, SEO, paid ads and exclusive lead generation systems. Book a free call.">
+  <title>Lead Generation &amp; Web Design Agency South Africa | Peak Leads</title>
+  <meta name="description" content="Peak Leads is a South African web design, SEO and lead generation agency. We have helped businesses generate over R114 million in sales. Book a free call.">
   <link rel="canonical" href="https://peakleads.agency/">
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
   <meta name="theme-color" content="#0D0C0A">
@@ -42,16 +44,16 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://peakleads.agency/">
   <meta property="og:site_name" content="Peak Leads">
-  <meta property="og:locale" content="en_US">
-  <meta property="og:title" content="Lead Generation, Web Development, SEO, Paid Ads | Peak Leads">
-  <meta property="og:description" content="Peak Leads has helped businesses generate over $7 million in sales through web development, SEO, paid ads and exclusive lead generation systems. Book a free call.">
+  <meta property="og:locale" content="en_ZA">
+  <meta property="og:title" content="Lead Generation &amp; Web Design Agency South Africa | Peak Leads">
+  <meta property="og:description" content="Peak Leads is a South African web design, SEO and lead generation agency. We have helped businesses generate over R114 million in sales. Book a free call.">
   <meta property="og:image" content="https://peakleads.agency/assets/images/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Peak Leads: web development, SEO, paid ads and exclusive lead generation for home service businesses">
+  <meta property="og:image:alt" content="Peak Leads: web design, SEO, paid ads and lead generation for South African businesses">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Lead Generation, Web Development, SEO, Paid Ads | Peak Leads">
-  <meta name="twitter:description" content="Peak Leads has helped businesses generate over $7 million in sales through web development, SEO, paid ads and exclusive lead generation systems. Book a free call.">
+  <meta name="twitter:title" content="Lead Generation &amp; Web Design Agency South Africa | Peak Leads">
+  <meta name="twitter:description" content="Peak Leads is a South African web design, SEO and lead generation agency. We have helped businesses generate over R114 million in sales. Book a free call.">
   <meta name="twitter:image" content="https://peakleads.agency/assets/images/og-image.jpg">
 
   <script type="application/ld+json">
@@ -66,17 +68,20 @@
         "logo": "https://peakleads.agency/assets/images/logo.webp",
         "image": "https://peakleads.agency/assets/images/og-image.jpg",
         "email": "bradley@peakleads.agency",
-        "description": "Lead generation agency for US home service businesses. Web development, local SEO, paid ads and exclusive leads for roofers, plumbers, HVAC and contractors.",
+        "description": "South African lead generation agency. Web design, local SEO, paid ads and exclusive leads for home service businesses \u2014 roofers, plumbers, electricians and contractors.",
         "slogan": "Build your presence.",
         "priceRange": "$$",
-        "areaServed": { "@type": "Country", "name": "United States" },
+        "areaServed": { "@type": "Country", "name": "South Africa" },
         "knowsAbout": [
           "Lead generation",
+          "Web design",
           "Web development",
-          "Search engine optimization",
+          "Search engine optimisation",
           "Paid advertising",
           "Google Ads",
-          "Local SEO"
+          "Local SEO",
+          "Digital marketing South Africa",
+          "Conversion rate optimisation"
         ],
         "founder": {
           "@type": "Person",
@@ -99,7 +104,7 @@
                 "serviceType": "Web development",
                 "description": "Precision-built, fast, conversion-focused websites for home service businesses. Live in 2 to 3 weeks with daily progress updates.",
                 "provider": { "@id": "https://peakleads.agency/#organization" },
-                "areaServed": { "@type": "Country", "name": "United States" }
+                "areaServed": { "@type": "Country", "name": "South Africa" }
               }
             },
             {
@@ -108,10 +113,10 @@
                 "@type": "Service",
                 "@id": "https://peakleads.agency/services/#seo",
                 "name": "SEO",
-                "serviceType": "Search engine optimization",
+                "serviceType": "Search engine optimisation",
                 "description": "Local SEO for home services: Google Business Profile, technical and on-page SEO, and content that answers what customers actually search for.",
                 "provider": { "@id": "https://peakleads.agency/#organization" },
-                "areaServed": { "@type": "Country", "name": "United States" }
+                "areaServed": { "@type": "Country", "name": "South Africa" }
               }
             },
             {
@@ -121,9 +126,9 @@
                 "@id": "https://peakleads.agency/services/#ads",
                 "name": "Paid ads",
                 "serviceType": "Pay per click advertising",
-                "description": "Google Ads, Local Services Ads and Meta ads tuned for home services, tracked from the click through to the booked call.",
+                "description": "Google Ads and Meta ads tuned for South African service businesses, tracked from the click through to the booked call.",
                 "provider": { "@id": "https://peakleads.agency/#organization" },
-                "areaServed": { "@type": "Country", "name": "United States" }
+                "areaServed": { "@type": "Country", "name": "South Africa" }
               }
             },
             {
@@ -133,9 +138,9 @@
                 "@id": "https://peakleads.agency/services/#leads",
                 "name": "Lead generation",
                 "serviceType": "Lead generation",
-                "description": "Exclusive leads generated under your own brand and delivered in real time to you alone. No shared lists, no bidding against other contractors. Lead packs start at $140 for 150 leads; managed retainers are priced separately at https://peakleads.agency/pricing/.",
+                "description": "Exclusive leads generated under your own brand and delivered in real time to you alone. No shared lists, no bidding against other contractors. Scoped on the call; managed monthly packages are priced at https://peakleads.agency/pricing/.",
                 "provider": { "@id": "https://peakleads.agency/#organization" },
-                "areaServed": { "@type": "Country", "name": "United States" }
+                "areaServed": { "@type": "Country", "name": "South Africa" }
               },
               "priceSpecification": {
                 "@type": "PriceSpecification",
@@ -187,7 +192,7 @@
         "name": "What does it cost?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Two ways in. Exclusive lead packs start from $140 for 150 leads. Managed lead generation, where we run appointment setting, email outreach or LinkedIn ads for you, starts from $1,999 per month in the US and R19,950 in South Africa, as at August 2026. Websites, SEO and ad campaigns are scoped on the call. No lock-in contracts."
+          "text": "Managed lead generation, where we run appointment setting, email outreach or LinkedIn ads for you, starts from R19,950 per month in South Africa, as at August 2026. Exclusive lead campaigns are scoped on the call. Websites, SEO and ad campaigns are scoped on the call too. No lock-in contracts."
         }
       },
       {
@@ -234,7 +239,7 @@
 
   <canvas id="scene-canvas" aria-hidden="true"></canvas>
 
-  <header class="site-nav">
+  <header class="site-nav theme-day">
     <nav class="nav-inner" aria-label="Primary">
       <a href="/">
         <img src="/assets/images/logo.webp" alt="Peak Leads logo" width="40" height="40">
@@ -262,18 +267,86 @@
 
   <main id="main">
 
-    <!-- 1. Hero -->
-    <section id="hero" class="hero">
+    <!-- 1. Hero — copy, the orbiting client proof, and the client strip.
+         The orbit ring and logo marquee used to live in their own section
+         further down the page; they are the strongest proof on the site, so
+         they now open it. Every face and mark is a real Peak Leads client
+         from #work and the core counts to the same verified figure as
+         #proof — nothing here is a stock avatar or an invented number. See
+         tools/logos/README.md for how each mark was sourced. -->
+    <section id="hero" class="hero theme-day">
       <div class="hero-inner">
+
         <div class="hero-copy">
+          <p class="eyebrow">Web design, SEO &amp; lead generation</p>
           <h1>Build your presence.</h1>
-          <p>We&rsquo;ve helped businesses generate over <span data-money-usd="$7 million" data-money-zar="R114 million">$7 million</span> in sales through our websites, SEO, paid ads, and lead generation systems.</p>
+          <p>We&rsquo;re a South African agency. We&rsquo;ve helped businesses generate over <span data-money-usd="$7 million" data-money-zar="R114 million">R114 million</span> in sales through our websites, SEO, paid ads, and lead generation systems.</p>
           <div>
             <a class="btn btn-primary" href="/free-audit/">Get your free audit</a>
             <a class="btn btn-ghost" href="#book">Book a call</a>
           </div>
+          <p class="hero-trust">Peak Leads is one small team, not a rotating cast of account managers. The people who build your site are the people you deal with, and you will know all of their names by the second week.</p>
+        </div>
+
+        <div class="orbits" aria-hidden="true">
+         <div class="orbits-stage">
+          <div class="orbit orbit-4">
+            <span class="orbit-item" style="--a:30deg"><span class="orbit-face" style="--glow:rgba(217,199,160,0.55)"><img src="/assets/images/avatar-david.webp" alt="" width="160" height="160" loading="lazy"></span></span>
+            <span class="orbit-item" style="--a:95deg"><span class="orbit-face is-tile is-logo is-lg" style="--glow:rgba(217,164,65,0.5)"><img src="/assets/logos/water-automation-mark.png" alt="" width="256" height="256" loading="lazy"></span></span>
+            <span class="orbit-item" style="--a:220deg"><span class="orbit-face is-lg" style="--glow:rgba(196,160,110,0.55)"><img src="/assets/images/bradley.webp" alt="" width="160" height="160" loading="lazy"></span></span>
+            <span class="orbit-item" style="--a:320deg"><span class="orbit-face is-tile is-logo" style="--glow:rgba(217,199,160,0.45)"><img src="/assets/logos/tiny-homes-mark.png" alt="" width="256" height="256" loading="lazy"></span></span>
+          </div>
+          <div class="orbit orbit-3">
+            <span class="orbit-item" style="--a:130deg"><span class="orbit-face is-tile is-logo is-lg" style="--glow:rgba(217,164,65,0.45)"><img src="/assets/logos/position-xero-mark.png" alt="" width="256" height="256" loading="lazy"></span></span>
+          </div>
+          <div class="orbit orbit-2">
+            <span class="orbit-item" style="--a:60deg"><span class="orbit-face" style="--glow:rgba(217,164,65,0.55)"><img src="/assets/images/avatar-sarah.webp" alt="" width="160" height="160" loading="lazy"></span></span>
+            <span class="orbit-item" style="--a:180deg"><span class="orbit-face is-md" style="--glow:rgba(217,199,160,0.5)"><img src="/assets/images/avatar-michael.webp" alt="" width="160" height="160" loading="lazy"></span></span>
+            <span class="orbit-item" style="--a:300deg"><span class="orbit-face is-tile is-logo" style="--glow:rgba(196,160,110,0.5)"><img src="/assets/logos/cognexa-mark.png" alt="" width="256" height="256" loading="lazy"></span></span>
+          </div>
+          <div class="orbit orbit-1">
+            <span class="orbit-item" style="--a:270deg"><span class="orbit-face is-tile" style="--glow:rgba(217,199,160,0.6)"><img src="/assets/images/avatar-greg.webp" alt="" width="160" height="160" loading="lazy"></span></span>
+          </div>
+          <!-- Deliberately NOT .stat/.stat-value: those are global classes
+               carrying container-type + 26cqi sizing for #proof's grid, which
+               collapses on an auto-width absolute box. network.js counts this
+               one up instead. -->
+          <div class="orbit-core">
+            <p class="orbit-count" data-count-to="114" data-money-usd="$7M+" data-money-zar="R114M+" data-prefix="R" data-suffix="M+">R114M+</p>
+            <p class="orbit-label">in client revenue</p>
+          </div>
+         </div>
         </div>
       </div>
+
+      <p class="ticker-label">A few of the businesses we build for</p>
+
+      <div class="ticker">
+        <ul class="ticker-track">
+          <li><img src="/assets/logos/cognexa.png" alt="Cognexa" width="417" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/water-automation.png" alt="Water Automation" width="315" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/leak-geeks.png" alt="The Leak Geeks" width="454" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/greatergood.png" alt="GreaterGood" width="393" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/tiny-homes.png" alt="Tiny Homes SA" width="257" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/cajee-botes.png" alt="Cajee Botes" width="438" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/position-xero.png" alt="Position Xero" width="454" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/otaku-kulture.png" alt="Otaku Kulture" width="292" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/dnd-luxury.png" alt="D&amp;D Luxury" width="148" height="168" loading="lazy"></li>
+        </ul>
+        <ul class="ticker-track" aria-hidden="true">
+          <li><img src="/assets/logos/cognexa.png" alt="" width="417" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/water-automation.png" alt="" width="315" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/leak-geeks.png" alt="" width="454" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/greatergood.png" alt="" width="393" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/tiny-homes.png" alt="" width="257" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/cajee-botes.png" alt="" width="438" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/position-xero.png" alt="" width="454" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/otaku-kulture.png" alt="" width="292" height="168" loading="lazy"></li>
+          <li><img src="/assets/logos/dnd-luxury.png" alt="" width="148" height="168" loading="lazy"></li>
+        </ul>
+      </div>
+
+      <span class="hero-fade-mark" aria-hidden="true"></span>
     </section>
 
     <!-- 2. Proof strip -->
@@ -287,7 +360,7 @@
         <p class="stat-label">reviews</p>
       </div>
       <div class="stat">
-        <p class="stat-value" data-money-usd="$7M+" data-money-zar="R114M+" data-count="7" data-prefix="$" data-suffix="M+">$7M+</p>
+        <p class="stat-value" data-money-usd="$7M+" data-money-zar="R114M+" data-count="114" data-prefix="R" data-suffix="M+">R114M+</p>
         <p class="stat-label">client revenue generated</p>
       </div>
       <div class="stat">
@@ -301,7 +374,10 @@
        hero figure is the LCP text and must never be seen changing. Region
        was resolved by the head script; $ stays put for everyone else.
        data-count/prefix/suffix mirror the text for the #proof count-up,
-       which parses whatever it finds (scroll.js initStatCounters). */
+       which parses whatever it finds (scroll.js initStatCounters), and
+       data-count-to does the same for the orbit core in the hero, which
+       network.js counts up instead (it is not a .stat). One pass covers
+       both: this script sits after every element that carries either. */
     (function () {
       var key = document.documentElement.getAttribute('data-region') === 'za' ? 'zar' : 'usd';
       var nodes = document.querySelectorAll('[data-money-' + key + ']');
@@ -311,11 +387,14 @@
         if (!text || el.textContent === text) continue;
         el.textContent = text;
         var m = /(\d+(?:\.\d+)?)/.exec(text);
-        if (m && el.hasAttribute('data-count')) {
-          el.setAttribute('data-count', m[1]);
-          el.setAttribute('data-prefix', text.slice(0, m.index));
-          el.setAttribute('data-suffix', text.slice(m.index + m[1].length));
-        }
+        if (!m) continue;
+        var attr = el.hasAttribute('data-count')
+          ? 'data-count'
+          : (el.hasAttribute('data-count-to') ? 'data-count-to' : '');
+        if (!attr) continue;
+        el.setAttribute(attr, m[1]);
+        el.setAttribute('data-prefix', text.slice(0, m.index));
+        el.setAttribute('data-suffix', text.slice(m.index + m[1].length));
       }
     })();
     </script>
@@ -346,7 +425,7 @@
               <li>Daily progress updates</li>
               <li>Fast on every phone</li>
             </ul>
-            <a href="/services/#web-design">See web development <span aria-hidden="true">&rarr;</span></a>
+            <a href="/web-design/">See web development <span aria-hidden="true">&rarr;</span></a>
           </div>
         </div>
       </article>
@@ -363,7 +442,7 @@
               <li>Content that answers real questions</li>
               <li>Plain-English monthly reports</li>
             </ul>
-            <a href="/services/#seo">See SEO <span aria-hidden="true">&rarr;</span></a>
+            <a href="/seo/">See SEO <span aria-hidden="true">&rarr;</span></a>
           </div>
         </div>
       </article>
@@ -373,14 +452,14 @@
           <div class="station-inner glass">
             <p class="ghost-num" aria-hidden="true">03</p>
             <h2>Paid ads that buy jobs, not clicks.</h2>
-            <p>Google Ads and Meta ads tuned for home services. Every dollar tracked from the click to the booked call.</p>
+            <p>Google Ads and Meta ads tuned for home services. Every rand tracked from the click to the booked call.</p>
             <ul class="station-list">
-              <li>Google Ads and Local Services Ads</li>
+              <li>Google Ads and Meta ads</li>
               <li>Meta ads that fill slow weeks</li>
               <li>Tracked to the booked call</li>
               <li>No lock-in contracts</li>
             </ul>
-            <a href="/services/#ads">See paid ads <span aria-hidden="true">&rarr;</span></a>
+            <a href="/google-ads/">See paid ads <span aria-hidden="true">&rarr;</span></a>
           </div>
         </div>
       </article>
@@ -395,9 +474,9 @@
               <li>100% exclusive to you</li>
               <li>Under your own brand</li>
               <li>Delivered in real time</li>
-              <li>Lead packs from $140</li>
+              <li>Scoped to your market</li>
             </ul>
-            <a href="/services/#leads">See lead generation <span aria-hidden="true">&rarr;</span></a>
+            <a href="/lead-generation/">See lead generation <span aria-hidden="true">&rarr;</span></a>
           </div>
         </div>
       </article>
@@ -573,121 +652,6 @@
         </li>
       </ol>
     </section>
-
-    <!-- 7b. Network — orbiting client proof, the last beat before booking.
-         Ported from a React/Vite hero spec: concentric spinning orbits with
-         avatars, typewriter heading, count-up core, conic-gradient button
-         border and a logo marquee. Every face and mark here is a real Peak
-         Leads client from #work, and the core counts to the same verified
-         figure as #proof - nothing on this page is a stock avatar or an
-         invented number. The logos are the clients' own artwork silhouetted
-         to a single ink so nine unrelated brands read as one strip; see
-         tools/logos/README.md for how each one was sourced. -->
-    <section id="network" class="theme-day">
-      <div class="network-inner">
-
-        <div class="network-copy">
-          <p class="eyebrow">The bench</p>
-          <!-- Full text lives in the markup so it survives JS being off;
-               network.js empties it and types it back. data-split is the
-               character index where the ink half hands over to the accent. -->
-          <h2 class="typewriter" data-typewriter data-split="50">The businesses above trust us with their pipeline. Yours could be next.</h2>
-          <p>Nine businesses, four channels, one small team that answers the phone.
-          The same people who built the sites above will build yours, and you will
-          know all of their names by the second week.</p>
-
-          <div class="btn-border-wrap">
-            <a class="btn btn-primary network-cta" href="#book">
-              Start your project
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                <path d="M9 18l6-6-6-6"></path>
-              </svg>
-            </a>
-          </div>
-
-        </div>
-
-        <!-- Decorative: every client whose mark appears here is read out by
-             the logo strip below, so the spinning copy stays out of the a11y
-             tree. -->
-        <div class="orbits" aria-hidden="true">
-         <div class="orbits-stage">
-          <div class="orbit orbit-4">
-            <span class="orbit-item" style="--a:30deg"><span class="orbit-face" style="--glow:rgba(217,199,160,0.55)"><img src="/assets/images/avatar-david.webp" alt="" width="160" height="160" loading="lazy"></span></span>
-            <span class="orbit-item" style="--a:95deg"><span class="orbit-face is-tile is-logo is-lg" style="--glow:rgba(217,164,65,0.5)"><img src="/assets/logos/water-automation-mark.png" alt="" width="256" height="256" loading="lazy"></span></span>
-            <span class="orbit-item" style="--a:220deg"><span class="orbit-face is-lg" style="--glow:rgba(196,160,110,0.55)"><img src="/assets/images/bradley.webp" alt="" width="160" height="160" loading="lazy"></span></span>
-            <span class="orbit-item" style="--a:320deg"><span class="orbit-face is-tile is-logo" style="--glow:rgba(217,199,160,0.45)"><img src="/assets/logos/tiny-homes-mark.png" alt="" width="256" height="256" loading="lazy"></span></span>
-          </div>
-          <div class="orbit orbit-3">
-            <span class="orbit-item" style="--a:130deg"><span class="orbit-face is-tile is-logo is-lg" style="--glow:rgba(217,164,65,0.45)"><img src="/assets/logos/position-xero-mark.png" alt="" width="256" height="256" loading="lazy"></span></span>
-          </div>
-          <div class="orbit orbit-2">
-            <span class="orbit-item" style="--a:60deg"><span class="orbit-face" style="--glow:rgba(217,164,65,0.55)"><img src="/assets/images/avatar-sarah.webp" alt="" width="160" height="160" loading="lazy"></span></span>
-            <span class="orbit-item" style="--a:180deg"><span class="orbit-face is-md" style="--glow:rgba(217,199,160,0.5)"><img src="/assets/images/avatar-michael.webp" alt="" width="160" height="160" loading="lazy"></span></span>
-            <span class="orbit-item" style="--a:300deg"><span class="orbit-face is-tile is-logo" style="--glow:rgba(196,160,110,0.5)"><img src="/assets/logos/cognexa-mark.png" alt="" width="256" height="256" loading="lazy"></span></span>
-          </div>
-          <div class="orbit orbit-1">
-            <span class="orbit-item" style="--a:270deg"><span class="orbit-face is-tile" style="--glow:rgba(217,199,160,0.6)"><img src="/assets/images/avatar-greg.webp" alt="" width="160" height="160" loading="lazy"></span></span>
-          </div>
-          <!-- Deliberately NOT .stat/.stat-value: those are global classes
-               carrying container-type + 26cqi sizing for #proof's grid, which
-               collapses on an auto-width absolute box. network.js counts this
-               one up instead. -->
-          <div class="orbit-core">
-            <p class="orbit-count" data-count-to="7" data-money-usd="$7M+" data-money-zar="R114M+" data-prefix="$" data-suffix="M+">$7M+</p>
-            <p class="orbit-label">in client revenue</p>
-          </div>
-         </div>
-        </div>
-      </div>
-
-      <div class="ticker">
-        <ul class="ticker-track">
-          <li><img src="/assets/logos/cognexa.png" alt="Cognexa" width="417" height="168" loading="lazy"></li>
-          <li><img src="/assets/logos/water-automation.png" alt="Water Automation" width="315" height="168" loading="lazy"></li>
-          <li><img src="/assets/logos/leak-geeks.png" alt="The Leak Geeks" width="454" height="168" loading="lazy"></li>
-          <li><img src="/assets/logos/greatergood.png" alt="GreaterGood" width="393" height="168" loading="lazy"></li>
-          <li><img src="/assets/logos/tiny-homes.png" alt="Tiny Homes SA" width="257" height="168" loading="lazy"></li>
-          <li><img src="/assets/logos/cajee-botes.png" alt="Cajee Botes" width="438" height="168" loading="lazy"></li>
-          <li><img src="/assets/logos/position-xero.png" alt="Position Xero" width="454" height="168" loading="lazy"></li>
-          <li><img src="/assets/logos/otaku-kulture.png" alt="Otaku Kulture" width="292" height="168" loading="lazy"></li>
-          <li><img src="/assets/logos/dnd-luxury.png" alt="D&amp;D Luxury" width="148" height="168" loading="lazy"></li>
-        </ul>
-        <ul class="ticker-track" aria-hidden="true">
-          <li><img src="/assets/logos/cognexa.png" alt="" width="417" height="168" loading="lazy"></li>
-          <li><img src="/assets/logos/water-automation.png" alt="" width="315" height="168" loading="lazy"></li>
-          <li><img src="/assets/logos/leak-geeks.png" alt="" width="454" height="168" loading="lazy"></li>
-          <li><img src="/assets/logos/greatergood.png" alt="" width="393" height="168" loading="lazy"></li>
-          <li><img src="/assets/logos/tiny-homes.png" alt="" width="257" height="168" loading="lazy"></li>
-          <li><img src="/assets/logos/cajee-botes.png" alt="" width="438" height="168" loading="lazy"></li>
-          <li><img src="/assets/logos/position-xero.png" alt="" width="454" height="168" loading="lazy"></li>
-          <li><img src="/assets/logos/otaku-kulture.png" alt="" width="292" height="168" loading="lazy"></li>
-          <li><img src="/assets/logos/dnd-luxury.png" alt="" width="148" height="168" loading="lazy"></li>
-        </ul>
-      </div>
-    </section>
-
-    <script>
-    /* Currency swap for #network's core figure. The #proof swap above ran at
-       parse time and this section did not exist yet, so it needs its own
-       pass - same key, same data-count rewrite so the count-up lands on the
-       right number. */
-    (function () {
-      var key = document.documentElement.getAttribute('data-region') === 'za' ? 'zar' : 'usd';
-      var nodes = document.querySelectorAll('#network [data-money-' + key + ']');
-      for (var i = 0; i < nodes.length; i++) {
-        var el = nodes[i];
-        var text = el.getAttribute('data-money-' + key);
-        if (!text || el.textContent === text) continue;
-        el.textContent = text;
-        var m = /(\d+(?:\.\d+)?)/.exec(text);
-        if (m && el.hasAttribute('data-count-to')) {
-          el.setAttribute('data-count-to', m[1]);
-          el.setAttribute('data-prefix', text.slice(0, m.index));
-          el.setAttribute('data-suffix', text.slice(m.index + m[1].length));
-        }
-      }
-    })();
     </script>
 
     <!-- 8. Book a call -->
@@ -708,7 +672,7 @@
         </details>
         <details class="glass">
           <summary>What does it cost?</summary>
-          <p>Two ways in. Exclusive lead packs start from $140 for 150 leads. Managed lead generation, where we run appointment setting, email outreach or LinkedIn ads for you, starts from $1,999 per month in the US and R19,950 in South Africa (August 2026) &mdash; the full breakdown is on the <a href="/pricing/">pricing</a> page. Websites, SEO and ad campaigns are scoped on the call. No lock-in contracts.</p>
+          <p>Managed lead generation, where we run appointment setting, email outreach or LinkedIn ads for you, starts from R19,950 per month (August 2026) &mdash; the full breakdown is on the <a href="/pricing/">pricing</a> page. Exclusive lead campaigns, websites, SEO and ad work are scoped on the call. No lock-in contracts.</p>
         </details>
         <details class="glass">
           <summary>How fast is the website live?</summary>
@@ -742,6 +706,10 @@
         <a href="/">Home</a>
         <a href="/about/">About</a>
         <a href="/services/">What We Do</a>
+        <a href="/web-design/">Web design</a>
+        <a href="/seo/">SEO</a>
+        <a href="/google-ads/">Google Ads</a>
+        <a href="/lead-generation/">Lead generation</a>
         <a href="/pricing/">Pricing</a>
         <a href="/#testimonials">Testimonials</a>
         <a href="/blog/">Blog</a>

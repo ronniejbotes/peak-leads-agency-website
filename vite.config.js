@@ -16,6 +16,11 @@ export default defineConfig({
         contact: page('./contact/index.html'),
         pricing: page('./pricing/index.html'),
         freeAudit: page('./free-audit/index.html'),
+        // Split service pages. /services/ stays as the hub that links them.
+        webDesign: page('./web-design/index.html'),
+        seo: page('./seo/index.html'),
+        googleAds: page('./google-ads/index.html'),
+        leadGeneration: page('./lead-generation/index.html'),
         blog: page('./blog/index.html'),
         postRoofingLeads: page('./blog/how-much-do-roofing-leads-cost/index.html'),
         postExclusiveLeads: page('./blog/exclusive-vs-shared-leads/index.html'),

@@ -466,6 +466,64 @@ function initSayHi() {
 }
 
 /* ====================================================================
+ * Nav over the daylight hero.
+ *
+ * The nav pill resolves its tokens against --day like every section does.
+ * Below #work it inherits body's scrubbed value and lights up with the
+ * ground, but the hero pins --day locally in CSS (it opens in daylight
+ * while the sections beneath it are still night), and an inline custom
+ * property on a section cannot reach a fixed sibling. So the one case CSS
+ * cannot resolve on its own gets a class: .nav-light while the hero is on
+ * screen, off the moment it leaves.
+ *
+ * Always-on, like the rest of initNav: it is a contrast fix, not decoration,
+ * and it has to hold under body.no-3d and reduced motion too.
+ * ================================================================== */
+function initNavTheme() {
+  const nav = document.querySelector('.site-nav');
+  const hero = document.getElementById('hero');
+  if (!nav || !hero) return;
+
+  /* No IntersectionObserver: assume the hero is there on first paint, which
+     is true at scroll 0 and is the state that matters for a fresh load. */
+  if (!('IntersectionObserver' in window)) {
+    nav.classList.add('nav-light');
+    return;
+  }
+
+  /* Watch the fade mark, not the hero box. The hero's bottom edge is now a
+     fade-length BELOW the point where its light actually ends, so keying off
+     the box left a light pill sitting over ground that had already crossed
+     to night. The mark sits at the end of the solid cream; the hero itself is
+     the fallback for any page that has no ramp. */
+  const mark = hero.querySelector('.hero-fade-mark') || hero;
+
+  /* Flip when the mark crosses the VERTICAL CENTRE of the pill: --nav-top
+     plus half of --nav-h, read from the stylesheet so the two cannot drift
+     apart. The root is shrunk from the top by exactly that, and extended far
+     past the bottom, so "intersecting" means precisely "the mark is still
+     below the middle of the pill" — which is true at scroll 0 however far
+     down the fold the mark sits. */
+  const px = (name, fallback) => {
+    const raw = parseFloat(
+      window.getComputedStyle(document.documentElement).getPropertyValue(name)
+    );
+    return Number.isFinite(raw) ? raw : fallback;
+  };
+  const band = Math.round(px('--nav-top', 14) + px('--nav-h', 64) / 2);
+
+  const observer = new window.IntersectionObserver(
+    (entries) => {
+      for (let i = 0; i < entries.length; i++) {
+        nav.classList.toggle('nav-light', entries[i].isIntersecting);
+      }
+    },
+    { rootMargin: '-' + band + 'px 0px 9999px 0px', threshold: 0 }
+  );
+  observer.observe(mark);
+}
+
+/* ====================================================================
  * Easter egg: typing "spiderman" anywhere on the page opens the pixel
  * web-swinging mini game. The module is only fetched once the word is
  * actually completed, so visitors who never find it pay nothing for it.
@@ -522,6 +580,7 @@ function initEgg() {
  * ================================================================== */
 function init() {
   initNav();
+  initNavTheme();
   initYear();
   initCalendly();
   initSayHi();

@@ -331,7 +331,7 @@ main > section {
   padding-inline: var(--pad-x);
 }
 
-main > section:is(#hero, #services, #work, #network) {
+main > section:is(#hero, #services, #work) {
   max-width: none;
   padding-inline: 0;
 }
@@ -372,16 +372,36 @@ main > section#services { padding-block: 0; }
   gap: 16px;
   padding-inline: clamp(14px, 2.5vw, 24px);
   border-radius: 999px;
+  /* Two declarations, same guard as body::after: a browser without
+     color-mix keeps the night pill, which is the safe one, because the
+     tokens it would sit on degrade to night too. */
   background: rgba(24, 22, 18, 0.94);
+  background: color-mix(in oklab, rgba(24, 22, 18, 0.94), rgba(252, 250, 246, 0.94) calc(var(--day) * 100%));
   border: 1px solid var(--border);
 }
 @supports ((backdrop-filter: blur(16px)) or (-webkit-backdrop-filter: blur(16px))) {
   .nav-inner {
     background: rgba(24, 22, 18, 0.72);
+    background: color-mix(in oklab, rgba(24, 22, 18, 0.72), rgba(252, 250, 246, 0.80) calc(var(--day) * 100%));
     -webkit-backdrop-filter: blur(16px) saturate(1.2);
     backdrop-filter: blur(16px) saturate(1.2);
   }
 }
+
+/* The nav is the one piece of chrome that crosses both halves of the page,
+   so it carries .theme-day and resolves its tokens against --day like every
+   section does. Below #work it inherits body's scrubbed value and lights up
+   with the ground; over the hero, where body is still night for the sections
+   underneath, main.js pins it with .nav-light. Without this the pill stayed
+   a dark slab on a cream ground at both ends of the page.
+
+   The no-3d / no-JS branch of .theme-day paints a background-color, which on
+   .site-nav would be a full-bleed bar behind the pill rather than the pill
+   itself. Reassert transparent there; .nav-inner keeps its own. */
+.site-nav.nav-light { --day: 1; }
+:root:not(.js-enabled) .site-nav.theme-day,
+body.no-3d .site-nav.theme-day,
+body.page-static .site-nav.theme-day { background-color: transparent; }
 
 /* Brand: logo image + wordmark */
 .nav-brand,
@@ -423,7 +443,10 @@ main > section#services { padding-block: 0; }
   color: var(--text);
   text-decoration: none;
 }
-.nav-links a[aria-current="page"] { color: var(--text); }
+/* Matches both forms: "page" on the exact page, "true" on the section
+   parent — the split service pages keep "What We Do" lit without claiming
+   to BE /services/. */
+.nav-links a[aria-current] { color: var(--text); }
 
 /* CTA pill */
 .nav-cta {
@@ -622,36 +645,129 @@ main > section#services { padding-block: 0; }
 .hero {
   position: relative;
   display: flex;
-  align-items: center;
-  padding-block: calc(var(--nav-h) + var(--nav-top) + clamp(96px, 16vh, 170px))
-    clamp(40px, 7vh, 64px);
-  padding-inline: var(--pad-x);
+  flex-direction: column;
+  padding-block: calc(var(--nav-h) + var(--nav-top) + clamp(48px, 8vh, 96px))
+    clamp(32px, 5vh, 56px);
+  padding-inline: 0;
+  /* The outermost orbit ring is wider than the content column. */
+  overflow: hidden;
 }
 
+/* The hero is the one section that opens in daylight while --day is still 0
+   for everything below it. Pinning --day locally rather than driving the
+   global one keeps the dark half's scrubbed crossing (scroll.js, #work)
+   exactly as it was: this section resolves every .theme-day token against 1
+   no matter what the body is doing.
+
+   It also has to paint its OWN ground. Everywhere else in the daylight half
+   the light comes from body::after, a single fixed layer driven by the
+   global --day — one ground colour on screen at a time, which is why the
+   day sections themselves stay transparent. The hero needs light while that
+   layer is still night, so it paints opaque and lifts itself above the fixed
+   canvas (z-index 0) instead of compositing over it. That layering is doing
+   a second job: the orbit ring is this section's visual, and the particle
+   machine parking its arrows in the same right-hand strip would collide with
+   it. Covering the canvas here is what keeps the two apart, and the machine
+   is revealed intact as the hero scrolls up off it. */
+#hero.theme-day {
+  --day: 1;
+  /* Length of the crossfade down into the night half. It lives inside the
+     hero's own bottom padding, so no content ever sits in the ramp. */
+  --hero-fade: clamp(120px, 20vh, 240px);
+  z-index: 1;
+  padding-bottom: calc(clamp(32px, 5vh, 56px) + var(--hero-fade));
+  /* Fades to a ZERO-ALPHA version of the same cream rather than to the
+     keyword `transparent`: identical RGB at both ends makes the ramp pure
+     alpha, so it cannot band through a grey midpoint the way a fade to
+     transparent-black does in some engines.
+
+     What the ramp uncovers is the fixed canvas over the night ground, so the
+     particles wash in with the dark instead of popping at a hard edge —
+     which is what fading to an opaque #0D0C0A would have done, since the
+     canvas would still have been hidden right up to the last pixel.
+
+     Intermediate stops ease it. A straight linear alpha fade over 240px
+     reads as a visible band where it starts; this curve is a smoothstep. */
+  background-color: transparent;
+  background-image: linear-gradient(
+    to bottom,
+    #F4F1EA calc(100% - var(--hero-fade)),
+    rgba(244, 241, 234, 0.94) calc(100% - var(--hero-fade) * 0.80),
+    rgba(244, 241, 234, 0.74) calc(100% - var(--hero-fade) * 0.60),
+    rgba(244, 241, 234, 0.42) calc(100% - var(--hero-fade) * 0.38),
+    rgba(244, 241, 234, 0.14) calc(100% - var(--hero-fade) * 0.18),
+    rgba(244, 241, 234, 0) 100%
+  );
+}
+
+/* Zero-height mark pinned to the MIDPOINT of the ramp — the height at which
+   the ground stops reading as cream and starts reading as night. main.js
+   flips the nav's theme when this crosses the pill, which is the only
+   position that gets both ends right: keyed to the hero's bottom edge the
+   pill stayed light over ground that had already gone dark, and keyed to the
+   end of the solid cream it went dark a fade-length before the ground did.
+
+   Deriving it from --hero-fade rather than a magic number means it tracks
+   the ramp at every viewport, including the 20vh middle of the clamp. */
+.hero-fade-mark {
+  position: absolute;
+  left: 0;
+  bottom: calc(var(--hero-fade) * 0.5);
+  height: 0;
+  width: 1px;
+  pointer-events: none;
+}
+
+/* Copy left, orbit right — the same two-column shape the orbit ring was
+   built for, so its breakpoint scales below still apply unchanged. */
 .hero-inner {
   position: relative;
   z-index: 1;
   width: 100%;
   max-width: var(--content-max);
   margin-inline: auto;
+  padding-inline: var(--pad-x);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(24px, 4vw, 64px);
 }
 
 /* Copy block: the measured element for lateral particle parking (scroll.js).
    Keeping it 620px leaves a real free strip on the right at desktop widths. */
 .hero-copy {
+  flex: 0 1 620px;
+  min-width: 0;
   max-width: 620px;
 }
 
-/* Below 900px the formation stays centered behind the copy: halo the text
-   and calm the canvas so the words always win. */
+/* The trust line under the CTAs: quieter than the sub-headline, and capped
+   short so it reads as a note rather than a second paragraph of pitch. */
+.hero-trust {
+  margin-top: 28px;
+  margin-bottom: 0 !important;
+  max-width: 52ch;
+  font-size: 0.95rem !important;
+  line-height: 1.6;
+  color: var(--text-3) !important;
+}
+
+/* Stacked hero at the same width the orbit ring already reflows at. */
+@media (max-width: 1140px) {
+  .hero-inner { flex-direction: column; text-align: center; }
+  .ticker-label { text-align: center; }
+  .hero-copy { flex: 1 1 auto; max-width: 680px; }
+  .hero-copy div:has(> .btn) { justify-content: center; }
+  .hero-trust { margin-inline: auto; }
+  .orbits { margin-top: 8px; }
+}
+
+/* Below 900px the machine is centered rather than parked. The hero runs on
+   the light ground now, so the old dark text-shadow halo would smear the
+   headline instead of lifting it off the canvas — the copy sits on daylight
+   and needs no halo at all. */
 @media (max-width: 899.98px) {
   #scene-canvas { opacity: 0.75; }
-  .hero-copy h1,
-  .hero-copy p {
-    text-shadow:
-      0 2px 18px rgba(13, 12, 10, 0.95),
-      0 0 8px rgba(13, 12, 10, 0.85);
-  }
 }
 
 /* Phone held sideways: the 96px minimum of the hero's top clamp eats a third
@@ -686,6 +802,23 @@ main > section#services { padding-block: 0; }
   flex-wrap: wrap;
   gap: 16px;
 }
+
+/* Sibling row on the split service pages: every one of the four links to
+   the other three, so none of them is an orphan and each picks up three
+   keyword-bearing internal links. The current page is a <strong>, not a
+   link — a self-referential link is noise for readers and crawlers alike. */
+.service-siblings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: baseline;
+  margin-block: 20px 36px;
+  padding-block: 14px;
+  border-block: 1px solid var(--border);
+  font-size: 0.95rem;
+  color: var(--text-3);
+}
+.service-siblings strong { color: var(--text); font-weight: 600; }
 
 /* ==========================================================================
    #proof — stat strip, hairline separators, no cards
@@ -2708,22 +2841,6 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
   initial-value: 0deg;
 }
 
-#network {
-  overflow: hidden; /* the outermost orbit is wider than the content column */
-}
-
-.network-inner {
-  padding-inline: var(--pad-x);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: clamp(24px, 4vw, 64px);
-  max-width: var(--content-max);
-  margin-inline: auto;
-}
-
-.network-copy { flex: 0 1 560px; min-width: 0; }
-
 /* -- typewriter heading --------------------------------------------------- */
 
 .typewriter {
@@ -2794,7 +2911,10 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
    radii are measured in, scaled as one unit. Transform alone would have left
    a 720px hole in the flex row at every size. */
 .orbits {
-  --orbit-scale: 0.82;
+  /* Sized against the hero's copy column, not the old full-width section:
+     .hero-inner caps at --content-max (1200px), so an orbit much over ~530px
+     squeezes the 620px copy block and starts wrapping the eyebrow. */
+  --orbit-scale: 0.74;
   position: relative;
   flex: 0 0 auto;
   width: calc(720px * var(--orbit-scale));
@@ -2934,6 +3054,21 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
 
 /* -- client strip --------------------------------------------------------- */
 
+/* Label for the client strip. Quiet — it is a caption, not a heading, and
+   the marks themselves are the content. */
+.ticker-label {
+  margin: clamp(32px, 6vh, 72px) 0 0;
+  padding-inline: var(--pad-x);
+  max-width: var(--content-max);
+  margin-inline: auto;
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-3);
+}
+.ticker-label + .ticker { margin-top: 18px; }
+
 .ticker {
   display: flex;
   gap: 64px;
@@ -2972,11 +3107,8 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
 
 @media (max-width: 1280px) { .orbits { --orbit-scale: 0.72; } }
 @media (max-width: 1140px) {
-  .network-inner { flex-direction: column; text-align: center; }
-  .network-copy { flex: 1 1 auto; }
-  .network-copy p { margin-inline: auto; }
   .typewriter { min-height: 0; }
-  .orbits { --orbit-scale: 0.72; margin-top: 8px; }
+  .orbits { --orbit-scale: 0.72; }
 }
 @media (max-width: 900px)  { .orbits { --orbit-scale: 0.58; } }
 @media (max-width: 900px)  { .ticker-track li img { height: 46px; } }

@@ -742,10 +742,23 @@ export function initScrollChoreography(scene) {
     function applyQuestions(self) {
       const p = self.progress;
       questionT = p * p * (3 - 2 * p); /* smoothstep */
-      sceneCall('setFormation', endgameF());
       applyCondense();
-      applyLateral(5);
       applyDim();
+      /* Above the endgame this trigger owns nothing, and has to say so.
+         onRefresh fires on EVERY trigger regardless of where the scroll
+         actually is - page load, resize, font swap - and this one is created
+         last, so whatever it writes here is the last word. Writing
+         endgameF() unconditionally meant a fresh load at scroll 0 ended with
+         the machine stamped to formation 5 and parked at station 04's
+         panel: the hero's arrows replaced by the GROWTH curve smeared
+         across the headline. It only ever corrected itself on the next
+         scroll, because the drivers that own the top of the page fire on
+         update, not on refresh. Guard on the endgame values themselves
+         (applySphere already does the same) so refreshes above #work leave
+         the formation to whoever legitimately owns it. */
+      if (questionT <= 0 && sphereT <= 0) return;
+      sceneCall('setFormation', endgameF());
+      applyLateral(5);
     }
 
     if (faqEl) {
