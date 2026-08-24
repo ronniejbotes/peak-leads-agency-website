@@ -11,15 +11,15 @@
      setLateral(offset, strip)  // park the formation left/right of panels
      setPointer(x, y)    // -1..1; drives the cursor-repulsion field (particles dodge the pointer)
      setDim(d)           // brightness 0.35 reading dim .. 1 full
-     setDay(d)           // 0 chalk/additive over the dark half .. 1 ink/normal over the light half
+     setDay(d)           // 0 azure/additive over the dark half .. 1 ink/normal over the light half
      setCondense(c)      // -1..1 implosion / bang
      resize(), destroy()
 
    Formations: 0 ARROWS, 1 PLAY, 2 FRAME, 3 RANKS, 4 FUNNEL, 5 GROWTH,
    6 SPHERE (endgame globe, tumbles in place at screen center).
-   Colors: chalk #D9C7A0 <-> bone #F2EFE9 uniforms only, dust layer #6b6456,
+   Colors: azure #5B9DFF <-> frost #EEF2F8 uniforms only, haze layer #5A6478,
    over the dark half. Below #work setDay() crossfades to the daylight ramp
-   ink #2A2115 <-> umber #6E5B3C (dust #A2947C) and swaps additive blending
+   ink #16223A <-> cobalt #2E4E86 (mist #8494AE) and swaps additive blending
    for premultiplied-normal, so the same machine reads on a light ground.
    ========================================================================== */
 
@@ -30,22 +30,22 @@ let state = null; // all mutable engine state; null = not inited
 /* ------------------------------------------------------------------ *
  * Palette (the only hues in the scene)
  *
- * Two sets. NIGHT is the original chalk/bone ramp that burns additively
+ * Two sets. NIGHT is the brand azure/frost ramp that burns additively
  * over the dark half. DAY is its inverse for the light half below #work:
- * ink and umber, composited normally so the points read as graphite dust
+ * ink and cobalt, composited normally so the points read as graphite dust
  * settling on paper rather than light thrown at a wall.
  * setDay() crossfades between them; see applyPairColors for the handoff.
  * ------------------------------------------------------------------ */
-const CHALK = '#D9C7A0';
-const BONE = '#F2EFE9';
-const DUST = '#6b6456';
+const AZURE = '#5B9DFF';
+const FROST = '#EEF2F8';
+const HAZE = '#5A6478';
 
-/* Day counterparts. INK is the darkest stop (chalk's opposite), UMBER the
-   lighter one (bone's opposite) - the ramp inverts along with the ground,
+/* Day counterparts. INK is the darkest stop (azure's opposite), COBALT the
+   lighter one (frost's opposite) - the ramp inverts along with the ground,
    so the near/far reading of the formation survives the flip. */
-const INK = '#2A2115';
-const UMBER = '#6E5B3C';
-const DUST_DAY = '#A2947C';
+const INK = '#16223A';
+const COBALT = '#2E4E86';
+const MIST = '#8494AE';
 
 /* Where the blend mode swaps, as a value of day 0..1. At the midpoint the
    ground is a mid tone AND the particles have ramped to roughly that same
@@ -729,7 +729,7 @@ void main() {
   float d = length(gl_PointCoord - 0.5);
   float disc = smoothstep(0.5, 0.12, d);
   if (disc < 0.004) discard;
-  // uColorA/uColorB are chalk-to-bone lerp stops; no other hues enter
+  // uColorA/uColorB are azure-to-frost lerp stops; no other hues enter
   vec3 col = mix(uColorA, uColorB, smoothstep(0.0, 1.0, uMix));
   // subtle warm temperature drift with page progress
   col *= mix(vec3(1.0), vec3(1.05, 1.0, 0.93), uProg * 0.6);
@@ -1025,21 +1025,21 @@ function init(canvas, opts = {}) {
     });
 
     // ---- formation colors -------------------------------------------
-    // Two parallel ramps, same seven stops: chalk-to-bone for the dark half,
-    // ink-to-umber for the daylight half. setDay() crossfades stop for stop,
+    // Two parallel ramps, same seven stops: azure-to-frost for the dark half,
+    // ink-to-cobalt for the daylight half. setDay() crossfades stop for stop,
     // so the near/far reading of a formation survives the flip.
-    const chalk = new THREE.Color(CHALK);
-    const bone = new THREE.Color(BONE);
+    const azure = new THREE.Color(AZURE);
+    const frost = new THREE.Color(FROST);
     const ink = new THREE.Color(INK);
-    const umber = new THREE.Color(UMBER);
+    const cobalt = new THREE.Color(COBALT);
     /* 8th stop clones the 7th rather than re-spacing the ramp over i/7: that
        would move every existing stop and repaint the whole dark half. */
     const colors = [0, 1, 2, 3, 4, 5, 6].map((i) =>
-      chalk.clone().lerp(bone, i / 6)
+      azure.clone().lerp(frost, i / 6)
     );
     colors.push(colors[6].clone());
     const colorsDay = [0, 1, 2, 3, 4, 5, 6].map((i) =>
-      ink.clone().lerp(umber, i / 6)
+      ink.clone().lerp(cobalt, i / 6)
     );
     colorsDay.push(colorsDay[6].clone());
 
@@ -1119,7 +1119,7 @@ function init(canvas, opts = {}) {
       vertexShader: DUST_VERT,
       fragmentShader: DUST_FRAG,
       uniforms: {
-        uColor: { value: new THREE.Color(DUST) },
+        uColor: { value: new THREE.Color(HAZE) },
         uDim: sharedDim,
         uPixelRatio: sharedPR
       },
@@ -1149,8 +1149,8 @@ function init(canvas, opts = {}) {
       formHalfW,
       colors,
       colorsDay,
-      dustNight: new THREE.Color(DUST),
-      dustDay: new THREE.Color(DUST_DAY),
+      dustNight: new THREE.Color(HAZE),
+      dustDay: new THREE.Color(MIST),
       /* 0 = night (additive over the dark half), 1 = day (normal over the
          light half). Driven by scroll.js across the #work handoff. */
       day: 0,
@@ -1292,7 +1292,7 @@ function setDim(d) {
   state.dimTarget = clamp(Number.isFinite(+d) ? +d : 1, 0, 1);
 }
 
-/* Crossfade the scene onto the daylight ground. 0 = chalk burning additively
+/* Crossfade the scene onto the daylight ground. 0 = azure burning additively
    over the dark half, 1 = ink settling normally over the light half.
    Scrubbed by scroll.js across the station-04 -> #work handoff, in lockstep
    with the --day custom property that drives the CSS side, so the ground and

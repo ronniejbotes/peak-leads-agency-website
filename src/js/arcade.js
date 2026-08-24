@@ -38,19 +38,21 @@ const C = {
   red: '#D42026',
   blue: '#1D4FA5',
   web: '#0B0A12', /* the dark web-lines across the suit */
-  eye: '#F2EFE9', /* --text */
-  sky0: '#0D0C0A',
-  sky1: '#191612',
-  star: '#3A342A',
-  farTower: '#181613',
-  tower: '#201D18',
+  eye: '#EEF2F8', /* --text */
+  sky0: '#111725',
+  sky1: '#1A2234',
+  star: '#3A4358',
+  farTower: '#182034',
+  tower: '#212B40',
   /* The roof line is the landing target, so it is the brightest thing in the
      skyline - at this scale a subtle edge just disappears into the fill. */
-  towerEdge: '#7A6E52',
-  window: '#4A4034',
-  windowLit: '#8C7B57',
-  anchor: '#D9C7A0',
-  line: '#F2EFE9',
+  towerEdge: '#5C6675',
+  window: '#3E4657',
+  /* Lit windows stay warm: the crown gold is the one warm note in the brand,
+     and a city of blue windows against a blue sky loses the skyline. */
+  windowLit: '#C08A2E',
+  anchor: '#5B9DFF',
+  line: '#EEF2F8',
 };
 
 /* 7x9 sprites. r = red, b = blue, w = web line, e = eye, . = transparent. */

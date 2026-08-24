@@ -136,7 +136,7 @@ function burst(anchor) {
   const ox = rect.left + rect.width / 2;
   const oy = rect.top + rect.height / 2;
   /* Chalk through to accent - the page palette, nothing louder. */
-  const colors = ['#D9C7A0', '#F2EFE9', '#B8A47A', '#D9A441'];
+  const colors = ['#5B9DFF', '#EEF2F8', '#3D7FE0', '#DFA22E'];
   const bits = [];
   for (let i = 0; i < 60; i++) {
     const angle = (Math.PI * 2 * i) / 60 + Math.random() * 0.4;

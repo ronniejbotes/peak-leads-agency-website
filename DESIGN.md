@@ -24,26 +24,31 @@ his video, his Calendly, his numbers.
 ## 2. Tokens (CSS custom properties in `src/styles/main.css`)
 
 ```css
---bg:            #0D0C0A;   /* warm near-black, page bg + theme-color */
---bg-raise:      #161411;   /* inputs, raised surfaces */
---panel:         rgba(24, 22, 18, 0.55);  /* glass panel; solid fallback rgba(24,22,18,0.94) */
---panel-strong:  rgba(24, 22, 18, 0.78);  /* FAQ, cards, options */
---border:        #2B2822;   /* all 1px borders */
---text:          #F2EFE9;   /* bone white primary text */
---text-2:        #A9A296;   /* warm grey secondary (AA on --bg) */
---text-3:        #837D72;   /* captions/labels minimum only, never body */
---accent:        #D9C7A0;   /* chalk/champagne. THE single accent: buttons, links, q-nums,
-                               progress bars, ghost-number stroke, selection, particles */
---accent-ink:    #14120E;   /* dark text ON accent buttons (contrast ~10:1) */
---accent-soft:   rgba(217, 199, 160, 0.25);  /* ghost number text-stroke */
---error:         #E8A79B;   /* form errors on dark */
---ok:            #9CBF9A;   /* success ticks */
---star:          #D9A441;   /* rating stars only */
+/* Night half. The ground is the brand Ink; the accent is the brand blue
+   lifted for legibility on it (Royal Blue #1070F8 itself is only 4.00:1
+   here, so it never carries text - it lives inside the mark). */
+--bg:            #111725;   /* brand Ink, page bg + theme-color */
+--bg-raise:      #1a2234;   /* inputs, raised surfaces */
+--panel:         rgba(26, 34, 52, 0.55);  /* glass; solid fallback 0.94 */
+--panel-strong:  rgba(26, 34, 52, 0.78);  /* FAQ, cards, options */
+--border:        #2A3448;   /* all 1px borders */
+--text:          #EEF2F8;   /* cool white primary text (15.9:1) */
+--text-2:        #A3AEC0;   /* secondary (7.99:1) */
+--text-3:        #7C8798;   /* captions/labels only (4.92:1) */
+--accent:        #5B9DFF;   /* brand blue, lifted. THE single accent:
+                               buttons, links, q-nums, progress, particles */
+--accent-ink:    #0A1220;   /* dark text ON accent buttons (6.88:1) */
+--accent-soft:   rgba(91, 157, 255, 0.25);
+--error:         #FF9C8D;   /* form errors on dark (8.86:1) */
+--ok:            #7FCFA4;   /* success ticks (9.69:1) */
+--star:          #DFA22E;   /* brand Crown Gold. Rating stars only (7.97:1) */
 --radius:        14px;
---font-display:  'Geist', 'Inter', system-ui, sans-serif;   /* headings, buttons, q's */
---font-body:     'Geist', 'Inter', system-ui, sans-serif;
---font-mono:     'Geist Mono', ui-monospace, monospace;      /* stats, step counters */
 ```
+
+Daylight half (`.theme-day`, scrubbed by `--day`): ground `#F4F6FB`, text `#111725`,
+secondary `#5C6675` (brand Slate), accent `#0F3FB0` (brand Deep Blue, 8.24:1),
+accent-ink `#FFFFFF`, star `#8A6212` (brand Deep Gold). Every pair above and here was
+measured, not assumed; all clear WCAG AA for their role.
 
 ONE theme (dark), ONE accent, radius 14 everywhere (pills allowed for nav CTA + chips).
 Fonts: `@fontsource-variable/geist` + `@fontsource-variable/geist-mono` (fallback to
@@ -85,10 +90,12 @@ nav already clears this: 10 px flex gap and >=14 px pill padding.
 between crown and loop closes and the crown fuses into the loop, which is why the favicon
 is a separate variant rather than a scaled-down mark. 16 px is a smudge in any variant.
 
-**Colour.** The mark carries the blue; the page palette stays champagne-on-near-black. See
-the brand-token block in `main.css`. `--brand-gold` (#DFA22E) and the existing `--star`
-(#D9A441) are within a few steps, so the crown reads as intentional rather than imported.
-Never set text in `--brand-blue` (4.47:1) or `--brand-gold` (2.25:1); use the `-deep` pair.
+**Colour.** The whole site runs the brand palette, not just the mark: the ground is the
+brand Ink, the accent is the brand blue, and `--star` is the crown gold exactly. See
+section 2 and the brand reference block in `main.css`. Royal Blue #1070F8 is the one brand
+value the theme cannot use directly - 4.47:1 on white and 4.00:1 on Ink means it fails body
+copy on both grounds, so it survives only inside the mark. Never set text in it, nor in
+`--brand-gold` (2.25:1); the `-deep` pair is the text-safe one.
 
 **Two corrections to the brand spec, measured from the artwork:**
 - The spec calls it a five-point crown. It is three-point (tall centre spike, two arms).
