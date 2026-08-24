@@ -52,6 +52,36 @@
   --glow-accent:   0 6px 28px rgba(217, 199, 160, 0.25);
 }
 
+/* ==========================================================================
+   Brand mark tokens (the logo only - NOT the site palette)
+
+   Measured off the crowned-infinity artwork and cross-checked against the
+   brand spec (Draft 01, 24 Aug 2026). They live here so that anything which
+   has to reproduce the mark's colour - OG cards, email signatures, print,
+   a future favicon rebuild - has one source of truth instead of eyedropper
+   guesses.
+
+   The site palette above is deliberately untouched. The mark carries the
+   blue; the page stays champagne-on-near-black. That is the spec's own
+   usage rule ("let the mark carry the colour"), and it is also why the
+   crown reads as intentional here: --brand-gold and the existing --star
+   (#D9A441) are already within a few steps of each other.
+
+   Contrast, measured on white: --brand-blue 4.47:1, which clears the 3:1
+   bar for large text and UI but MISSES body copy - never set paragraphs in
+   it. --brand-gold is 2.25:1 and must never carry text at all. The -deep
+   pair is the text-safe one (8.90:1 and 5.47:1). On the night ground the
+   mark uses --brand-blue-lift, which is why peak-leads-mark-dark.svg exists.
+   ========================================================================== */
+
+:root {
+  --brand-blue:      #1070F8;  /* dominant ink in the mark; non-text */
+  --brand-blue-deep: #0F3FB0;  /* text-safe on white */
+  --brand-blue-lift: #5B9DFF;  /* the mark on dark grounds */
+  --brand-gold:      #DFA22E;  /* crown; accent only, never a text ground */
+  --brand-gold-deep: #8A6212;  /* text-safe on white */
+}
+
 ::selection {
   background: var(--accent);
   color: var(--accent-ink);
