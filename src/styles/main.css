@@ -3265,6 +3265,255 @@ body.no-3d #process.theme-day::before { display: none; }
   .pricing-card[data-hover] { --lift: 0px; }
 }
 
+/* ==========================================================================
+   About page — story split, core values, team grid
+   Wider than the 68ch prose column: .post-about lifts the cap to the site
+   grid, then hands 68ch back to the prose blocks that still want it. Only
+   the card grids get the full width.
+   ========================================================================== */
+
+.post-about {
+  max-width: var(--content-max);
+}
+
+/* Prose stays readable inside the wide shell. */
+.about-hero-copy,
+.about-prose,
+.post-about > .post-cta {
+  max-width: 68ch;
+}
+.post-about > .post-cta { margin-inline: auto; }
+
+/* --- Story split: copy left, portrait right ------------------------------ */
+
+.about-hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(24px, 4vw, 48px);
+  align-items: start;
+}
+@media (min-width: 900px) {
+  .about-hero {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: clamp(32px, 5vw, 72px);
+  }
+  /* The portrait sticks with the opening paragraphs rather than the whole
+     column, so it never trails a metre of whitespace on tall viewports. */
+  .about-hero-figure { position: sticky; top: calc(var(--nav-h) + var(--nav-top) + 24px); }
+}
+
+.about-hero h1 {
+  font-size: clamp(2.6rem, 7vw, 4.4rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  margin-bottom: 22px;
+  text-wrap: balance;
+}
+.about-hero-accent { color: var(--accent); }
+
+.about-hero-figure { margin: 0; }
+.about-hero-figure img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  margin: 0;
+  border-radius: calc(var(--radius) + 6px);
+}
+.about-hero-figure figcaption {
+  margin-top: 10px;
+  font-size: 0.88rem;
+  color: var(--text-3);
+}
+
+/* --- Pull quote ---------------------------------------------------------- */
+
+.post .pull-quote {
+  margin: 32px 0 0;
+  padding: 0 0 0 22px;
+  border-left: 3px solid var(--accent);
+  background: none;
+  border-radius: 0;
+}
+.post .pull-quote p {
+  margin: 0 0 8px;
+  font-size: clamp(1.15rem, 2.4vw, 1.4rem);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--text);
+  max-width: none;
+}
+.post .pull-quote cite {
+  font-style: normal;
+  font-size: 0.92rem;
+  color: var(--text-2);
+}
+
+/* --- Full-width bands (values, team) ------------------------------------- */
+
+.about-band {
+  margin-top: clamp(64px, 9vh, 112px);
+}
+
+.band-head {
+  max-width: 60ch;
+  margin-inline: auto;
+  text-align: center;
+}
+.band-head h2 {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+  text-wrap: balance;
+}
+.post .band-sub {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--text-2);
+}
+
+/* --- Value cards --------------------------------------------------------- */
+
+.value-grid,
+.team-grid {
+  list-style: none;
+  margin: clamp(32px, 5vh, 56px) 0 0;
+  padding: 0;
+  display: grid;
+  gap: 20px;
+}
+.value-grid { grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); }
+
+.value-card {
+  padding: clamp(22px, 2.6vw, 30px);
+  background: var(--panel-solid);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 4px);
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+.value-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent-soft);
+  box-shadow: var(--glow-accent);
+}
+
+.value-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 18px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.post .value-card h3 {
+  margin: 0 0 10px;
+  color: var(--text);
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+}
+.post .value-card p {
+  margin: 0;
+  font-size: 0.97rem;
+  line-height: 1.65;
+}
+
+/* --- Team cards ---------------------------------------------------------- */
+
+/* Explicit tracks, not auto-fit: six people must fall into two even rows of
+   three rather than leaving an orphan card on a row of its own. */
+.team-grid {
+  grid-template-columns: 1fr;
+  gap: clamp(18px, 2vw, 26px);
+}
+@media (min-width: 520px) {
+  .team-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 860px) {
+  .team-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.team-card {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Names and roles wrap to different line counts, which would stagger every
+   bio below them. Subgrid pins photo / name / role / bio to shared rows so
+   the four bands line up across the row. Flex column stays the fallback. */
+@supports (grid-template-rows: subgrid) {
+  @media (min-width: 520px) {
+    .team-card {
+      display: grid;
+      grid-row: span 4;
+      grid-template-rows: subgrid;
+      row-gap: 0;
+    }
+  }
+}
+
+/* Placeholder portrait until the real photos land. The <img> that replaces
+   this div inherits the same box, so the grid never reflows on swap. */
+.post .team-photo {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  margin: 0 0 18px;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 4px);
+  object-fit: cover;
+  background: var(--bg-raise);
+}
+.post div.team-photo {
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(120% 90% at 50% 0%, var(--accent-soft), transparent 70%),
+    var(--bg-raise);
+}
+.post div.team-photo::after {
+  content: attr(data-monogram);
+  font-family: var(--font-mono);
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-3);
+}
+
+.post .team-card h3 {
+  margin: 0 0 4px;
+  color: var(--text);
+  font-size: 1.28rem;
+  letter-spacing: -0.01em;
+}
+.post .team-role {
+  margin: 0 0 12px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+.post .team-card p:last-child {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+/* --- Prose tail ---------------------------------------------------------- */
+
+.about-prose {
+  margin-top: clamp(64px, 9vh, 112px);
+}
+.about-prose > h2:first-child { margin-top: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .value-card { transition: none; }
+  .value-card:hover { transform: none; }
+}
+
 @media print {
   #scene-canvas,
   .site-nav,

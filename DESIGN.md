@@ -119,7 +119,7 @@ copy on both grounds, so it survives only inside the mark. Never set text in it,
 | Path | Entry JS | Title (≤60ch) |
 |---|---|---|
 | `/` index.html | src/js/main.js | Lead Generation, Web Development, SEO, Paid Ads \| Peak Leads |
-| `/about/` | src/js/pages/subpage.js | About Bradley Hart, Founder \| Peak Leads |
+| `/about/` | src/js/pages/subpage.js | About Bradley Hartmann, Founder \| Peak Leads |
 | `/services/` | src/js/pages/subpage.js | Web Development, SEO & Paid Ads for Contractors \| Peak Leads |
 | `/contact/` | src/js/pages/subpage.js | Contact Peak Leads \| Book a Call |
 | `/free-audit/` | src/js/audit.js | Get Your Free Marketing Audit \| Peak Leads |
@@ -416,7 +416,7 @@ clutter. JSON-LD WebPage + BreadcrumbList.
 
 `body.page-static`: NO 3D canvas; fixed warm radial-gradient backdrop (chalk 6-8% glows on
 --bg). Same nav (non-pill variant OK, same links) + footer (no giant marquee, compact).
-- **/about/**: H1 "The person behind Peak Leads." Founder story: Bradley Hart, South
+- **/about/**: H1 "The person behind Peak Leads." Founder story: Bradley Hartmann, South
   African, builds for US home-service businesses; discipline/"locked in" work ethic, faith
   and family grounded, straight-talking; photo `/assets/images/bradley.webp` (from
   image1.png). Mention coaching arm one line. Personal, sincere, zero hype. CTA → /free-audit/.
@@ -434,7 +434,7 @@ clutter. JSON-LD WebPage + BreadcrumbList.
 - **3 posts**: 1200-1800 words each, H1 = title, answer-first highlighted box, H2 question
   subheads, concrete numbers from research (roofing leads $41-150 shared vs exclusive
   economics, channel comparisons), internal links to `/services/` sections + other posts,
-  honest voice, BlogPosting JSON-LD (author Bradley Hart, datePublished 2026-07-30),
+  honest voice, BlogPosting JSON-LD (author Bradley Hartmann, datePublished 2026-07-30),
   CTA box → /free-audit/.
 - **/404.html**: "Wrong turn on the climb." Link home + popular pages.
 
