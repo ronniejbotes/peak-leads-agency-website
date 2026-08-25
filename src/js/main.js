@@ -20,6 +20,7 @@
 import '../styles/main.css';
 import { armPixel } from './pixel.js';
 import { initNetwork } from './network.js';
+import { initBookSection } from './book.js';
 
 const docEl = document.documentElement;
 const body = document.body || docEl;
@@ -338,69 +339,6 @@ function initYear() {
 }
 
 /* ====================================================================
- * Calendly lazy-load. The inline embed div in #book carries data-url;
- * Calendly's widget.js initializes it once injected. Injection happens
- * when #book is within 800px of the viewport (or on load without IO).
- * ================================================================== */
-let calendlyInjected = false;
-
-function injectCalendly() {
-  if (calendlyInjected) return;
-  calendlyInjected = true;
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = 'https://assets.calendly.com/assets/external/widget.css';
-  document.head.appendChild(link);
-  const script = document.createElement('script');
-  script.src = 'https://assets.calendly.com/assets/external/widget.js';
-  script.async = true;
-  document.head.appendChild(script);
-}
-
-function initCalendly() {
-  const book = document.getElementById('book');
-  if (!book) return;
-
-  /* Booked-call conversion: Calendly posts a message when an event is
-     scheduled inside the embed. */
-  window.addEventListener('message', (event) => {
-    if (!event || !event.data || event.data.event !== 'calendly.event_scheduled') return;
-    if (
-      typeof event.origin === 'string' &&
-      event.origin.indexOf('calendly.com') === -1
-    ) {
-      return;
-    }
-    if (typeof window.fbq === 'function') {
-      window.fbq('trackCustom', 'CallScheduled');
-    }
-  });
-
-  if (!('IntersectionObserver' in window)) {
-    if (document.readyState === 'complete') {
-      injectCalendly();
-    } else {
-      window.addEventListener('load', injectCalendly, { once: true });
-    }
-    return;
-  }
-
-  const observer = new window.IntersectionObserver(
-    (entries) => {
-      for (let i = 0; i < entries.length; i++) {
-        if (entries[i].isIntersecting) {
-          observer.disconnect();
-          injectCalendly();
-          break;
-        }
-      }
-    },
-    { rootMargin: '800px 0px' }
-  );
-  observer.observe(book);
-}
-
-/* ====================================================================
  * "Say hi" bubble. Shown only when the 3D experience is running
  * (body not .no-3d), on precise pointers at >=900px. Hidden while #book
  * is on screen so it never covers the Calendly embed.
@@ -582,7 +520,7 @@ function init() {
   initNav();
   initNavTheme();
   initYear();
-  initCalendly();
+  initBookSection();
   initSayHi();
   initEgg();
   /* Always-on: the typewriter is plain DOM work, so it runs whether or not

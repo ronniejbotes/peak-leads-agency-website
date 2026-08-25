@@ -4,6 +4,7 @@
  * Styles + nav burger + footer year only. No Three.js, no GSAP.
  */
 import '../../styles/main.css';
+import { initBookSection } from '../book.js';
 
 /* Nav burger (<900px dropdown). State lives on aria-expanded plus a
    data-open attribute on .site-nav for CSS to target. */
@@ -70,6 +71,7 @@ function initYear() {
 function init() {
   initNav();
   initYear();
+  initBookSection();
 }
 
 if (document.readyState === 'loading') {

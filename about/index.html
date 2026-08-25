@@ -244,64 +244,181 @@
           <div class="band-head">
             <p class="eyebrow">The team</p>
             <h2 id="team-heading">Meet the experts</h2>
-            <p class="band-sub">Talent dedicated to elevating your business to new heights.</p>
+            <p class="band-sub">Talent dedicated to elevating your business to new heights.<span class="web-hint"> Hover a face to hold the web still and read their story.</span></p>
           </div>
 
-          <ul class="team-grid">
-            <li class="team-card">
-              <!-- PHOTO: replace the div below with
-                   <img class="team-photo" src="/assets/images/team-bradley.webp" alt="Bradley Hartmann, Founder and CEO of Peak Leads" width="600" height="750" loading="lazy" decoding="async" /> -->
-              <div class="team-photo" data-monogram="BH" aria-hidden="true"></div>
-              <h3>Bradley Hartmann</h3>
-              <p class="team-role">Founder &amp; CEO</p>
-              <p>Sets the strategy, prices the work and reviews every site before it goes live. He is the person on your first call and the one who signs off the last build.</p>
-            </li>
+          <!-- Web left, detail panel right. The threads and the ring share one
+               rotation; each card counter-rotates at the same rate so it never
+               turns upside down. Hovering a card pauses both and swaps the
+               panel, which is why every bio lives in the panel and not in the
+               orbiting card. Below 900px the web is dropped and the panels
+               become a plain grid - see main.css. -->
+          <div class="team-web">
+            <div class="web-stage">
+              <svg class="web-threads" viewBox="0 0 800 800" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid meet">
+                <polygon class="web-thread" points="400.0,299.2 487.3,349.6 487.3,450.4 400.0,500.8 312.7,450.4 312.7,349.6" />
+                <polygon class="web-thread" points="400.0,251.2 528.9,325.6 528.9,474.4 400.0,548.8 271.1,474.4 271.1,325.6" />
+                <polygon class="web-thread" points="400.0,203.2 570.4,301.6 570.4,498.4 400.0,596.8 229.6,498.4 229.6,301.6" />
+                <polygon class="web-thread" points="400.0,160.0 607.8,280.0 607.8,520.0 400.0,640.0 192.2,520.0 192.2,280.0" />
+                <polygon class="web-thread" points="400.0,117.0 645.1,258.5 645.1,541.5 400.0,683.0 154.9,541.5 154.9,258.5" />
+                <line class="web-spoke" data-i="0" x1="400" y1="400" x2="400.0" y2="117.0" />
+                <line class="web-spoke" data-i="1" x1="400" y1="400" x2="645.1" y2="258.5" />
+                <line class="web-spoke" data-i="2" x1="400" y1="400" x2="645.1" y2="541.5" />
+                <line class="web-spoke" data-i="3" x1="400" y1="400" x2="400.0" y2="683.0" />
+                <line class="web-spoke" data-i="4" x1="400" y1="400" x2="154.9" y2="541.5" />
+                <line class="web-spoke" data-i="5" x1="400" y1="400" x2="154.9" y2="258.5" />
+              </svg>
+              <div class="web-hub">
+                <img src="/assets/logos/peak-leads-mark.svg" alt="" width="52" height="52" decoding="async" />
+                <p class="web-hub-name">Peak Leads</p>
+                <p class="web-hub-sub">Agency</p>
+              </div>
 
-            <li class="team-card">
-              <!-- PHOTO: replace the div below with
-                   <img class="team-photo" src="/assets/images/team-anri.webp" alt="Anri Hartmann, Social Media Manager at Peak Leads" width="600" height="750" loading="lazy" decoding="async" /> -->
-              <div class="team-photo" data-monogram="AH" aria-hidden="true"></div>
-              <h3>Anri Hartmann</h3>
-              <p class="team-role">Social Media Manager</p>
-              <p>Creates the content and runs the social presence that keeps your business visible between jobs, across every platform your customers actually use.</p>
-            </li>
+              <div class="web-orbit">
+                <ul class="web-nodes">
+                  <li class="web-node" data-i="0" style="--i: 0">
+                    <div class="web-node-spin">
+                      <article class="web-card" tabindex="0">
+                        <!-- PHOTO: replace the div below with
+                             <img class="web-avatar" src="/assets/images/team-bradley.webp" alt="Bradley Hartmann, Founder and CEO at Peak Leads" width="480" height="480" loading="lazy" decoding="async" /> -->
+                        <div class="web-avatar" data-monogram="BH" aria-hidden="true"></div>
+                        <p class="web-name">Bradley Hartmann</p>
+                      </article>
+                    </div>
+                  </li>
+                  <li class="web-node" data-i="1" style="--i: 1">
+                    <div class="web-node-spin">
+                      <article class="web-card" tabindex="0">
+                        <!-- PHOTO: replace the div below with
+                             <img class="web-avatar" src="/assets/images/team-keegan.webp" alt="Keegan Haumann, Lead Full-Stack Developer at Peak Leads" width="480" height="480" loading="lazy" decoding="async" /> -->
+                        <div class="web-avatar" data-monogram="KH" aria-hidden="true"></div>
+                        <p class="web-name">Keegan Haumann</p>
+                      </article>
+                    </div>
+                  </li>
+                  <li class="web-node" data-i="2" style="--i: 2">
+                    <div class="web-node-spin">
+                      <article class="web-card" tabindex="0">
+                        <!-- PHOTO: replace the div below with
+                             <img class="web-avatar" src="/assets/images/team-zach.webp" alt="Zach Oliver, Web Developer at Peak Leads" width="480" height="480" loading="lazy" decoding="async" /> -->
+                        <div class="web-avatar" data-monogram="ZO" aria-hidden="true"></div>
+                        <p class="web-name">Zach Oliver</p>
+                      </article>
+                    </div>
+                  </li>
+                  <li class="web-node" data-i="3" style="--i: 3">
+                    <div class="web-node-spin">
+                      <article class="web-card" tabindex="0">
+                        <!-- PHOTO: replace the div below with
+                             <img class="web-avatar" src="/assets/images/team-ronnie.webp" alt="Ronnie James Botes, SEO Specialist and Web Developer at Peak Leads" width="480" height="480" loading="lazy" decoding="async" /> -->
+                        <div class="web-avatar" data-monogram="RB" aria-hidden="true"></div>
+                        <p class="web-name">Ronnie James Botes</p>
+                      </article>
+                    </div>
+                  </li>
+                  <li class="web-node" data-i="4" style="--i: 4">
+                    <div class="web-node-spin">
+                      <article class="web-card" tabindex="0">
+                        <!-- PHOTO: replace the div below with
+                             <img class="web-avatar" src="/assets/images/team-anri.webp" alt="Anri Hartmann, Social Media Manager at Peak Leads" width="480" height="480" loading="lazy" decoding="async" /> -->
+                        <div class="web-avatar" data-monogram="AH" aria-hidden="true"></div>
+                        <p class="web-name">Anri Hartmann</p>
+                      </article>
+                    </div>
+                  </li>
+                  <li class="web-node" data-i="5" style="--i: 5">
+                    <div class="web-node-spin">
+                      <article class="web-card" tabindex="0">
+                        <!-- PHOTO: replace the div below with
+                             <img class="web-avatar" src="/assets/images/team-jesse.webp" alt="Jesse Agulhas, Operations Manager at Peak Leads" width="480" height="480" loading="lazy" decoding="async" /> -->
+                        <div class="web-avatar" data-monogram="JA" aria-hidden="true"></div>
+                        <p class="web-name">Jesse Agulhas</p>
+                      </article>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
 
-            <li class="team-card">
-              <!-- PHOTO: replace the div below with
-                   <img class="team-photo" src="/assets/images/team-keegan.webp" alt="Keegan Haumann, Lead Full-Stack Developer at Peak Leads" width="600" height="750" loading="lazy" decoding="async" /> -->
-              <div class="team-photo" data-monogram="KH" aria-hidden="true"></div>
-              <h3>Keegan Haumann</h3>
-              <p class="team-role">Lead Full-Stack Developer</p>
-              <p>Heads all development. He came up through a development house dedicated to Microsoft work, so he builds to the standard that survives an enterprise review &mdash; then makes it load fast on a phone in a contractor&rsquo;s van.</p>
-            </li>
-
-            <li class="team-card">
-              <!-- PHOTO: replace the div below with
-                   <img class="team-photo" src="/assets/images/team-zach.webp" alt="Zach Oliver, Web Developer at Peak Leads" width="600" height="750" loading="lazy" decoding="async" /> -->
-              <div class="team-photo" data-monogram="ZO" aria-hidden="true"></div>
-              <h3>Zach Oliver</h3>
-              <p class="team-role">Web Developer</p>
-              <p>Builds and ships client sites alongside Keegan. Page templates, responsive layouts and the front-end work that keeps a build on schedule instead of in a queue.</p>
-            </li>
-
-            <li class="team-card">
-              <!-- PHOTO: replace the div below with
-                   <img class="team-photo" src="/assets/images/team-ronnie.webp" alt="Ronnie James Botes, SEO Specialist and Web Developer at Peak Leads" width="600" height="750" loading="lazy" decoding="async" /> -->
-              <div class="team-photo" data-monogram="RB" aria-hidden="true"></div>
-              <h3>Ronnie James Botes</h3>
-              <p class="team-role">SEO Specialist &amp; Web Developer</p>
-              <p>Owns search. Technical <a href="/seo/">SEO</a>, site architecture, schema and the content that earns rankings &mdash; plus the front-end work to ship it, so nothing gets lost in a hand-off.</p>
-            </li>
-
-            <li class="team-card">
-              <!-- PHOTO: replace the div below with
-                   <img class="team-photo" src="/assets/images/team-jesse.webp" alt="Jesse Agulhas, Operations Manager at Peak Leads" width="600" height="750" loading="lazy" decoding="async" /> -->
-              <div class="team-photo" data-monogram="JA" aria-hidden="true"></div>
-              <h3>Jesse Agulhas</h3>
-              <p class="team-role">Operations Manager</p>
-              <p>Keeps projects moving. Scheduling, hand-offs between design, build and SEO, and the daily update that lands before the day ends. Nothing sits in a queue unnoticed.</p>
-            </li>
-          </ul>
+            <div class="web-panels">
+              <article class="web-panel web-panel-rest">
+                <p class="web-panel-eyebrow">Six people, one process</p>
+                <p class="web-panel-lead">A founder, two developers, an SEO specialist, a social media manager and an operations manager.<span class="web-hint"> Hover any face to see who they are and what they own on your project.</span></p>
+              </article>
+              <article class="web-panel" data-i="0">
+                <div class="web-panel-head">
+                  <!-- PHOTO: replace the div below with
+                       <img class="web-portrait" src="/assets/images/team-bradley.webp" alt="" width="600" height="750" loading="lazy" decoding="async" /> -->
+                  <div class="web-portrait" data-monogram="BH" aria-hidden="true"></div>
+                  <div class="web-panel-id">
+                    <h3>Bradley Hartmann</h3>
+                    <p class="web-role">Founder &amp; CEO</p>
+                  </div>
+                </div>
+                <p class="web-bio">Sets the strategy, prices the work and reviews every site before it goes live. He is the person on your first call and the one who signs off the last build.</p>
+              </article>
+              <article class="web-panel" data-i="1">
+                <div class="web-panel-head">
+                  <!-- PHOTO: replace the div below with
+                       <img class="web-portrait" src="/assets/images/team-keegan.webp" alt="" width="600" height="750" loading="lazy" decoding="async" /> -->
+                  <div class="web-portrait" data-monogram="KH" aria-hidden="true"></div>
+                  <div class="web-panel-id">
+                    <h3>Keegan Haumann</h3>
+                    <p class="web-role">Lead Full-Stack Developer</p>
+                  </div>
+                </div>
+                <p class="web-bio">Heads all development. He came up through a development house dedicated to Microsoft work, so he builds to the standard that survives an enterprise review, then makes it load fast on a phone in a contractor&rsquo;s van.</p>
+              </article>
+              <article class="web-panel" data-i="2">
+                <div class="web-panel-head">
+                  <!-- PHOTO: replace the div below with
+                       <img class="web-portrait" src="/assets/images/team-zach.webp" alt="" width="600" height="750" loading="lazy" decoding="async" /> -->
+                  <div class="web-portrait" data-monogram="ZO" aria-hidden="true"></div>
+                  <div class="web-panel-id">
+                    <h3>Zach Oliver</h3>
+                    <p class="web-role">Web Developer</p>
+                  </div>
+                </div>
+                <p class="web-bio">Builds and ships client sites alongside Keegan. Page templates, responsive layouts and the front-end work that keeps a build on schedule instead of in a queue.</p>
+              </article>
+              <article class="web-panel" data-i="3">
+                <div class="web-panel-head">
+                  <!-- PHOTO: replace the div below with
+                       <img class="web-portrait" src="/assets/images/team-ronnie.webp" alt="" width="600" height="750" loading="lazy" decoding="async" /> -->
+                  <div class="web-portrait" data-monogram="RB" aria-hidden="true"></div>
+                  <div class="web-panel-id">
+                    <h3>Ronnie James Botes</h3>
+                    <p class="web-role">SEO Specialist &amp; Web Developer</p>
+                  </div>
+                </div>
+                <p class="web-bio">Owns search. Technical <a href="/seo/">SEO</a>, site architecture, schema and the content that earns rankings, plus the front-end work to ship it, so nothing gets lost in a hand-off.</p>
+              </article>
+              <article class="web-panel" data-i="4">
+                <div class="web-panel-head">
+                  <!-- PHOTO: replace the div below with
+                       <img class="web-portrait" src="/assets/images/team-anri.webp" alt="" width="600" height="750" loading="lazy" decoding="async" /> -->
+                  <div class="web-portrait" data-monogram="AH" aria-hidden="true"></div>
+                  <div class="web-panel-id">
+                    <h3>Anri Hartmann</h3>
+                    <p class="web-role">Social Media Manager</p>
+                  </div>
+                </div>
+                <p class="web-bio">Creates the content and runs the social presence that keeps your business visible between jobs, across every platform your customers actually use.</p>
+              </article>
+              <article class="web-panel" data-i="5">
+                <div class="web-panel-head">
+                  <!-- PHOTO: replace the div below with
+                       <img class="web-portrait" src="/assets/images/team-jesse.webp" alt="" width="600" height="750" loading="lazy" decoding="async" /> -->
+                  <div class="web-portrait" data-monogram="JA" aria-hidden="true"></div>
+                  <div class="web-panel-id">
+                    <h3>Jesse Agulhas</h3>
+                    <p class="web-role">Operations Manager</p>
+                  </div>
+                </div>
+                <p class="web-bio">Keeps projects moving. Scheduling, hand-offs between design, build and SEO, and the daily update that lands before the day ends. Nothing sits in a queue unnoticed.</p>
+              </article>
+            </div>
+          </div>
         </section>
 
         <!-- ===== Prose / SEO body ===== -->
@@ -328,6 +445,16 @@
           <p>Or <a href="/contact/">talk to us directly</a>.</p>
         </aside>
       </article>
+      <!-- Book a call. The headline is page-specific; the Calendly URL is
+           stamped with this page's context at runtime by src/js/book.js. -->
+      <section id="book" class="book-band" aria-labelledby="book-heading">
+        <p class="eyebrow">Book a call</p>
+        <h2 id="book-heading">Want to meet the team properly?</h2>
+        <p class="book-sub">Thirty minutes with Bradley. He will tell you which of the six of us would touch your project, and what we would do first.</p>
+        <div class="calendly-inline-widget" data-url="https://calendly.com/bradley-hart/30min?hide_gdpr_banner=1"></div>
+        <p class="book-alt">Prefer to skip the widget? <a href="https://calendly.com/bradley-hart/30min" rel="noopener">Book directly on Calendly</a> or email <a href="mailto:bradley@peakleads.agency">bradley@peakleads.agency</a>.</p>
+      </section>
+
     </main>
 
     <footer class="site-footer">

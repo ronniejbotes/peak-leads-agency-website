@@ -268,69 +268,10 @@ function initReveal() {
   cards.forEach((card) => observer.observe(card));
 }
 
-/* ==================================================================
- * Calendly. Same lazy-load as the homepage (see main.js initCalendly):
- * the embed div carries data-url and Calendly's widget.js picks it up
- * once injected. Injection waits until #book is within 800px so the
- * third-party bundle never competes with the cards for the first paint.
- * ================================================================== */
-let calendlyInjected = false;
-
-function injectCalendly() {
-  if (calendlyInjected) return;
-  calendlyInjected = true;
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = 'https://assets.calendly.com/assets/external/widget.css';
-  document.head.appendChild(link);
-  const script = document.createElement('script');
-  script.src = 'https://assets.calendly.com/assets/external/widget.js';
-  script.async = true;
-  document.head.appendChild(script);
-}
-
-function initCalendly() {
-  const book = document.getElementById('book');
-  if (!book || !document.querySelector('.calendly-inline-widget')) return;
-
-  if (!('IntersectionObserver' in window)) {
-    if (document.readyState === 'complete') {
-      injectCalendly();
-    } else {
-      window.addEventListener('load', injectCalendly, { once: true });
-    }
-    return;
-  }
-
-  const observer = new window.IntersectionObserver(
-    (entries) => {
-      for (let i = 0; i < entries.length; i++) {
-        if (entries[i].isIntersecting) {
-          observer.disconnect();
-          injectCalendly();
-          break;
-        }
-      }
-    },
-    { rootMargin: '800px 0px' }
-  );
-  observer.observe(book);
-
-  /* A card CTA is an in-page jump to a widget that may not have loaded yet.
-     Inject on the click so the embed is already building while the smooth
-     scroll runs, instead of landing on an empty box. */
-  document.addEventListener('click', (event) => {
-    const target = event.target;
-    const link = target && typeof target.closest === 'function' ? target.closest('a') : null;
-    if (link && (link.getAttribute('href') || '').indexOf('#book') !== -1) injectCalendly();
-  });
-}
-
 function init() {
   initRegionSwitch();
   initTilt();
   initReveal();
-  initCalendly();
 }
 
 if (document.readyState === 'loading') {

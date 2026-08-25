@@ -8,6 +8,7 @@
  */
 import '../styles/main.css';
 import { armPixel, trackPixel } from './pixel.js';
+import { initBookSection } from './book.js';
 
 /* ==================================================================== *
  * Config
@@ -662,6 +663,8 @@ function init() {
       motionQuery.addListener(onMotionChange);
     }
   }
+
+  initBookSection();
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) stopLoop();

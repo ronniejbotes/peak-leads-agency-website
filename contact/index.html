@@ -86,7 +86,7 @@
         <h2>Reach Bradley directly.</h2>
         <ul>
           <li><strong>Email:</strong> <a href="mailto:bradley@peakleads.agency">bradley@peakleads.agency</a></li>
-          <li><strong>Book a call:</strong> <a href="https://calendly.com/bradley-hart/30min" target="_blank" rel="noopener">30 minutes on Calendly</a>. Free, direct, no pitch deck.</li>
+          <li><strong>Book a call:</strong> <a href="#book">30 minutes on Calendly</a>. Free, direct, no pitch deck.</li>
           <li><strong>Instagram:</strong> <a href="https://www.instagram.com/bradley_mj_kid/" target="_blank" rel="noopener">@bradley_mj_kid</a></li>
           <li><strong>LinkedIn:</strong> <a href="https://za.linkedin.com/in/bradley-hartmann-372785336" target="_blank" rel="noopener">Bradley Hartmann</a></li>
         </ul>
@@ -116,8 +116,18 @@
           <p>Fields marked * are required.</p>
           <button class="btn btn-primary" type="submit">Send message</button>
         </form>
-        <p>Prefer to skip the form? <a href="https://calendly.com/bradley-hart/30min" target="_blank" rel="noopener">Book directly on Calendly</a>. No upfront payments on websites, SEO or ad campaigns: if you are not happy, you do not pay. Managed lead generation retainers are prepaid monthly, priced on the <a href="/pricing/">pricing</a> page.</p>
+        <p>Prefer to skip the form? <a href="#book">Book directly on Calendly</a>. No upfront payments on websites, SEO or ad campaigns: if you are not happy, you do not pay. Managed lead generation retainers are prepaid monthly, priced on the <a href="/pricing/">pricing</a> page.</p>
       </div>
+      <!-- Book a call. The headline is page-specific; the Calendly URL is
+           stamped with this page's context at runtime by src/js/book.js. -->
+      <section id="book" class="book-band" aria-labelledby="book-heading">
+        <p class="eyebrow">Book a call</p>
+        <h2 id="book-heading">Rather talk than type?</h2>
+        <p class="book-sub">Thirty minutes with Bradley. Free, direct, no pitch deck.</p>
+        <div class="calendly-inline-widget" data-url="https://calendly.com/bradley-hart/30min?hide_gdpr_banner=1"></div>
+        <p class="book-alt">Prefer to skip the widget? <a href="https://calendly.com/bradley-hart/30min" rel="noopener">Book directly on Calendly</a> or email <a href="mailto:bradley@peakleads.agency">bradley@peakleads.agency</a>.</p>
+      </section>
+
     </main>
 
     <footer class="site-footer">

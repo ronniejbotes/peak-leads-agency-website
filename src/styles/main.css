@@ -1829,6 +1829,35 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
   overflow: hidden;
 }
 
+/* -- .book-band — the closing embed on every static page ------------------
+   The homepage runs #book as a daylight set-piece inside the 3D scene. The
+   static pages have no scene to break out of, so the band stays on the page
+   ground and lets the white Calendly card be the bright thing. A hairline
+   separates it from the article above without a full-bleed slab. */
+
+.book-band {
+  border-top: 1px solid var(--border);
+}
+.book-band .eyebrow { margin-bottom: 14px; }
+.book-band h2 {
+  font-size: clamp(1.9rem, 4.4vw, 2.9rem);
+  max-width: 22ch;
+  margin-bottom: 14px;
+}
+.book-band .book-sub {
+  max-width: 58ch;
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--text-2);
+}
+.book-band .book-alt {
+  max-width: 58ch;
+  margin: 18px auto 0;
+  font-size: 0.92rem;
+  color: var(--text-3);
+}
+
 /* ==========================================================================
    #faq — native details accordions
    ========================================================================== */
@@ -3422,85 +3451,392 @@ body.no-3d #process.theme-day::before { display: none; }
   line-height: 1.65;
 }
 
-/* --- Team cards ---------------------------------------------------------- */
+/* --- The team web -------------------------------------------------------
+   Peak Leads at the hub, the six of them orbiting on threads, and one big
+   detail panel alongside. One rotation drives the threads and the ring
+   together; each card counter-rotates at the same rate and duration, so it
+   rides the circle without ever turning upside down.
 
-/* Explicit tracks, not auto-fit: six people must fall into two even rows of
-   three rather than leaving an orphan card on a row of its own. */
-.team-grid {
-  grid-template-columns: 1fr;
-  gap: clamp(18px, 2vw, 26px);
-}
-@media (min-width: 520px) {
-  .team-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@media (min-width: 860px) {
-  .team-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
+   The bio deliberately does NOT live in the orbiting card. A panel hanging
+   off a card that is itself moving lands on top of the hub half the time,
+   so the write-up sits in a fixed panel to the right and the card carries
+   only the face and the name.
+   ----------------------------------------------------------------------- */
 
-.team-card {
-  display: flex;
-  flex-direction: column;
-}
+.team-web {
+  --web: clamp(320px, 44vw, 560px);
+  --ring: calc(var(--web) * 0.30);
+  --card: calc(var(--web) * 0.19);
+  --hub: calc(var(--web) * 0.235);
+  --spin: 78s;
 
-/* Names and roles wrap to different line counts, which would stagger every
-   bio below them. Subgrid pins photo / name / role / bio to shared rows so
-   the four bands line up across the row. Flex column stays the fallback. */
-@supports (grid-template-rows: subgrid) {
-  @media (min-width: 520px) {
-    .team-card {
-      display: grid;
-      grid-row: span 4;
-      grid-template-rows: subgrid;
-      row-gap: 0;
-    }
-  }
+  display: grid;
+  grid-template-columns: var(--web) minmax(300px, 1fr);
+  gap: clamp(20px, 3.5vw, 56px);
+  align-items: center;
+  margin: clamp(32px, 5vh, 56px) auto 0;
 }
 
-/* Placeholder portrait until the real photos land. The <img> that replaces
-   this div inherits the same box, so the grid never reflows on swap. */
-.post .team-photo {
+@keyframes web-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes web-spin-back { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+
+.web-stage {
+  position: relative;
+  width: var(--web);
+  height: var(--web);
+}
+
+.web-threads,
+.web-orbit {
+  position: absolute;
+  inset: 0;
+  animation: web-spin var(--spin) linear infinite;
+}
+
+.web-threads {
   width: 100%;
-  aspect-ratio: 4 / 5;
-  margin: 0 0 18px;
+  height: 100%;
+  color: var(--text-3);
+  pointer-events: none;
+}
+.web-thread {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.1;
+  opacity: 0.5;
+}
+.web-spoke {
+  stroke: currentColor;
+  stroke-width: 1.1;
+  opacity: 0.85;
+  transition: stroke 220ms ease, opacity 220ms ease, stroke-width 220ms ease;
+}
+
+/* --- Hub ---------------------------------------------------------------- */
+
+.web-hub {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  width: var(--hub);
+  height: var(--hub);
+  padding: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--accent-soft);
+  background:
+    radial-gradient(circle at 50% 28%, var(--accent-soft), transparent 68%),
+    var(--panel-solid);
+  box-shadow: var(--glow-accent);
+  text-align: center;
+}
+.web-hub img {
+  width: clamp(26px, 5vw, 44px);
+  height: auto;
+  margin: 0 0 5px;
+  border: 0;
+  background: none;
+}
+.post .web-hub-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(0.78rem, 1.7vw, 0.98rem);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--text);
+}
+.post .web-hub-sub {
+  margin: 2px 0 0;
+  font-size: clamp(0.55rem, 1.1vw, 0.68rem);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+
+/* --- Orbiting cards ----------------------------------------------------- */
+
+.web-nodes {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Centre the box, swing it out to its angle, then un-tilt it. The third
+   rotate cancels the second so the card starts upright; .web-node-spin
+   cancels the running orbit so it stays that way. */
+.web-node {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--card);
+  transform:
+    translate(-50%, -50%)
+    rotate(calc(var(--i) * 60deg))
+    translateY(calc(var(--ring) * -1))
+    rotate(calc(var(--i) * -60deg));
+}
+.web-node-spin { animation: web-spin-back var(--spin) linear infinite; }
+
+.web-card {
+  position: relative;
+  display: block;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 260ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.web-card:focus { outline: none; }
+.web-card:hover,
+.web-card:focus-visible { transform: scale(1.09); }
+
+.web-avatar {
+  display: block;
+  width: var(--card);
+  height: var(--card);
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--bg-raise);
+  transition: border-color 220ms ease, box-shadow 220ms ease;
+}
+div.web-avatar {
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(120% 100% at 50% 0%, var(--accent-soft), transparent 70%),
+    var(--bg-raise);
+}
+div.web-avatar::after {
+  content: attr(data-monogram);
+  font-family: var(--font-mono);
+  font-size: calc(var(--card) * 0.28);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-3);
+}
+.web-card:hover .web-avatar,
+.web-card:focus-visible .web-avatar {
+  border-color: var(--accent);
+  box-shadow: var(--glow-accent);
+}
+
+/* The name rides the card whether or not anyone hovers it. */
+.post .web-name {
+  margin: 10px 0 0;
+  font-size: clamp(0.72rem, 1.5vw, 0.86rem);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--text);
+  text-wrap: balance;
+}
+
+.web-node:has(.web-card:hover),
+.web-node:has(.web-card:focus-visible) { z-index: 6; }
+
+/* --- Detail panel ------------------------------------------------------- */
+
+/* Every panel shares one grid cell, so the stack is as tall as the tallest
+   of them and swapping between people never moves the page. */
+.web-panels {
+  display: grid;
+  align-self: stretch;
+  min-height: calc(var(--web) * 0.62);
+}
+.web-panel {
+  grid-area: 1 / 1;
+  align-self: center;
+  padding: clamp(20px, 2.4vw, 30px);
   border: 1px solid var(--border);
   border-radius: calc(var(--radius) + 4px);
+  background: var(--panel-solid);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(10px);
+  transition: opacity 240ms ease, transform 240ms ease;
+}
+.web-panel-rest {
+  opacity: 1;
+  transform: none;
+  border-style: dashed;
+  background: none;
+}
+.team-web:has(.web-card:hover) .web-panel-rest,
+.team-web:has(.web-card:focus-visible) .web-panel-rest {
+  opacity: 0;
+}
+
+.team-web:has(.web-node[data-i="0"] .web-card:hover) .web-panel[data-i="0"],
+.team-web:has(.web-node[data-i="0"] .web-card:focus-visible) .web-panel[data-i="0"],
+.team-web:has(.web-node[data-i="1"] .web-card:hover) .web-panel[data-i="1"],
+.team-web:has(.web-node[data-i="1"] .web-card:focus-visible) .web-panel[data-i="1"],
+.team-web:has(.web-node[data-i="2"] .web-card:hover) .web-panel[data-i="2"],
+.team-web:has(.web-node[data-i="2"] .web-card:focus-visible) .web-panel[data-i="2"],
+.team-web:has(.web-node[data-i="3"] .web-card:hover) .web-panel[data-i="3"],
+.team-web:has(.web-node[data-i="3"] .web-card:focus-visible) .web-panel[data-i="3"],
+.team-web:has(.web-node[data-i="4"] .web-card:hover) .web-panel[data-i="4"],
+.team-web:has(.web-node[data-i="4"] .web-card:focus-visible) .web-panel[data-i="4"],
+.team-web:has(.web-node[data-i="5"] .web-card:hover) .web-panel[data-i="5"],
+.team-web:has(.web-node[data-i="5"] .web-card:focus-visible) .web-panel[data-i="5"] {
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+  border-color: var(--accent-soft);
+  box-shadow: var(--glow-accent);
+}
+
+.post .web-panel-eyebrow {
+  margin: 0 0 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+.post .web-panel-lead {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--text-2);
+}
+
+.web-panel-head {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 2vw, 22px);
+  margin-bottom: 18px;
+}
+.web-portrait {
+  flex: 0 0 auto;
+  width: clamp(104px, 12vw, 136px);
+  aspect-ratio: 4 / 5;
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   object-fit: cover;
   background: var(--bg-raise);
 }
-.post div.team-photo {
+div.web-portrait {
   display: grid;
   place-items: center;
   background:
     radial-gradient(120% 90% at 50% 0%, var(--accent-soft), transparent 70%),
     var(--bg-raise);
 }
-.post div.team-photo::after {
+div.web-portrait::after {
   content: attr(data-monogram);
   font-family: var(--font-mono);
-  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-size: 1.9rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--text-3);
 }
-
-.post .team-card h3 {
-  margin: 0 0 4px;
+.web-panel-id { min-width: 0; }
+.post .web-panel-id h3 {
+  margin: 0 0 6px;
+  font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+  line-height: 1.15;
   color: var(--text);
-  font-size: 1.28rem;
-  letter-spacing: -0.01em;
 }
-.post .team-role {
-  margin: 0 0 12px;
-  font-size: 0.86rem;
+.post .web-role {
+  margin: 0;
+  font-size: 0.76rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--accent);
 }
-.post .team-card p:last-child {
+.post .web-bio {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 0.98rem;
   line-height: 1.65;
+  color: var(--text-2);
+}
+
+/* One hover, three animations to stop. */
+.team-web:has(.web-card:hover) .web-threads,
+.team-web:has(.web-card:hover) .web-orbit,
+.team-web:has(.web-card:hover) .web-node-spin,
+.team-web:has(.web-card:focus-visible) .web-threads,
+.team-web:has(.web-card:focus-visible) .web-orbit,
+.team-web:has(.web-card:focus-visible) .web-node-spin {
+  animation-play-state: paused;
+}
+
+/* Light up the thread running back to the hub. */
+.team-web:has(.web-node[data-i="0"] .web-card:hover) .web-spoke[data-i="0"],
+.team-web:has(.web-node[data-i="0"] .web-card:focus-visible) .web-spoke[data-i="0"],
+.team-web:has(.web-node[data-i="1"] .web-card:hover) .web-spoke[data-i="1"],
+.team-web:has(.web-node[data-i="1"] .web-card:focus-visible) .web-spoke[data-i="1"],
+.team-web:has(.web-node[data-i="2"] .web-card:hover) .web-spoke[data-i="2"],
+.team-web:has(.web-node[data-i="2"] .web-card:focus-visible) .web-spoke[data-i="2"],
+.team-web:has(.web-node[data-i="3"] .web-card:hover) .web-spoke[data-i="3"],
+.team-web:has(.web-node[data-i="3"] .web-card:focus-visible) .web-spoke[data-i="3"],
+.team-web:has(.web-node[data-i="4"] .web-card:hover) .web-spoke[data-i="4"],
+.team-web:has(.web-node[data-i="4"] .web-card:focus-visible) .web-spoke[data-i="4"],
+.team-web:has(.web-node[data-i="5"] .web-card:hover) .web-spoke[data-i="5"],
+.team-web:has(.web-node[data-i="5"] .web-card:focus-visible) .web-spoke[data-i="5"] {
+  stroke: var(--accent);
+  opacity: 1;
+  stroke-width: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .web-threads,
+  .web-orbit,
+  .web-node-spin { animation: none; }
+  .web-card,
+  .web-panel,
+  .web-avatar,
+  .web-spoke { transition: none; }
+  .web-card:hover,
+  .web-card:focus-visible { transform: none; }
+}
+
+/* Under 900px there is no room for a web and a panel side by side, and no
+   hover to drive them with. The web is dropped and the panels become an
+   ordinary grid with every bio already open. */
+@media (max-width: 899.98px) {
+  /* No web to hover down here, so the sentence telling you to hover goes. */
+  .web-hint { display: none; }
+
+  .team-web {
+    display: block;
+    margin-top: clamp(24px, 4vh, 40px);
+  }
+  .web-stage { display: none; }
+
+  .web-panels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+    gap: 20px;
+    min-height: 0;
+  }
+  .web-panel {
+    grid-area: auto;
+    align-self: stretch;
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+  }
+  .web-panel-rest {
+    grid-column: 1 / -1;
+  }
+  .web-panel-head { margin-bottom: 14px; }
+}
+
+@media (max-width: 479.98px) {
+  .web-panel-head {
+    display: grid;
+    justify-items: start;
+    gap: 14px;
+  }
 }
 
 /* --- Prose tail ---------------------------------------------------------- */

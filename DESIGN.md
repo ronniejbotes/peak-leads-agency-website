@@ -438,6 +438,47 @@ clutter. JSON-LD WebPage + BreadcrumbList.
   CTA box → /free-audit/.
 - **/404.html**: "Wrong turn on the climb." Link home + popular pages.
 
+## 9b. Book-a-call band (EVERY page, including every future page)
+
+Every page ends in the same Calendly embed. Home and /pricing/ keep their own
+long-standing `#book` sections; every other page carries the `.book-band` block below,
+placed as the last child of `<main>`, after the article and before the footer.
+
+```html
+<section id="book" class="book-band" aria-labelledby="book-heading">
+  <p class="eyebrow">Book a call</p>
+  <h2 id="book-heading">PAGE-SPECIFIC QUESTION</h2>
+  <p class="book-sub">Thirty minutes with Bradley. PAGE-SPECIFIC PROMISE.</p>
+  <div class="calendly-inline-widget" data-url="https://calendly.com/bradley-hart/30min?hide_gdpr_banner=1"></div>
+  <p class="book-alt">Prefer to skip the widget? <a href="https://calendly.com/bradley-hart/30min" rel="noopener">Book directly on Calendly</a> or email <a href="mailto:bradley@peakleads.agency">bradley@peakleads.agency</a>.</p>
+</section>
+```
+
+**Copy is the only thing you write.** The `<h2>` is the question a reader of *that page*
+is holding when they reach the bottom, and the sub-head is what the call gives them.
+Never the generic "Let's talk about your project" — that is the homepage's line. A blog
+post about lead costs asks "Want to know what a roofing lead is worth to you?"; the SEO
+page asks "Want to know why you are not ranking?". If the band could be copy-pasted onto
+another page unchanged, the copy is wrong.
+
+**Everything else is automatic.** `src/js/book.js` runs on every entry
+(`main.js`, `pages/subpage.js` — which `pages/pricing.js` imports — and `audit.js`) and:
+
+- Lazy-loads Calendly's widget.js when `#book` is within 800px of the viewport, and
+  immediately on any click of a link to `#book`, so the embed is building during the scroll.
+- Stamps the booking URL with this page's context, so the Calendly event says where the
+  booking came from: `utm_campaign` = the page slug (`blog-how-much-do-roofing-leads-cost`),
+  `utm_term` = the page title, `utm_content` = `book-embed` or `text-link`.
+- Passes inbound campaign params straight through. A visitor who lands on a Google Ad
+  keeps `utm_source=google&utm_medium=cpc&utm_campaign=...` all the way into the booking;
+  page context only fills the keys the ad did not set. Params hand-written into the
+  markup beat both.
+- Fires the `CallScheduled` Pixel event when Calendly reports a booking.
+
+So a new page or blog post needs **no JS change** — paste the block, write two lines of
+copy, done. In-page CTAs that used to link out to calendly.com now link to `#book`
+instead, keeping the visitor on the page and warming the embed on click.
+
 ## 10. SEO layer
 
 - `public/robots.txt`: allow all + `Sitemap: https://peakleads.agency/sitemap.xml`.
