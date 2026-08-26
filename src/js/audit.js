@@ -213,6 +213,10 @@ function bootScene() {
       currentF = targetF = FORMATION_BY_SCREEN[cur] || 0;
       sceneCall('setFormation', currentF);
       sceneCall('setDim', 0.6);
+      /* The funnel runs on the light ground like every other non-landing
+         page, so the points composite as graphite on paper. Set once at
+         boot: nothing scrubs --day here, unlike the landing page. */
+      sceneCall('setDay', 1);
       sceneCall('setProgress', progressFor(cur));
       bindPointer();
       bindResize();

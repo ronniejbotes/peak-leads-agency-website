@@ -108,7 +108,14 @@
 
 :root { --day: 0; }
 
-.theme-day {
+/* Static subpages and the audit funnel run in daylight end to end, so the
+   token block is applied to <body> itself rather than section by section.
+   Everything inside then inherits the light ramp - sections, footer, cards -
+   without each page having to remember to stamp .theme-day on every node.
+   The landing page is untouched: it keeps the scrubbed night -> day climb. */
+.theme-day,
+body.page-static,
+body.page-funnel {
   /* Re-assert the inherited color from the day token. Redefining --text
      alone is NOT enough: body sets `color: var(--text)` once, against the
      :root value, and anything with no color rule of its own (every bare
@@ -160,7 +167,10 @@ body::after {
    so the light runs unbroken to the bottom of the page. */
 :root:not(.js-enabled) .theme-day,
 body.no-3d .theme-day,
-body.page-static .theme-day {
+body.page-static .theme-day,
+body.page-static,
+body.page-funnel .theme-day,
+body.page-funnel {
   --day: 1;
   /* Same two-declaration guard as body::after: without color-mix the tokens
      stay night, so the ground has to stay night with them. */
@@ -169,7 +179,9 @@ body.page-static .theme-day {
 }
 :root:not(.js-enabled) .site-footer.theme-day,
 body.no-3d .site-footer.theme-day,
-body.page-static .site-footer.theme-day {
+body.page-static .site-footer.theme-day,
+body.page-static .site-footer,
+body.page-funnel .site-footer {
   margin-top: 0;
   padding-top: clamp(48px, 8vh, 96px);
 }
@@ -319,6 +331,26 @@ body.page-static::before {
     radial-gradient(closest-side at 26% 88%, rgba(91, 157, 255, 0.06), transparent);
 }
 
+/* Daylight restatement of the same three glows. The bone stop above is
+   invisible on a light ground and the azure reads as haze rather than as
+   depth, so the light pages get the deep blue at a lower alpha instead -
+   enough to keep the white from going flat, not enough to tint the copy
+   behind it. Declared after the night rule at equal specificity so it wins
+   only for the pages that opt in. */
+body.page-static::before,
+body.page-funnel::before {
+  background:
+    radial-gradient(closest-side at 18% 10%, rgba(15, 63, 176, 0.06), transparent),
+    radial-gradient(closest-side at 84% 34%, rgba(15, 63, 176, 0.035), transparent),
+    radial-gradient(closest-side at 26% 88%, rgba(223, 162, 46, 0.05), transparent);
+}
+
+/* Form controls, scrollbars and the overscroll gutter follow the page, not
+   the site default. Cosmetic only: a browser without :has() just keeps the
+   dark UA chrome against a light page. */
+html:has(body.page-static),
+html:has(body.page-funnel) { color-scheme: light; }
+
 /* ==========================================================================
    Layout primitives
    ========================================================================== */
@@ -348,6 +380,7 @@ body.page-static::before {
    dropdowns). Never gains backdrop-filter. */
 .glass-solid {
   background: rgba(26, 34, 52, 0.94);
+  background: color-mix(in oklab, rgba(26, 34, 52, 0.94), rgba(250, 252, 255, 0.96) calc(var(--day) * 100%));
   border: 1px solid var(--border);
   border-radius: var(--radius);
 }
@@ -550,6 +583,7 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
     gap: 0;
     padding: 10px 16px 16px;
     background: rgba(26, 34, 52, 0.97);
+    background: color-mix(in oklab, rgba(26, 34, 52, 0.97), rgba(250, 252, 255, 0.98) calc(var(--day) * 100%));
     border: 1px solid var(--border);
     border-radius: var(--radius);
     opacity: 0;
@@ -2092,7 +2126,10 @@ body.no-3d .say-hi { display: none; }
 }
 
 /* Radial scrim between canvas and questions: particles stay visible at the
-   edges, copy stays readable in the middle. */
+   edges, copy stays readable in the middle. The funnel runs on the light
+   ground, so the scrim is paper rather than soot - the same job inverted.
+   Opaque enough at 74% out that the graphite points read as texture behind
+   the questions instead of competing with them. */
 .audit-shell::before {
   content: "";
   position: fixed;
@@ -2100,8 +2137,8 @@ body.no-3d .say-hi { display: none; }
   z-index: -1;
   pointer-events: none;
   background: radial-gradient(circle at 50% 42%,
-    rgba(13, 12, 10, 0.30),
-    rgba(13, 12, 10, 0.86) 74%);
+    rgba(255, 255, 255, 0.42),
+    rgba(244, 246, 251, 0.90) 74%);
 }
 
 /* Funnel chrome: wordmark + site link + close */
@@ -2275,6 +2312,7 @@ input[name="pl_extra"] {
   min-height: 56px;
   padding: 14px 18px;
   background: rgba(26, 34, 52, 0.94);
+  background: color-mix(in oklab, rgba(26, 34, 52, 0.94), rgba(250, 252, 255, 0.94) calc(var(--day) * 100%));
   border: 1px solid var(--border);
   border-radius: var(--radius);
   color: var(--text);
@@ -2399,6 +2437,7 @@ body.page-static main > article:first-child {
   padding: 16px 22px;
   border-left: 3px solid var(--accent);
   background: rgba(26, 34, 52, 0.78);
+  background: color-mix(in oklab, rgba(26, 34, 52, 0.78), rgba(250, 252, 255, 0.82) calc(var(--day) * 100%));
   border-radius: 0 var(--radius) var(--radius) 0;
   color: var(--text);
 }
@@ -2439,6 +2478,7 @@ body.page-static main > article:first-child {
   gap: 10px;
   padding: 0 22px 26px;
   background: rgba(26, 34, 52, 0.78);
+  background: color-mix(in oklab, rgba(26, 34, 52, 0.78), rgba(250, 252, 255, 0.86) calc(var(--day) * 100%));
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
@@ -2849,13 +2889,13 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
   border: 1px solid var(--border);
   border-radius: var(--radius);
 }
-.post-pricing .table-scroll table {
+.table-scroll table {
   display: table;
   width: 100%;
   margin: 0;
   overflow: visible;
 }
-.post-pricing .table-scroll caption {
+.table-scroll caption {
   caption-side: bottom;
   padding: 12px 14px;
   font-size: 0.78rem;
@@ -2864,12 +2904,25 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
   color: var(--text-3);
   border-top: 1px solid var(--border);
 }
-.post-pricing .table-scroll tbody th[scope='row'] {
+.table-scroll tbody th[scope='row'] {
   color: var(--text);
   font-weight: 600;
 }
-.post-pricing .table-scroll tbody tr:last-child th,
-.post-pricing .table-scroll tbody tr:last-child td { border-bottom: 0; }
+.table-scroll tbody tr:last-child th,
+.table-scroll tbody tr:last-child td { border-bottom: 0; }
+
+/* Prose comparison tables. .post td is nowrap so money never breaks
+   mid-figure; every cell here is a sentence, so the rule is inverted and
+   each column gets a floor and a ceiling instead. Below 640px the wrapper
+   scrolls rather than letting the columns crush to unreadable widths. */
+.table-scroll-prose th,
+.table-scroll-prose td {
+  white-space: normal;
+  vertical-align: top;
+  min-width: 14ch;
+  max-width: 34ch;
+}
+.table-scroll-prose thead th { min-width: 12ch; }
 /* .post td is nowrap so money columns never break mid-figure. The "Best for"
    column is prose, though, and nowrap pushed it past the container and had it
    clipping mid-word at desktop widths. */

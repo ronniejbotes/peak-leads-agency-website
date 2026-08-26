@@ -19,6 +19,7 @@ export default defineConfig({
         // Split service pages. /services/ stays as the hub that links them.
         webDesign: page('./web-design/index.html'),
         seo: page('./seo/index.html'),
+        aiSeo: page('./ai-seo/index.html'),
         googleAds: page('./google-ads/index.html'),
         leadGeneration: page('./lead-generation/index.html'),
         blog: page('./blog/index.html'),
