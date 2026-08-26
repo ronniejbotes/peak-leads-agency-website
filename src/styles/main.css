@@ -3464,14 +3464,14 @@ body.no-3d #process.theme-day::before { display: none; }
    ----------------------------------------------------------------------- */
 
 .team-web {
-  --web: clamp(320px, 44vw, 560px);
+  --web: clamp(300px, 38vw, 500px);
   --ring: calc(var(--web) * 0.30);
   --card: calc(var(--web) * 0.19);
   --hub: calc(var(--web) * 0.235);
   --spin: 78s;
 
   display: grid;
-  grid-template-columns: var(--web) minmax(300px, 1fr);
+  grid-template-columns: var(--web) minmax(340px, 1.15fr);
   gap: clamp(20px, 3.5vw, 56px);
   align-items: center;
   margin: clamp(32px, 5vh, 56px) auto 0;
@@ -3659,12 +3659,15 @@ div.web-avatar::after {
 .web-panels {
   display: grid;
   align-self: stretch;
-  min-height: calc(var(--web) * 0.62);
+  min-height: calc(var(--web) * 0.86);
 }
+/* Stretch, not centre: the bios differ by ~30px of height, and centring made
+   the card grow and shrink as the pointer moved between faces. Every panel
+   now fills the stack, so only the contents change. */
 .web-panel {
   grid-area: 1 / 1;
-  align-self: center;
-  padding: clamp(20px, 2.4vw, 30px);
+  align-self: stretch;
+  padding: clamp(24px, 2.9vw, 36px);
   border: 1px solid var(--border);
   border-radius: calc(var(--radius) + 4px);
   background: var(--panel-solid);
@@ -3673,7 +3676,11 @@ div.web-avatar::after {
   transform: translateX(10px);
   transition: opacity 240ms ease, transform 240ms ease;
 }
+/* Fill the same box as a person's card so the panel does not visibly shrink
+   and grow as the pointer moves on and off the web. */
 .web-panel-rest {
+  display: grid;
+  align-content: center;
   opacity: 1;
   transform: none;
   border-style: dashed;
@@ -3721,12 +3728,12 @@ div.web-avatar::after {
 .web-panel-head {
   display: flex;
   align-items: center;
-  gap: clamp(16px, 2vw, 22px);
-  margin-bottom: 18px;
+  gap: clamp(18px, 2.2vw, 26px);
+  margin-bottom: 22px;
 }
 .web-portrait {
   flex: 0 0 auto;
-  width: clamp(104px, 12vw, 136px);
+  width: clamp(128px, 15vw, 178px);
   aspect-ratio: 4 / 5;
   margin: 0;
   border: 1px solid var(--border);
@@ -3751,8 +3758,8 @@ div.web-portrait::after {
 }
 .web-panel-id { min-width: 0; }
 .post .web-panel-id h3 {
-  margin: 0 0 6px;
-  font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+  margin: 0 0 8px;
+  font-size: clamp(1.3rem, 2.6vw, 1.8rem);
   line-height: 1.15;
   color: var(--text);
 }
@@ -3766,9 +3773,39 @@ div.web-portrait::after {
 }
 .post .web-bio {
   margin: 0;
-  font-size: 0.98rem;
-  line-height: 1.65;
+  font-size: 1.02rem;
+  line-height: 1.7;
   color: var(--text-2);
+}
+
+
+/* Focus chips. Each one restates something already in the bio above it, so
+   the panel gains scannable structure without asserting anything new. */
+.post .web-owns {
+  margin: 22px 0 10px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--text-3);
+}
+.web-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.post .web-tags li {
+  margin: 0;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  line-height: 1.2;
+  color: var(--text-2);
+  background: color-mix(in oklab, transparent, var(--accent-soft) 45%);
+  border: 1px solid var(--accent-soft);
+  border-radius: 999px;
 }
 
 /* One hover, three animations to stop. */

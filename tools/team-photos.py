@@ -57,24 +57,39 @@ QUALITY = 86
 # the crop above the point where the mirrored hair starts, and pad the two
 # outputs independently - a pad that works inside a circle will often show an
 # upside-down fringe across the top of the full-width panel.
-# Two sources are allowed because a tight head-and-shoulders frame makes the
-# better circle while a wider frame makes the better panel portrait.
+# The avatar and the panel deliberately use DIFFERENT frames of the same
+# person, so hovering a face swaps to a second shot rather than enlarging the
+# one already on screen. Panels sit the eyes at about 35% of the height;
+# circles sit them at about 48%.
 CROPS = {
     'bradley': (
         'hf_20260825_233021_166bc014-46ff-450b-9eae-48af36078758.png', (78, 0, 698, 620),
         'hf_20260825_233020_f65f3ec4-f1cc-4dc4-b64f-2c6b28e562c7.png', (69, 40, 709, 840),
     ),
-    # Head measures x 400-1010, y 330-1090, so it centres on (705, 710) - well
-    # left of the frame's middle, because she is turned toward the camera. The
+    # Eye midpoint measured at 1:1 is (790, 732) - well right of the 705 the
+    # head silhouette gives, because her hair is much heavier on one side.
+    # Centre the face, not the hair. The
     # square is 1150 rather than the ~1000 that would match the others' head
     # ratio: her hair is wide, so an equal ratio reads noticeably tighter.
     'anri': (
-        'Anri Hartmann Headshot 2.png', (130, 135, 1280, 1285),
-        'Anri Hartmann Headshot 2.png', (205, 120, 1205, 1370),
+        'Anri Hartmann Headshot 2.png', (215, 180, 1365, 1330),
+        'Anri Hartmann Headshot 1.jpg', (184, 33, 680, 653),
+    ),
+    # Shot 1 of three: the other two put him in sunglasses, which hides the
+    # eyes and makes a poor team portrait. Head is x 195-490, y 145-495,
+    # Eye midpoint is (394, 353), read off the RENDERED avatar rather than the
+    # source - measuring the source directly kept coming out ~50px left. His
+    # head fills the frame, so
+    # the square is sized to leave the same headroom above the hair that
+    # Bradley has (about 5%). His hand rests at his chin, so it sits inside
+    # the circle - part of the pose, not a crop error.
+    'ronnie': (
+        'Ronnie James Botes Headshot 1.png', (154, 123, 634, 603),
+        'Ronnie James Botes Headshot 3.png', (122, 11, 634, 651),
     ),
     'keegan': (
         'Keegan Headshot 2.png', (235, 90, 855, 710),
-        'Keegan Headshot 2.png', (195, 90, 895, 965),
+        'Keegan Haumann Headshot 1.png', (95, 30, 655, 730),
     ),
     # His hair starts at y=30, with no headroom at all. The circle borrows 90px
     # of mirrored backdrop and crops from y=60, so it only ever uses the clean
@@ -82,7 +97,7 @@ CROPS = {
     # mirrored curls read as a smear, so it keeps the tight original top.
     'jesse': (
         'Jesse Agulhas Headshot 2.png', (125, 60, 725, 660),
-        'Jesse Agulhas Headshot 2.png', (125, 0, 725, 750),
+        'Jesse Agulhas Headshot 1.png', (150, 25, 710, 725),
         (90, 0),
     ),
 }
