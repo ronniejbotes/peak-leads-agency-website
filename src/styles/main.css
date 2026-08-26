@@ -3621,6 +3621,18 @@ div.web-avatar::after {
   letter-spacing: 0.04em;
   color: var(--text-3);
 }
+/* .post img (border, radius, margin) is a class-plus-element selector, so it
+   outranks a bare .web-avatar and would square off the circle and reintroduce
+   the prose margin. Restate the three properties at matching specificity. */
+.post img.web-avatar,
+.post img.web-portrait {
+  margin: 0;
+  border: 1px solid var(--border);
+  background: var(--bg-raise);
+}
+.post img.web-avatar { border-radius: 50%; }
+.post img.web-portrait { border-radius: var(--radius); }
+
 .web-card:hover .web-avatar,
 .web-card:focus-visible .web-avatar {
   border-color: var(--accent);
