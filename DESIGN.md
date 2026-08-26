@@ -127,6 +127,12 @@ copy on both grounds, so it survives only inside the mark. Never set text in it,
 | `/blog/how-much-do-roofing-leads-cost/` | subpage.js | How Much Do Roofing Leads Cost in 2026? \| Peak Leads |
 | `/blog/exclusive-vs-shared-leads/` | subpage.js | Exclusive vs Shared Leads: The Real Difference \| Peak Leads |
 | `/blog/google-ads-vs-facebook-ads-for-contractors/` | subpage.js | Google Ads vs Facebook Ads for Contractors \| Peak Leads |
+| `/web-design/` | src/js/pages/subpage.js | Web Design South Africa \| Live in 2 to 3 Weeks \| Peak Leads |
+| `/seo/` | src/js/pages/subpage.js | SEO Services South Africa \| Local SEO Agency \| Peak Leads |
+| `/ai-seo/` | src/js/pages/subpage.js | AI SEO South Africa \| Get Found In AI Search \| Peak Leads |
+| `/google-ads/` | src/js/pages/subpage.js | Google Ads & Meta Ads Management South Africa \| Peak Leads |
+| `/lead-generation/` | src/js/pages/subpage.js | Exclusive Lead Generation South Africa \| Peak Leads |
+| `/pricing/` | src/js/pages/pricing.js | Lead Generation Pricing 2026 \| Peak Leads |
 | `/404.html` | subpage.js | Page Not Found \| Peak Leads |
 
 Canonical host: `https://peakleads.agency` with trailing slash on folders. Every page:
@@ -414,8 +420,8 @@ clutter. JSON-LD WebPage + BreadcrumbList.
 
 ## 9. Subpages (about / services / contact / blog / 404)
 
-`body.page-static`: NO 3D canvas; fixed warm radial-gradient backdrop (chalk 6-8% glows on
---bg). Same nav (non-pill variant OK, same links) + footer (no giant marquee, compact).
+`body.page-static`: NO 3D canvas; **runs in daylight end to end** (see 9c) over a
+fixed radial-gradient backdrop (deep blue and gold 3-6% glows on the light ground). Same nav (non-pill variant OK, same links) + footer (no giant marquee, compact).
 - **/about/**: H1 "The person behind Peak Leads." Founder story: Bradley Hartmann, South
   African, builds for US home-service businesses; discipline/"locked in" work ethic, faith
   and family grounded, straight-talking; photo `/assets/images/bradley.webp` (from
@@ -437,6 +443,29 @@ clutter. JSON-LD WebPage + BreadcrumbList.
   honest voice, BlogPosting JSON-LD (author Bradley Hartmann, datePublished 2026-07-30),
   CTA box → /free-audit/.
 - **/404.html**: "Wrong turn on the climb." Link home + popular pages.
+
+## 9c. Daylight on every non-landing page (added 2026-08-26)
+
+The landing page keeps the scrubbed night -> day climb. **Every other page is light,
+end to end.** The mechanism is the existing `.theme-day` token block, applied to `<body>`
+rather than section by section:
+
+- `.theme-day, body.page-static, body.page-funnel` share one token block, and
+  `body.page-static` / `body.page-funnel` pin `--day: 1`. Everything inside inherits the
+  light ramp, so a new page needs no per-section `.theme-day` stamping.
+- `body::after` paints the `#F4F6FB` ground off the same `--day`; `body.page-static::before`
+  restates the three backdrop glows in daylight values.
+- Surfaces that were hardcoded dark now scrub with `--day` using the two-declaration guard
+  (night literal first, `color-mix` second): `.glass-solid`, the nav dropdown panel,
+  `.option-card`, `.post blockquote`, `.blog-card`.
+- `/free-audit/` keeps its particle canvas and carries `body.page-funnel`. `audit.js` calls
+  `sceneCall('setDay', 1)` at boot so the points render as graphite on paper, and
+  `.audit-shell::before` is a **white** scrim, not the original soot one.
+- `html:has(body.page-static)` sets `color-scheme: light` so form controls and scrollbars
+  follow the page. Cosmetic only; a browser without `:has()` just keeps dark UA chrome.
+
+**Adding a page: give `<body>` `page-static` and it is light. Do not add `.theme-day` to
+its sections.**
 
 ## 9b. Book-a-call band (EVERY page, including every future page)
 
@@ -483,7 +512,15 @@ instead, keeping the visitor on the page and warming the embed on click.
 
 - `public/robots.txt`: allow all + `Sitemap: https://peakleads.agency/sitemap.xml`.
 - `public/sitemap.xml`: all 9 URLs, lastmod 2026-08-04.
-- **Primary target keywords: lead generation, web development, SEO, paid ads.** Every one
+- **Market: South Africa first, United States second.** All `areaServed` is
+  `South Africa`; the US is served and priced (see `/pricing/`) but is not the
+  primary SEO target. Changed 2026-08-26; the doc previously said `areaServed US`.
+- **Google Local Services Ads do not exist in South Africa.** Verified against
+  Google's own country selector 2026-08-26: Austria, Belgium, Canada, France,
+  Germany, Ireland, Italy, Spain, Switzerland, UK, US. Never offer LSA or the
+  Google Guaranteed badge to a ZA client. `/google-ads/` and two blog posts say so
+  explicitly and that copy must not be softened.
+- **Primary target keywords: lead generation, web development, SEO, AI SEO, paid ads.** Every one
   is claimed in a `<title>`, an `<h2>`, and body copy on both `/` and `/services/`. "Web
   development" is the newest of the four; the site said "web design" everywhere before
   2026-08-04, so both phrasings are kept in play (H2s and titles say development, image
@@ -502,6 +539,14 @@ instead, keeping the visitor on the page and warming the embed on click.
   only third-party request).
 - Images: width/height attrs, lazy below fold, descriptive alt with trade keywords.
 - Three/GSAP dynamically imported after first paint → hero text is LCP, not canvas.
+
+## 10b. Comparison tables
+
+Real `<table>` markup, never a div grid: search engines and assistants extract tables.
+Wrap in `<div class="table-scroll">` so the wrapper scrolls and the table keeps its
+caption and row-header semantics. Add `table-scroll-prose` when the cells are sentences
+rather than figures; `.post td` is `nowrap` by default so money never breaks mid-figure,
+and the prose variant inverts that.
 
 ## 11. Copy voice rules (all writers)
 
