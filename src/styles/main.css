@@ -3613,7 +3613,11 @@ body.no-3d #process.theme-day::before { display: none; }
 
 /* --- Orbiting cards ----------------------------------------------------- */
 
+/* One slot per team member, evenly spaced. 360 / head count: 72deg for five,
+   60deg for six. The SVG spokes in about/index.html are drawn to match and
+   have to be regenerated alongside any change here. */
 .web-nodes {
+  --web-step: 72deg;
   position: absolute;
   inset: 0;
   margin: 0;
@@ -3631,9 +3635,9 @@ body.no-3d #process.theme-day::before { display: none; }
   width: var(--card);
   transform:
     translate(-50%, -50%)
-    rotate(calc(var(--i) * 60deg))
+    rotate(calc(var(--i) * var(--web-step)))
     translateY(calc(var(--ring) * -1))
-    rotate(calc(var(--i) * -60deg));
+    rotate(calc(var(--i) * (var(--web-step) * -1)));
 }
 .web-node-spin { animation: web-spin-back var(--spin) linear infinite; }
 
@@ -3753,9 +3757,7 @@ div.web-avatar::after {
 .team-web:has(.web-node[data-i="3"] .web-card:hover) .web-panel[data-i="3"],
 .team-web:has(.web-node[data-i="3"] .web-card:focus-visible) .web-panel[data-i="3"],
 .team-web:has(.web-node[data-i="4"] .web-card:hover) .web-panel[data-i="4"],
-.team-web:has(.web-node[data-i="4"] .web-card:focus-visible) .web-panel[data-i="4"],
-.team-web:has(.web-node[data-i="5"] .web-card:hover) .web-panel[data-i="5"],
-.team-web:has(.web-node[data-i="5"] .web-card:focus-visible) .web-panel[data-i="5"] {
+.team-web:has(.web-node[data-i="4"] .web-card:focus-visible) .web-panel[data-i="4"] {
   opacity: 1;
   pointer-events: auto;
   transform: none;
