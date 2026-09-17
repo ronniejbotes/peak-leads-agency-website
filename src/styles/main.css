@@ -805,6 +805,14 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
   max-width: 620px;
 }
 
+/* The hero headline now says what the business does and where, so it is a
+   sentence rather than a three-word slogan and it needs a smaller step than
+   the global h1. The global clamp tops out at 4.5rem, which set this line
+   over five lines in the 620px column. */
+.hero-copy h1 {
+  font-size: clamp(2rem, 4.4vw, 3.25rem);
+}
+
 /* The trust line under the CTAs: quieter than the sub-headline, and capped
    short so it reads as a note rather than a second paragraph of pitch. */
 .hero-trust {
