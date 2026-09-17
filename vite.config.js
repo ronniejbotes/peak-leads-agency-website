@@ -16,6 +16,7 @@ export default defineConfig({
         contact: page('./contact/index.html'),
         pricing: page('./pricing/index.html'),
         freeAudit: page('./free-audit/index.html'),
+        privacy: page('./privacy/index.html'),
         // Split service pages. /services/ stays as the hub that links them.
         webDesign: page('./web-design/index.html'),
         seo: page('./seo/index.html'),
