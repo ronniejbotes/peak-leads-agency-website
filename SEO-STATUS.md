@@ -12,12 +12,15 @@ client figures.
 
 ## Where the real files are
 
+It is its own **private** repository, so it is readable on every device through
+github.com - phone browser, GitHub app, any laptop, any desktop. No OneDrive needed.
+
 ```
-C:\Users\ronja\OneDrive\Documents\Claude Other\SEO Program
+repo:  github.com/ronniejbotes/seo-program  (PRIVATE)
+local: C:\Users\ronja\iCloudDrive\Documents\GitHub\seo-program
 ```
 
-It is in OneDrive, so it is on every device - desktop, laptop and the OneDrive
-phone app. That folder is the single source of truth, at all times.
+That repository is the single source of truth, at all times.
 
 - `plans/peak-leads/PLAN.md` - the 90-day plan, numbered tasks, ticked or not
 - `plans/peak-leads/LOG.md` - what was actually done, newest entry first
