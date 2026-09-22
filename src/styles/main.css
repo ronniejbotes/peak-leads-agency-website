@@ -937,7 +937,7 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
 }
 
 /* Viewport-sized numerals overflow their column once a value gets long:
-   "R114M+" is six glyphs where "$7M+" is four, and the ZA revenue figure
+   "R220M+" is six glyphs where "$13M+" is five, and the ZA revenue figure
    burst the 4-up grid between 900 and 1100px. Sizing against the column
    instead fits any value at any width, and keeps all four numerals the
    same size (a strip with one odd number out reads as broken).

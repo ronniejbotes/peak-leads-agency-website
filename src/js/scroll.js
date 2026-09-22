@@ -830,7 +830,7 @@ export function initScrollChoreography(scene) {
    * Stat count-ups (#proof). Independent of ScrollTrigger: plain
    * IntersectionObserver (0.4, once) + rAF with ease-out cubic.
    * Parses the target from data-target OR the text itself, animates the
-   * numeric part only and keeps prefix/suffix ("$7M+" -> "$", 7, "M+").
+   * numeric part only and keeps prefix/suffix ("$13M+" -> "$", 13, "M+").
    * Mutates a text node only. Reduced motion jumps straight to final.
    * ================================================================== */
   const counters = initStatCounters();

@@ -153,20 +153,25 @@ from-states. Eyebrow budget: max 3 on the whole page.
    no-JS gets static wrapped row). 2px `.nav-progress` bottom edge, scaleX = --scroll-progress.
 2. **`#hero`** (100svh, asymmetric: copy left max-w 620px, particles park RIGHT).
    H1: "Build your presence." Sub (19 words): "We've helped businesses generate over
-   \[$7 million | R114 million] in sales through our websites, SEO, paid ads, and lead
+   \[$13 million | R220 million] in sales through our websites, SEO, paid ads, and lead
    generation systems." The amount is a `<span data-money-usd data-money-zar>` — see §7.
    CTAs: primary "Get your free audit" → `/free-audit/`; ghost "Book a call" → `#book`.
    Nothing else.
 3. **`#proof`** - 4 stat tiles (2-col mobile / 4-col desktop, count-up on view):
-   `4.9/5` average client rating · `70+` reviews · `$7M+` \| `R114M+` client revenue
+   `4.9/5` average client rating · `70+` reviews · `$13M+` \| `R220M+` client revenue
    generated (region-aware, §7) · `2-3wk` from call to live site. Mono numerals, plain
    layout, hairline separators (no cards). `.stat` is an inline-size container and
-   `.stat-value` sizes in `cqi`, so a 6-glyph value ("R114M+") fits the column at every
+   `.stat-value` sizes in `cqi`, so a 6-glyph value ("R220M+") fits the column at every
    width and all four numerals stay the same size.
-4. **`#vsl`** - H2 "Watch how we build." Video 16:9 max-w 960px: `/assets/videos/vsl.mp4`,
-   poster `/assets/images/vsl-poster.jpg`, preload=metadata, controls. Accent 1.5px animated
-   rim (conic gradient, chalk). One line under: "Bradley walks through the exact system,
-   in under a minute."
+4. **`#vsl`** - H2 "Watch how we'd approach your business." Video 16:9 max-w 960px:
+   `/assets/videos/vsl-2.mp4` (1920x1080 H.264, 1:59, faststart), poster
+   `/assets/images/vsl-2-poster.jpg`, captions `/assets/videos/vsl-2.vtt`,
+   preload=metadata, controls. Accent 1.5px animated rim (conic gradient, chalk). One line
+   under: "Bradley on why one size never fits all, and how we work out what your business
+   needs. Two minutes." A `VideoObject` node in the homepage `@graph` mirrors the duration,
+   poster and contentUrl, so update it whenever the video is replaced. Asset filenames are
+   versioned (`vsl-2`, not `vsl`) because the Hostinger CDN serves replaced-in-place files
+   stale for 7 days; never overwrite a published media file under its own name.
 5. **`#services`** - THE set-piece. 4 `article.station` each 150vh, sticky stage
    (`position:sticky; top:0; min-height:100svh; flex center`) with glass `.station-inner`
    (max-w 640px) alternating left/right (particles park opposite). Ghost outline numbers
@@ -313,14 +318,19 @@ inline script directly after `#proof` rewrites every `[data-money-usd]` element 
 matching `data-money-{usd,zar}` value. Both are inline and synchronous on purpose: the hero
 figure is LCP text and must never be seen changing, and it must still swap if the module
 bundle fails. Rules:
-- **HTML ships USD.** It is what crawlers, no-JS visitors and the primary (US) market get.
-  ZAR is the override, never the default.
-- `$7 million` ≡ `R114 million` — one claim, two currencies, no live FX. Update both
-  together or the site contradicts itself.
+- **HTML ships ZAR.** South Africa is the primary market, so the ZA figures are written
+  into the markup and are what crawlers and no-JS visitors get. USD is the override: the
+  post-`#proof` script only rewrites for visitors resolved OUTSIDE South Africa.
+  (This reverses the original USD-default rule; the head comment in index.html is
+  authoritative and matches the code.)
+- `$13 million` ≡ `R220 million` — one claim, two currencies, no live FX. Update both
+  together or the site contradicts itself. Pairing set 2026-09-22 at R16.25/USD
+  (open.er-api.com); re-derive the USD figure if the ZAR claim changes again.
 - On `.stat-value` the swap also rewrites `data-count`/`-prefix`/`-suffix` so the count-up
   (§6) animates the region's own figure. Prices (`$140`) stay USD everywhere — they are a
   real price, not a converted claim.
-- Meta/OG/JSON-LD carry the USD figure only: one canonical value per page.
+- Meta/OG/JSON-LD carry the ZAR figure only: one canonical value per page, and it cannot
+  be region-swapped because those are static head tags.
 
 main.js: dynamic-import scene + scroll AFTER first paint
 (`requestIdleCallback` fallback setTimeout 1); all-or-nothing gate → on any failure or
@@ -553,7 +563,7 @@ and the prose variant inverts that.
 Short declarative sentences. Concrete over clever. Second person. Sentence case headings.
 No hype words (revolutionary, unleash, supercharge, next-level, elevate, seamless).
 No em-dashes or en-dashes anywhere, hyphens only. Climb/peak metaphor max ~1 use per
-section. Numbers stay real: 4.9/5, 70+, $7M+ (R114M+ for ZA, see §7), 2-3 weeks,
+section. Numbers stay real: 4.9/5, 70+, $13M+ (R220M+ for ZA, see §7), 2-3 weeks,
 $140 packages, all from research.
 Trust chorus (reuse verbatim): "No upfront payments. If you are not happy, you do not pay."
 and "We reply within one business day."
