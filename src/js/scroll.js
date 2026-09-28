@@ -80,6 +80,9 @@ export function initScrollChoreography(scene) {
   const stations = services
     ? Array.prototype.slice.call(services.querySelectorAll('.station'))
     : [];
+  /* The station content reveals, kept so a late start can finish the ones
+     the visitor is already past (see the refresh at the end). */
+  const reveals = [];
   const heroInner = document.querySelector('.hero-inner');
   /* Park against the 620px copy block, not the 1200px container: the
      container leaves no free strip at normal desktop widths. */
@@ -441,7 +444,7 @@ export function initScrollChoreography(scene) {
               child !== ghost && !child.classList.contains('ghost-num')
           );
         if (revealChildren.length) {
-          gsap.from(revealChildren, {
+          reveals.push(gsap.from(revealChildren, {
             y: 32,
             opacity: 0,
             duration: 0.6,
@@ -452,7 +455,7 @@ export function initScrollChoreography(scene) {
               start: 'top 65%',
               toggleActions: 'play none none reverse'
             }
-          });
+          }));
         }
       }
     });
@@ -908,6 +911,15 @@ export function initScrollChoreography(scene) {
       job.raf = window.requestAnimationFrame(frame);
     }
 
+    /* Already on screen when the choreography starts (a tall window at the
+       hero, or a boot that landed mid-page): the visitor has been reading
+       the final figures, so leave them there rather than reset to zero. */
+    const viewH = window.innerHeight || 0;
+    jobs.forEach((job) => {
+      const r = job.el.getBoundingClientRect();
+      if (r.bottom > 0 && r.top < viewH) finish(job);
+    });
+
     let observer = null;
     if ('IntersectionObserver' in window && !reduced) {
       observer = new window.IntersectionObserver(
@@ -924,7 +936,9 @@ export function initScrollChoreography(scene) {
         },
         { threshold: 0.4 }
       );
-      jobs.forEach((job) => observer.observe(job.el));
+      jobs.forEach((job) => {
+        if (!job.done) observer.observe(job.el);
+      });
     } else {
       jobs.forEach(finish);
     }
@@ -940,6 +954,16 @@ export function initScrollChoreography(scene) {
 
   /* Settle every start/end/pin measurement now that all triggers exist. */
   ScrollTrigger.refresh();
+
+  /* The boot waits for the visitor's first interaction, so on a phone it
+     can land mid-page, after a fling. Anything already past its reveal
+     point has been on screen, readable, the whole time: finish it rather
+     than blank it and fade it back in. Scrolling back above it still
+     reverses it, as before. */
+  reveals.forEach((tween) => {
+    const st = tween.scrollTrigger;
+    if (st && st.scroll() >= st.start) tween.progress(1);
+  });
 
   /* ==================================================================
    * Cleanup: kills every trigger and tween created above, reverts the

@@ -1943,14 +1943,17 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
 .faq-list summary::-webkit-details-marker { display: none; }
 .faq-list summary::after {
   content: "+";
+  content: "+" / ""; /* decorative: the open state is announced natively */
   flex-shrink: 0;
   font-size: 1.4rem;
   font-weight: 500;
   line-height: 1;
   color: var(--accent);
-  transition: transform 200ms ease;
 }
-.faq-list details[open] summary::after { transform: rotate(45deg); }
+/* The answers ship open (they are page content, and closed <details> text
+   is invisible to crawlers that count words), so the open state reads as
+   "collapse": a minus, where a closed one keeps its "+". */
+.faq-list details[open] summary::after { content: "\2212"; content: "\2212" / ""; }
 .faq-list summary:hover { color: var(--accent); }
 
 .faq-list details p {
@@ -1959,6 +1962,11 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
   color: var(--text-2);
   max-width: none;
 }
+
+/* E-mail links carry no address in the markup, so scrapers reading the
+   source find nothing to harvest. The "@" is drawn here; email.js swaps in
+   a real text "@" and the mailto: href on the first pointer, touch or focus. */
+.mail-at::before { content: "@"; }
 
 /* ==========================================================================
    Footer — giant outlined marquee + compact link block
@@ -3100,6 +3108,21 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
 .orbit-3 .orbit-item { --r: 325px; }
 .orbit-4 .orbit-item { --r: 399px; }
 
+/* Each slot's angle on its ring (--a) and halo colour (--glow, which
+   inherits down to .orbit-face where the box-shadow reads it). These were
+   inline style attributes in index.html; keeping them here leaves the markup
+   free of style="". One line per slot, in markup order, so a face moved to
+   another position in its ring picks up that position's angle and glow. */
+.orbit-4 > .orbit-item:nth-child(1) { --a: 30deg;  --glow: rgba(217, 199, 160, 0.55); } /* David */
+.orbit-4 > .orbit-item:nth-child(2) { --a: 95deg;  --glow: rgba(217, 164, 65, 0.5); }   /* Water Automation */
+.orbit-4 > .orbit-item:nth-child(3) { --a: 220deg; --glow: rgba(196, 160, 110, 0.55); } /* Bradley */
+.orbit-4 > .orbit-item:nth-child(4) { --a: 320deg; --glow: rgba(217, 199, 160, 0.45); } /* Tiny Homes SA */
+.orbit-3 > .orbit-item:nth-child(1) { --a: 130deg; --glow: rgba(217, 164, 65, 0.45); }  /* Position Xero */
+.orbit-2 > .orbit-item:nth-child(1) { --a: 60deg;  --glow: rgba(217, 164, 65, 0.55); }  /* Sarah */
+.orbit-2 > .orbit-item:nth-child(2) { --a: 180deg; --glow: rgba(217, 199, 160, 0.5); }  /* Michael */
+.orbit-2 > .orbit-item:nth-child(3) { --a: 300deg; --glow: rgba(196, 160, 110, 0.5); }  /* Cognexa */
+.orbit-1 > .orbit-item:nth-child(1) { --a: 270deg; --glow: rgba(217, 199, 160, 0.6); }  /* Greg */
+
 .orbit-face {
   display: block;
   width: 58px;
@@ -4001,3 +4024,33 @@ div.web-portrait::after {
 
   a { color: #000 !important; text-decoration: underline; }
 }
+
+/* Replacements for former inline style attributes (site-wide) */
+
+/* About page team web: each orbit slot's index, read by the .web-node
+   transform. data-i already carried the same number for the spokes. */
+.web-node[data-i="0"] { --i: 0; }
+.web-node[data-i="1"] { --i: 1; }
+.web-node[data-i="2"] { --i: 2; }
+.web-node[data-i="3"] { --i: 3; }
+.web-node[data-i="4"] { --i: 4; }
+
+/* Contact form FormSubmit honeypot. The body.page-static form input rule
+   outranks a single class and sets display:block, so this needs !important
+   to stay hidden the way the old inline style did. */
+.form-honey { display: none !important; }
+
+/* Free audit honeypot wrapper: parked off screen rather than display:none,
+   so bots still see and fill #pl-extra. */
+.form-honeypot {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Blog post comparison tables: a plain horizontal scroller. Not .table-scroll,
+   which adds its own border, margin and caption styling. */
+.table-overflow { overflow-x: auto; }

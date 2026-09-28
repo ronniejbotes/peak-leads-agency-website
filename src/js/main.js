@@ -3,23 +3,31 @@
  * Landing page entry: always-on utilities + the 3D boot gate.
  *
  * Contract (DESIGN.md section 7):
- * - Dynamic-imports scene.js + scroll.js AFTER first paint
- *   (requestIdleCallback, setTimeout 1 fallback), so hero text is LCP.
+ * - Dynamic-imports scene.js + scroll.js on the first sign of a person
+ *   (pointermove, pointerdown, touchstart, wheel, keydown or scroll), never
+ *   on a timer. At scroll 0 the WebGL layer draws nothing visible over the
+ *   daylight hero, so until then the page is the plain DOM the server sent:
+ *   hero text is LCP, and a visitor who never interacts (a lab run, a
+ *   crawler) never pays for the chunks, the shaders or the ScrollTriggers.
+ *   A load that lands on a /#hash has already scrolled, and that counts.
  * - All-or-nothing gate: prefers-reduced-motion, missing canvas, a failed
  *   import, scene.init returning false or ANY throw -> body.no-3d and no
  *   choreography. A choreography failure after the scene started also
  *   tears everything down to no-3d. The page stays fully readable.
  * - Always-on utilities run with or without 3D: nav burger, footer year,
- *   Calendly lazy-load, "Say hi" bubble gating, Facebook Pixel.
+ *   Calendly lazy-load, email links, video posters, "Say hi" bubble gating,
+ *   Facebook Pixel.
  * - #work's card cylinder is gated on prefers-reduced-motion ONLY, not on
  *   the WebGL boot: it is plain CSS 3D, so a machine that fails scene.init
- *   still gets it. Under reduced motion the scroll-snap strip stays.
+ *   still gets it. It is built when #work comes within a screen of the
+ *   viewport. Under reduced motion the scroll-snap strip stays.
  * - `js-enabled` is added by the tiny inline script in <head>, not here.
  * - No THREE and no GSAP imports in this file.
  */
 import '../styles/main.css';
-import { armPixel } from './pixel.js';
+import { armPixel, trackPixel } from './pixel.js';
 import { initNetwork } from './network.js';
+import { initMailLinks } from './email.js';
 import { initBookSection } from './book.js';
 
 const docEl = document.documentElement;
@@ -137,7 +145,7 @@ function boot3D() {
   }
   booting = true;
   Promise.all([import('./scene.js'), import('./scroll.js')])
-    .then(([sceneMod, scrollMod]) => {
+    .then(([sceneMod, scrollMod]) => whenScrollSettles(() => {
       booting = false;
       /* Preference may have flipped while the chunks loaded. */
       if (prefersReducedMotion()) {
@@ -169,57 +177,124 @@ function boot3D() {
       bindPointer();
       bindResize();
       sayHiEvaluate();
-    })
+      reaimLanding();
+    }))
     .catch(() => {
       booting = false;
       applyNo3D();
     });
 }
 
-function scheduleBoot() {
-  const idle = (cb) => {
-    if (typeof window.requestIdleCallback === 'function') {
-      window.requestIdleCallback(cb);
+/* Scroll settle. The choreography's first ScrollTrigger refresh measures by
+   jumping to the top and back, and "back" is wherever a scroll still in
+   flight had got to; the cylinder build makes #work taller underneath a
+   smooth scroll whose destination is already fixed. Run mid-scroll, either
+   one strands an in-page link short of its target, and with the boot now
+   started by the click itself that is exactly when they would run. So both
+   wait until the scroll position has held still for a few frames and, when
+   an in-page link is on its way somewhere (see landing below), until it has
+   got there. Frames rather than scroll events: a smooth scroll keeps
+   running while the main thread is busy parsing the 3D chunks, and its
+   events arrive late, so a quiet spell of events can be a lie. At the hero,
+   where most first interactions happen, that is a wait of a few frames. */
+const STILL_FRAMES = 6;
+
+function whenScrollSettles(fn) {
+  let lastY = window.scrollY;
+  let still = 0;
+  const tick = () => {
+    const y = window.scrollY;
+    const travelling = !landing.done && !!landing.target && !landing.arrived;
+    if (y === lastY && !travelling) {
+      still += 1;
     } else {
-      window.setTimeout(cb, 1);
+      still = 0;
+      lastY = y;
     }
+    if (still >= STILL_FRAMES) fn();
+    else window.requestAnimationFrame(tick);
   };
-  /* Double rAF lets the first paint land before any chunk work starts. */
-  window.requestAnimationFrame(() => {
-    window.requestAnimationFrame(() =>
-      idle(() => {
-        boot3D();
-        bootCylinder();
-      })
-    );
-  });
+  window.requestAnimationFrame(tick);
+}
+
+window.addEventListener('scroll', () => watchLanding(), { passive: true });
+
+/* The first sign of a person. Listened for in the capture phase on window,
+   so element scrolls (which do not bubble) count too and nothing further
+   down can swallow the signal. */
+const INTENT = ['pointermove', 'pointerdown', 'touchstart', 'wheel', 'keydown', 'scroll'];
+
+function scheduleBoot() {
+  /* Reduced motion has nothing to wait for: straight to the static page. */
+  if (prefersReducedMotion()) {
+    applyNo3D();
+    return;
+  }
+  const opts = { capture: true, passive: true };
+  const onIntent = () => {
+    INTENT.forEach((type) => window.removeEventListener(type, onIntent, opts));
+    warmSayHi();
+    boot3D();
+    warmCylinder();
+  };
+  INTENT.forEach((type) => window.addEventListener(type, onIntent, opts));
+
+  /* A load that lands on a /#hash, or a reload the browser scrolls back into
+     place, can scroll before this module runs, and that scroll event has
+     already gone. Starting anywhere below the top is the same signal. */
+  if (window.scrollY > 0) onIntent();
 }
 
 /* ====================================================================
  * #work card cylinder. Its own gate, its own rAF loop; see cylinder.js.
- * Loaded lazily so it never competes with the hero paint.
+ * Loaded lazily so it never competes with the hero paint, and only once
+ * #work is within a screen of the viewport: the upgrade injects the chrome,
+ * plate and edge slices into every card and starts all nine screenshots
+ * downloading as CSS backgrounds, none of which helps someone still
+ * reading the hero. workNear stays true once set, so a reduced-motion
+ * round trip rebuilds straight away rather than waiting for a scroll.
  * ================================================================== */
 let cylinderCleanup = null;
 let cylinderLoading = false;
+let workNear = false;
 
 function bootCylinder() {
-  if (cylinderCleanup || cylinderLoading || prefersReducedMotion()) return;
+  if (!workNear || cylinderCleanup || cylinderLoading || prefersReducedMotion()) return;
   if (!document.querySelector('.conveyor[data-cylinder]')) return;
   cylinderLoading = true;
   import('./cylinder.js')
     .then((mod) => {
-      cylinderLoading = false;
-      if (prefersReducedMotion()) return;
-      try {
-        cylinderCleanup = mod.initWorkCylinder();
-      } catch (err) {
-        /* Decorative: the scroll-snap strip is still underneath. */
-        cylinderCleanup = null;
-      }
+      const build = () => {
+        cylinderLoading = false;
+        if (prefersReducedMotion()) return;
+        try {
+          cylinderCleanup = mod.initWorkCylinder();
+        } catch (err) {
+          /* Decorative: the scroll-snap strip is still underneath. */
+          cylinderCleanup = null;
+        }
+        reaimLanding();
+      };
+      /* Only an in-page link on its way somewhere is worth waiting for.
+         Otherwise build now: #work is still a screen away, so nothing on
+         screen moves, where waiting for the visitor's first stop could land
+         the taller stage under their eyes. */
+      if (!landing.done && landing.target) whenScrollSettles(build);
+      else build();
     })
     .catch(() => {
       cylinderLoading = false;
     });
+}
+
+/* Fetch the module (without building anything) as soon as someone is here,
+   so the build lands the moment #work comes near rather than a round trip
+   later. The taller stage re-centres #work's heading when it replaces the
+   strip: invisible a screen ahead, a visible jump if a fast scroll or an
+   in-page link had already brought #work on screen before the build. */
+function warmCylinder() {
+  if (prefersReducedMotion() || !document.querySelector('.conveyor[data-cylinder]')) return;
+  import('./cylinder.js').catch(() => {});
 }
 
 function teardownCylinder() {
@@ -230,6 +305,31 @@ function teardownCylinder() {
     /* decorative only */
   }
   cylinderCleanup = null;
+}
+
+/* Watched under reduced motion too, so the preference can flip later. */
+function watchCylinder() {
+  const stage = document.querySelector('.conveyor[data-cylinder]');
+  if (!stage) return;
+  if (!('IntersectionObserver' in window)) {
+    workNear = true;
+    bootCylinder();
+    return;
+  }
+  const observer = new window.IntersectionObserver(
+    (entries) => {
+      for (let i = 0; i < entries.length; i++) {
+        if (entries[i].isIntersecting) {
+          observer.disconnect();
+          workNear = true;
+          bootCylinder();
+          return;
+        }
+      }
+    },
+    { rootMargin: '100% 0px' }
+  );
+  observer.observe(stage);
 }
 
 onMedia(motionQuery, () => {
@@ -245,22 +345,152 @@ onMedia(motionQuery, () => {
 /* Landing on a /#hash from another page: the browser performs its anchor
    jump before fonts, lazy images and ScrollTrigger's load refresh have
    settled the layout, so the target drifts from where the browser left us.
-   Re-aim once those have run. */
-window.addEventListener('load', () => {
-  if (!location.hash || location.hash.length < 2) return;
-  let target = null;
-  try {
-    target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
-  } catch (err) {
-    target = null;
+   Re-aim once those have run, and again after the 3D boot and the cylinder
+   build, which can now land after load. The boot is the dangerous one:
+   ScrollTrigger's refresh measures by jumping to the top and back, and
+   "back" is wherever a scroll still in flight had got to. So every re-aim
+   is instant, never smooth (a smooth one is exactly such a scroll), and
+   they stop for good the moment the visitor wheels, taps, clicks or presses
+   a key, or after ten seconds: from then on the position is theirs.
+   An in-page link clicked before the boot or the cylinder build is the same
+   case after load (hashchange), and is held the same way: if the boot's
+   refresh cut the link's smooth scroll short, or it never got going because
+   the chunks were still being parsed, the re-aim finishes the trip. Once
+   the target has been reached, scrolling well away from it also releases
+   the hold, which covers the one route none of the takeover events catch
+   (a dragged scrollbar). */
+const landing = { target: null, done: true, timer: 0, arrived: false };
+const TAKEOVER = ['wheel', 'touchstart', 'pointerdown', 'keydown'];
+const takeoverOpts = { capture: true, passive: true };
+
+function releaseLanding() {
+  landing.done = true;
+  TAKEOVER.forEach((type) => window.removeEventListener(type, releaseLanding, takeoverOpts));
+  if (landing.timer) {
+    window.clearTimeout(landing.timer);
+    landing.timer = 0;
   }
-  if (!target) return;
-  window.requestAnimationFrame(() => {
-    window.requestAnimationFrame(() => {
-      target.scrollIntoView({ block: 'start' });
-    });
+}
+
+function holdLanding(target) {
+  releaseLanding();
+  landing.target = target;
+  landing.done = false;
+  landing.arrived = false;
+  TAKEOVER.forEach((type) => window.addEventListener(type, releaseLanding, takeoverOpts));
+  landing.timer = window.setTimeout(releaseLanding, 10000);
+  /* A load that lands on a /#hash is usually already there. */
+  watchLanding();
+}
+
+function watchLanding() {
+  if (landing.done || !landing.target) return;
+  const off = Math.abs(landing.target.getBoundingClientRect().top);
+  const vh = window.innerHeight || 0;
+  if (off <= vh) landing.arrived = true;
+  else if (landing.arrived && off > vh * 1.5) releaseLanding();
+}
+
+/* Where a jump to el leaves its top: the page's scroll-padding plus the
+   element's own scroll-margin, both from the stylesheet. */
+function landingOffset(el) {
+  const style = window.getComputedStyle;
+  return (
+    (parseFloat(style(el).scrollMarginTop) || 0) +
+    (parseFloat(style(document.documentElement).scrollPaddingTop) || 0)
+  );
+}
+
+function reaimLanding() {
+  if (!landing.target || landing.done) return;
+  /* After arrival a re-aim only ever corrects drift (the cylinder's taller
+     stage, late fonts). A target far from where the jump left it means the
+     visitor has scrolled on by a route the takeover events cannot see
+     (scrolling over the Calendly iframe, find in page, a screen reader), so
+     the position is theirs. */
+  if (landing.arrived) {
+    const drift = Math.abs(landing.target.getBoundingClientRect().top - landingOffset(landing.target));
+    if (drift > (window.innerHeight || 0) * 0.25) {
+      releaseLanding();
+      return;
+    }
+  }
+  try {
+    landing.target.scrollIntoView({ block: 'start', behavior: 'instant' });
+  } catch (err) {
+    landing.target.scrollIntoView(true);
+  }
+}
+
+function hashTarget() {
+  if (!location.hash || location.hash.length < 2) return null;
+  try {
+    return document.getElementById(decodeURIComponent(location.hash.slice(1)));
+  } catch (err) {
+    return null;
+  }
+}
+
+/* The element a link points at, when the link stays on this page. */
+function inPageTarget(link) {
+  let url;
+  try {
+    url = new URL(link.href, location.href);
+  } catch (err) {
+    return null;
+  }
+  if (url.origin !== location.origin || url.pathname !== location.pathname) return null;
+  if (url.search !== location.search || !url.hash || url.hash.length < 2) return null;
+  try {
+    return document.getElementById(decodeURIComponent(url.hash.slice(1)));
+  } catch (err) {
+    return null;
+  }
+}
+
+function initLanding() {
+  /* Held on the click itself, in the capture phase, before the browser
+     starts its scroll: hashchange arrives too late when the boot's long
+     task lands between the two (tap the burger, which starts the boot,
+     then a menu link). The click's own pointerdown has already been, so it
+     cannot release the hold it sets. hashchange stays for Back and Forward
+     between fragments, and for links that change the hash without a click. */
+  document.addEventListener(
+    'click',
+    (event) => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return;
+      }
+      const t = event.target;
+      const link = t && typeof t.closest === 'function' ? t.closest('a[href]') : null;
+      if (!link || (link.target && link.target !== '_self')) return;
+      const target = inPageTarget(link);
+      if (target) holdLanding(target);
+    },
+    true
+  );
+  window.addEventListener('hashchange', () => {
+    const target = hashTarget();
+    if (target && (landing.done || landing.target !== target)) holdLanding(target);
   });
-});
+
+  /* A reload or a Back to this page: the browser is putting the visitor
+     back where they were, which is not necessarily the hash in the URL. */
+  const navEntry =
+    typeof performance.getEntriesByType === 'function'
+      ? performance.getEntriesByType('navigation')[0]
+      : null;
+  if (navEntry && (navEntry.type === 'reload' || navEntry.type === 'back_forward')) return;
+
+  const target = hashTarget();
+  if (!target) return;
+  holdLanding(target);
+  const afterLoad = () => {
+    window.requestAnimationFrame(() => window.requestAnimationFrame(reaimLanding));
+  };
+  if (document.readyState === 'complete') afterLoad();
+  else window.addEventListener('load', afterLoad, { once: true });
+}
 
 /* bfcache restore hands back a frozen WebGL context and stale trigger
    measurements; re-measuring mid-scroll is not reliable. A fresh load
@@ -365,6 +595,8 @@ function sayHiUpdate() {
   sayHi.el.hidden = !show;
   if (sayHi.video) {
     if (show) {
+      /* 144px bubble: the 2x file for any screen denser than 1x. */
+      attachPoster(sayHi.video, (window.devicePixelRatio || 1) > 1);
       sayHi.video.muted = true;
       const played = sayHi.video.play();
       if (played && typeof played.catch === 'function') {
@@ -378,6 +610,60 @@ function sayHiUpdate() {
 
 function sayHiEvaluate() {
   sayHiUpdate();
+}
+
+/* ====================================================================
+ * Video posters. data-poster (1x) and data-poster-hd (2x) sit beside the
+ * real attribute, and the right one is set only when it is worth fetching.
+ * The VSL ships a 400px poster in the markup, so there is never a black
+ * box or a stray first frame (it is preload="none") and a phone that never
+ * scrolls that far pays 9KB, not 31KB. Once the video is about a screen
+ * away the 960px file replaces it, or the 1920px one on a box wide and
+ * dense enough to show the difference. The "Say hi" bubble has none in the
+ * markup, because it is hidden until the 3D runs: its poster is fetched on
+ * the first sign of a person (warmSayHi), ahead of the bubble appearing.
+ * ================================================================== */
+function attachPoster(video, hd) {
+  if (!video) return;
+  const src =
+    (hd && video.getAttribute('data-poster-hd')) || video.getAttribute('data-poster');
+  if (src && video.getAttribute('poster') !== src) video.setAttribute('poster', src);
+}
+
+/* Only where the bubble can ever show: a precise pointer on a wide screen. */
+function warmSayHi() {
+  if (!sayHi.video) return;
+  if (!(mqPointerFine && mqPointerFine.matches) || !(mqWide && mqWide.matches)) return;
+  attachPoster(sayHi.video, (window.devicePixelRatio || 1) > 1);
+}
+
+function initVslPoster() {
+  const video = document.querySelector('#vsl video[data-poster-hd]');
+  if (!video) return;
+  /* The 960px file is enough unless the box, in device pixels, is wider
+     than that. A phone never needs the HD one: at its width the difference
+     cannot be seen. Measured at attach time. */
+  const attach = () => {
+    const width = video.clientWidth || video.getBoundingClientRect().width;
+    attachPoster(video, width > 480 && width * (window.devicePixelRatio || 1) > 960);
+  };
+  if (!('IntersectionObserver' in window)) {
+    attach();
+    return;
+  }
+  const observer = new window.IntersectionObserver(
+    (entries) => {
+      for (let i = 0; i < entries.length; i++) {
+        if (entries[i].isIntersecting) {
+          observer.disconnect();
+          attach();
+          return;
+        }
+      }
+    },
+    { rootMargin: '100% 0px' }
+  );
+  observer.observe(video);
 }
 
 function initSayHi() {
@@ -520,14 +806,18 @@ function init() {
   initNav();
   initNavTheme();
   initYear();
-  initBookSection();
+  initBookSection({ onBooked: () => trackPixel('trackCustom', 'CallScheduled') });
+  initMailLinks();
   initSayHi();
+  initVslPoster();
   initEgg();
   /* Always-on: the typewriter is plain DOM work, so it runs whether or not
      the WebGL gate below opens. */
   initNetwork();
   armPixel();
+  initLanding();
   scheduleBoot();
+  watchCylinder();
 }
 
 if (document.readyState === 'loading') {

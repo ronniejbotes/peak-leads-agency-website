@@ -165,8 +165,11 @@ from-states. Eyebrow budget: max 3 on the whole page.
    width and all four numerals stay the same size.
 4. **`#vsl`** - H2 "Watch how we'd approach your business." Video 16:9 max-w 960px:
    `/assets/videos/vsl-2.mp4` (1920x1080 H.264, 1:59, faststart), poster
-   `/assets/images/vsl-2-poster.jpg`, captions `/assets/videos/vsl-2.vtt`,
-   preload=metadata, controls. Accent 1.5px animated rim (conic gradient, chalk). One line
+   `/assets/images/vsl-2-poster-400.webp` in the markup, replaced by main.js with
+   `-960.webp` (`data-poster`) once the video is about a screen away, or `-1920.webp`
+   (`data-poster-hd`) on a box wider than 480px and 960 device pixels, captions
+   `/assets/videos/vsl-2.vtt`,
+   preload=none (the poster covers the box; nothing of the video loads until play), controls. Accent 1.5px animated rim (conic gradient, chalk). One line
    under: "Bradley on why one size never fits all, and how we work out what your business
    needs. Two minutes." A `VideoObject` node in the homepage `@graph` mirrors the duration,
    poster and contentUrl, so update it whenever the video is replaced. Asset filenames are
@@ -200,10 +203,11 @@ from-states. Eyebrow budget: max 3 on the whole page.
    parallax tilts the front card; hovering stalls the drift so the cards stay clickable.
    Progressive enhancement over the scroll-snap strip, which stays as-is under
    prefers-reduced-motion and with JS off (`tabindex=0 role=region aria-label`); gated on
-   reduced motion ONLY, not on the WebGL boot. Each `<figure>` is rebuilt in place -
-   the `<a>` becomes the front face, the `<figcaption>` the back face (blurred reuse of
-   the same screenshot), with extruded edge slices between them. Nodes are moved, never
-   cloned, so the accessible copy stays single-sourced.
+   reduced motion ONLY, not on the WebGL boot, and built as soon as #work comes within a
+   screen of the viewport (IntersectionObserver, `rootMargin: 100% 0px`). Each `<figure>`
+   is rebuilt in place - the `<a>` becomes the front face, the `<figcaption>` the back
+   face (blurred reuse of the same screenshot), with extruded edge slices between them.
+   Nodes are moved, never cloned, so the accessible copy stays single-sourced.
    9 cards 16:9 with real screenshots — note the file numbering is NOT display order:
    Cognexa (cognexa.co.za, `work-6.webp`) · Water Automation (waterautomation.com,
    `work-3.webp`) · The Leak Geeks (theleakgeeks.com, `work-4.webp`) · GreaterGood
@@ -229,10 +233,13 @@ from-states. Eyebrow budget: max 3 on the whole page.
    direct, no pitch deck." Calendly inline embed div
    `data-url="https://calendly.com/bradley-hart/30min?hide_gdpr_banner=1"` lazy-loaded via
    IntersectionObserver (script + CSS injected on approach). No-JS/blocked fallback link:
-   "Book directly on Calendly" + `mailto:bradley@peakleads.agency`.
-10. **`#faq`** - H2 "Questions, answered." 6 native `<details>` glass accordions (content
-    mirrored in FAQPage JSON-LD): Are the leads exclusive? / What does it cost? (packages
-    from $140, sites scoped on the call) / How fast is the website live? (2 to 3 weeks) /
+   "Book directly on Calendly" + the email link (`a[data-mail]`, see §9b).
+10. **`#faq`** - H2 "Questions, answered." 11 native `<details>` glass accordions, all
+    carrying `open` so the answers are visible text at load (an open answer shows a minus,
+    a closed one a plus). The first six are mirrored in FAQPage JSON-LD; the five added on
+    28 Sep 2026 (leads verified, site ownership, ranking, SEO timing, AI answers) are not,
+    because the SEO programme is removing that block (T-20): Are the leads exclusive? / What does it cost? (managed
+    lead generation from R19,950 per month, other work scoped on the call) / How fast is the website live? (2 to 3 weeks) /
     Do I pay upfront? ("No upfront payments. If you are not happy, you do not pay.") /
     Which trades do you work with? / What happens on the call?
 11. **`footer.site-footer`** - giant outlined "PEAKLEADS" marquee (text-stroke
@@ -242,7 +249,11 @@ from-states. Eyebrow budget: max 3 on the whole page.
     links (nav + Free audit + Blog + Instagram @bradley_mj_kid, LinkedIn), © 2026 Peak Leads.
 12. **Floating "Say hi" bubble** - fixed bottom-right circular video `/assets/videos/bradley.mp4`
     (muted loop, 144px, border 3px bone), links to `#book`, hides while #book visible,
-    `aria-hidden` decorative label. Gated to js-enabled + pointer-fine; never on /free-audit/.
+    `aria-hidden` decorative label. Gated to js-enabled + pointer-fine + the 3D scene
+    running, so it appears after the first interaction; never on /free-audit/. Ships
+    `hidden` so it cannot paint before main.js decides. Poster `bradley-144.webp`
+    (`-288.webp` above 1x) is set on the first interaction, ahead of the bubble showing,
+    and only where it can show (fine pointer, 900px and up).
 
 Layout families used: split hero / stat strip / centered video / sticky stations / 3D card
 cylinder / asymmetric quote grid / numbered rows / embed / accordions. ≥4 distinct ✓.
@@ -332,13 +343,29 @@ bundle fails. Rules:
 - Meta/OG/JSON-LD carry the ZAR figure only: one canonical value per page, and it cannot
   be region-swapped because those are static head tags.
 
-main.js: dynamic-import scene + scroll AFTER first paint
-(`requestIdleCallback` fallback setTimeout 1); all-or-nothing gate → on any failure or
-`prefers-reduced-motion`: `body.no-3d` (canvas hidden, static warm radial-gradient backdrop,
-everything readable). Also: nav burger, footer year, Calendly lazy-load, "Say hi" bubble,
-Facebook Pixel `1586557796001231` (init + PageView; `CallScheduled` custom event when
-Calendly `calendly.event_scheduled` postMessage fires; `Lead` on funnel submit). Pixel
-loads deferred (after load + 1.5s or first interaction).
+main.js: dynamic-import scene + scroll on the first sign of a person (pointermove,
+pointerdown, touchstart, wheel, keydown or scroll; a load already scrolled by a /#hash
+counts), never on a timer. The scene's init and the choreography's first refresh wait
+until the scroll position has held still for six frames and, when an in-page link is on
+its way somewhere, until it has arrived: run mid-scroll, the refresh cuts short the smooth
+scroll that link (the first click, often) started. The link is held from its click
+(capture phase), not from hashchange, which can arrive after the boot; the #work cylinder
+build waits the same way only while such a link is travelling. A late boot finishes any
+station reveal and #proof figure the visitor is already past or reading, rather than
+blanking it and replaying it. A reload or Back is left where the browser restores it. Before that the page is the static DOM as served, which at
+scroll 0 looks the same because the canvas draws nothing over the hero. All-or-nothing
+gate → on any failure or `prefers-reduced-motion`: `body.no-3d` (canvas hidden, static
+warm radial-gradient backdrop, everything readable). Also: nav burger, footer year,
+Calendly lazy-load, email links, video posters, "Say hi" bubble, Facebook Pixel
+`1586557796001231` (autoConfig off, so no automatic events; init + PageView;
+`CallScheduled` custom event when Calendly
+`calendly.event_scheduled` postMessage fires; `Lead` on funnel submit). Pixel loads on
+the first interaction only (pointerdown, pointermove, touchstart, wheel or keydown; no
+timer, and not a bare scroll event, which an anchor jump or a restored scroll position
+fires with nobody there), or right before a conversion if it has not loaded yet: home and
+the free audit pass book.js an `onBooked` that loads it for `CallScheduled`, because a
+booking can be made with nothing but taps inside Calendly's iframe. A visitor who never
+interacts and never books sends no PageView.
 
 Easter egg: typing `spiderman` on the landing page dynamic-imports `src/js/arcade.js`
 (a 2D pixel web-swinging mini-game; see section 7b). The keystroke buffer ignores
@@ -489,7 +516,7 @@ placed as the last child of `<main>`, after the article and before the footer.
   <h2 id="book-heading">PAGE-SPECIFIC QUESTION</h2>
   <p class="book-sub">Thirty minutes with Bradley. PAGE-SPECIFIC PROMISE.</p>
   <div class="calendly-inline-widget" data-url="https://calendly.com/bradley-hart/30min?hide_gdpr_banner=1"></div>
-  <p class="book-alt">Prefer to skip the widget? <a href="https://calendly.com/bradley-hart/30min" rel="noopener">Book directly on Calendly</a> or email <a href="mailto:bradley@peakleads.agency">bradley@peakleads.agency</a>.</p>
+  <p class="book-alt">Prefer to skip the widget? <a href="https://calendly.com/bradley-hart/30min" rel="noopener">Book directly on Calendly</a> or email <a href="/contact/" data-mail="bradley">bradley<span class="mail-at"></span>peakleads.agency</a>.</p>
 </section>
 ```
 
@@ -505,14 +532,23 @@ another page unchanged, the copy is wrong.
 
 - Lazy-loads Calendly's widget.js when `#book` is within 800px of the viewport, and
   immediately on any click of a link to `#book`, so the embed is building during the scroll.
-- Stamps the booking URL with this page's context, so the Calendly event says where the
-  booking came from: `utm_campaign` = the page slug (`blog-how-much-do-roofing-leads-cost`),
-  `utm_term` = the page title, `utm_content` = `book-embed` or `text-link`.
+- Stamps the booking URL with this page's context at the last moment (the embed's
+  `data-url` just before widget.js is appended, a text link the first time a pointer,
+  finger, keyboard focus or click reaches it; nothing changes at load), so the Calendly
+  event says where the booking came from: `utm_campaign` = the page slug
+  (`blog-how-much-do-roofing-leads-cost`), `utm_term` = the page title, `utm_content` =
+  `book-embed` or `text-link`.
 - Passes inbound campaign params straight through. A visitor who lands on a Google Ad
   keeps `utm_source=google&utm_medium=cpc&utm_campaign=...` all the way into the booking;
   page context only fills the keys the ad did not set. Params hand-written into the
   markup beat both.
 - Fires the `CallScheduled` Pixel event when Calendly reports a booking.
+
+The email link in the block never carries a literal address in the HTML. CSS paints the
+`@` (`.mail-at::before`), so it reads and is announced as the full address, and
+`src/js/email.js` (called by every entry) points the href at the mailto and swaps in a
+real `@` the first time a pointer, finger, keyboard focus, click or copy reaches it.
+With JS off it links to /contact/. Use the same markup anywhere the address appears.
 
 So a new page or blog post needs **no JS change** — paste the block, write two lines of
 copy, done. In-page CTAs that used to link out to calendly.com now link to `#book`
@@ -541,14 +577,15 @@ instead, keeping the visitor on the page and warming the embed on click.
   `hasOfferCatalog` of the 4 Services whose `@id`s point at `/services/#{web-design,seo,
   ads,leads}` + WebSite + WebPage. NO postal address and NO aggregateRating (self-serving
   review markup; the 4.9/5 stays plain on-page text). FAQPage separate block mirroring
-  #faq exactly.
+  the first six #faq questions (see #faq in §4).
 - H1s keyword-aware via section H2s (home H1 stays brand voice; H2s lead with the exact
   service keyword: "Web development that wins...", "SEO that climbs...", "Paid ads that
   buy...", "Lead generation that stays exclusive...").
-- `<link rel="preconnect">` to assets.calendly.com on the landing page (the embed is the
-  only third-party request).
+- `<link rel="dns-prefetch">` to assets.calendly.com on the landing page. Not a
+  preconnect: the embed only loads near #book, so a preconnect at load goes unused and
+  PageSpeed flags it.
 - Images: width/height attrs, lazy below fold, descriptive alt with trade keywords.
-- Three/GSAP dynamically imported after first paint → hero text is LCP, not canvas.
+- Three/GSAP dynamically imported on the first interaction → hero text is LCP, not canvas.
 
 ## 10b. Comparison tables
 

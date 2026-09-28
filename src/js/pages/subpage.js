@@ -1,9 +1,11 @@
 /*
  * Peak Leads - src/js/pages/subpage.js
- * Static-page entry (about, services, contact, blog, posts, 404).
- * Styles + nav burger + footer year only. No Three.js, no GSAP.
+ * Static-page entry (about, services, contact, blog, posts, 404; pricing.js
+ * imports it too). Styles + nav burger + footer year + the book-a-call band
+ * + email links. No Three.js, no GSAP.
  */
 import '../../styles/main.css';
+import { initMailLinks } from '../email.js';
 import { initBookSection } from '../book.js';
 
 /* Nav burger (<900px dropdown). State lives on aria-expanded plus a
@@ -72,6 +74,7 @@ function init() {
   initNav();
   initYear();
   initBookSection();
+  initMailLinks();
 }
 
 if (document.readyState === 'loading') {

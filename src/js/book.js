@@ -2,19 +2,22 @@
  * Peak Leads - src/js/book.js
  * The closing "book a call" band, shared by every page.
  *
- * Two jobs, deliberately split so the two pages that already own their own
- * lazy-load (home, pricing) can take the first without the second:
+ * Two jobs, and neither touches the page until it has to, so the page a
+ * crawler renders matches the page the server sent:
  *
- *   decorateBookingLinks()  Stamps page context onto every Calendly URL on
- *                           the page - the embed's data-url and any plain
- *                           link to calendly.com. Must run BEFORE Calendly's
- *                           widget.js is injected, because widget.js reads
- *                           data-url once and never looks again.
- *   initBookSection()       Lazy-loads the widget when #book comes near the
- *                           viewport, and reports the booking to the Pixel.
+ *   Decoration        Stamps page context onto every Calendly URL. The
+ *                      embed's data-url is stamped inside injectCalendly(),
+ *                      just before widget.js is appended, because widget.js
+ *                      reads data-url once and never looks again. A plain link
+ *                      to calendly.com is stamped the first time a pointer,
+ *                      finger, keyboard focus or click reaches it, so the href
+ *                      is right before any click, middle-click or "copy link".
+ *   initBookSection() Arms that link stamping on every page, lazy-loads the
+ *                      widget when #book comes near the viewport, and reports
+ *                      the booking to the Pixel.
  *
  * Adding the band to a new page needs no JS change: drop the markup in
- * (see DESIGN.md > Book-a-call band) and the page entry already calls both.
+ * (see DESIGN.md > Book-a-call band) and the page entry already calls it.
  */
 
 const CALENDLY_HOST = 'calendly.com';
@@ -114,21 +117,58 @@ function decorate(rawUrl, placement, inbound) {
   return url.toString();
 }
 
-export function decorateBookingLinks() {
-  if (typeof window.URL !== 'function' || typeof window.URLSearchParams !== 'function') return;
-  const inbound = inboundParams();
+function canDecorate() {
+  return typeof window.URL === 'function' && typeof window.URLSearchParams === 'function';
+}
 
+/* Every embed on the page. Called by injectCalendly() only. */
+function decorateEmbeds() {
+  if (!canDecorate()) return;
+  const inbound = inboundParams();
   const embeds = document.querySelectorAll('.calendly-inline-widget[data-url]');
   for (let i = 0; i < embeds.length; i++) {
     const raw = embeds[i].getAttribute('data-url');
     if (raw) embeds[i].setAttribute('data-url', decorate(raw, 'book-embed', inbound));
   }
+}
 
-  const links = document.querySelectorAll('a[href*="' + CALENDLY_HOST + '"]');
-  for (let i = 0; i < links.length; i++) {
-    const raw = links[i].getAttribute('href');
-    if (raw) links[i].setAttribute('href', decorate(raw, 'text-link', inbound));
+/* One text link, once. decorate() never overwrites a key that is already
+   there, so a second pass would change nothing anyway; the set just saves
+   re-parsing the URL on every pointerover. */
+const stamped = typeof window.WeakSet === 'function' ? new window.WeakSet() : null;
+
+function decorateLink(link) {
+  if (stamped) {
+    if (stamped.has(link)) return;
+    stamped.add(link);
   }
+  if (!canDecorate()) return;
+  const raw = link.getAttribute('href');
+  if (raw) link.setAttribute('href', decorate(raw, 'text-link', inboundParams()));
+}
+
+function onLinkReach(event) {
+  const target = event.target;
+  const link =
+    target && typeof target.closest === 'function'
+      ? target.closest('a[href*="' + CALENDLY_HOST + '"]')
+      : null;
+  if (link) decorateLink(link);
+}
+
+/* Delegated on document, so it covers links anywhere on the page, present
+   or added later. Capture, so nothing further down can stop it. click is
+   the backstop for a screen reader in browse mode, which can click a link
+   without focusing it first. */
+let linksArmed = false;
+
+function armLinkDecoration() {
+  if (linksArmed) return;
+  linksArmed = true;
+  const opts = { capture: true, passive: true };
+  ['pointerover', 'pointerdown', 'touchstart', 'focusin', 'click'].forEach((type) =>
+    document.addEventListener(type, onLinkReach, opts)
+  );
 }
 
 /* ====================================================================
@@ -140,6 +180,8 @@ let injected = false;
 export function injectCalendly() {
   if (injected) return;
   injected = true;
+  /* widget.js reads data-url once, when it initialises: stamp it first. */
+  decorateEmbeds();
   const link = document.createElement('link');
   link.rel = 'stylesheet';
   link.href = WIDGET_CSS;
@@ -150,8 +192,15 @@ export function injectCalendly() {
   document.head.appendChild(script);
 }
 
-export function initBookSection() {
-  decorateBookingLinks();
+/* onBooked: what a booked call reports. Home and the free audit pass one
+   that loads the Pixel if it has not started yet (a visitor can book with
+   nothing but taps inside Calendly's iframe, which the page never hears);
+   every other page keeps the old rule and reports only to a Pixel that is
+   already running, which on those pages is never. */
+export function initBookSection(options) {
+  const onBooked = options && typeof options.onBooked === 'function' ? options.onBooked : null;
+  /* Every page, embed or not: its text links still need stamping. */
+  armLinkDecoration();
 
   const book = document.getElementById('book');
   if (!book || !document.querySelector('.calendly-inline-widget')) return;
@@ -160,8 +209,17 @@ export function initBookSection() {
      iframe when an event is scheduled. */
   window.addEventListener('message', (event) => {
     if (!event || !event.data || event.data.event !== 'calendly.event_scheduled') return;
-    if (typeof event.origin === 'string' && event.origin.indexOf(CALENDLY_HOST) === -1) return;
-    if (typeof window.fbq === 'function') window.fbq('trackCustom', 'CallScheduled');
+    /* The real host, not a substring: onBooked can load the Pixel and log
+       a conversion, so calendly.com.example.test must not pass. */
+    let host = '';
+    try {
+      host = new URL(event.origin).hostname;
+    } catch (err) {
+      return;
+    }
+    if (host !== CALENDLY_HOST && !host.endsWith('.' + CALENDLY_HOST)) return;
+    if (onBooked) onBooked();
+    else if (typeof window.fbq === 'function') window.fbq('trackCustom', 'CallScheduled');
   });
 
   /* Any in-page jump to #book means the visitor is on their way: start

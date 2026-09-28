@@ -8,6 +8,7 @@
  */
 import '../styles/main.css';
 import { armPixel, trackPixel } from './pixel.js';
+import { initMailLinks } from './email.js';
 import { initBookSection } from './book.js';
 
 /* ==================================================================== *
@@ -668,7 +669,8 @@ function init() {
     }
   }
 
-  initBookSection();
+  initBookSection({ onBooked: () => trackPixel('trackCustom', 'CallScheduled') });
+  initMailLinks();
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) stopLoop();

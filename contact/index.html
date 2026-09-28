@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>document.documentElement.classList.add('js-enabled')</script>
     <title>Contact Peak Leads | Book a Call</title>
-    <meta name="description" content="Email bradley@peakleads.agency, book a 30 minute call on Calendly or send a quick message. We reply within one business day. No lock-in contracts, no pressure." />
+    <meta name="description" content="Email Bradley directly, book a 30 minute call on Calendly or send a quick message. We reply within one business day. No lock-in contracts, no pressure." />
     <link rel="canonical" href="https://peakleads.agency/contact/" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="theme-color" content="#111725" />
@@ -16,14 +16,14 @@
     <meta property="og:site_name" content="Peak Leads" />
     <meta property="og:locale" content="en_ZA" />
     <meta property="og:title" content="Contact Peak Leads | Book a Call" />
-    <meta property="og:description" content="Email bradley@peakleads.agency, book a 30 minute call on Calendly or send a quick message. We reply within one business day. No lock-in contracts, no pressure." />
+    <meta property="og:description" content="Email Bradley directly, book a 30 minute call on Calendly or send a quick message. We reply within one business day. No lock-in contracts, no pressure." />
     <meta property="og:url" content="https://peakleads.agency/contact/" />
     <meta property="og:image" content="https://peakleads.agency/assets/images/og-image.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Contact Peak Leads | Book a Call" />
-    <meta name="twitter:description" content="Email bradley@peakleads.agency, book a 30 minute call on Calendly or send a quick message. We reply within one business day. No lock-in contracts, no pressure." />
+    <meta name="twitter:description" content="Email Bradley directly, book a 30 minute call on Calendly or send a quick message. We reply within one business day. No lock-in contracts, no pressure." />
     <meta name="twitter:image" content="https://peakleads.agency/assets/images/og-image.jpg" />
     <script type="application/ld+json">
     {
@@ -42,7 +42,13 @@
           "@id": "https://peakleads.agency/contact/#webpage",
           "url": "https://peakleads.agency/contact/",
           "name": "Contact Peak Leads",
-          "description": "Email Peak Leads, book a 30 minute call on Calendly or send a message through the contact form."
+          "description": "Email Peak Leads, book a 30 minute call on Calendly or send a message through the contact form.",
+          "mainEntity": {
+            "@type": "ContactPoint",
+            "contactType": "customer service",
+            "email": "bradley\u0040peakleads.agency",
+            "url": "https://peakleads.agency/contact/"
+          }
         }
       ]
     }
@@ -55,7 +61,7 @@
     <header class="site-nav theme-day">
       <div class="nav-inner">
         <a class="nav-brand" href="/">
-          <img src="/assets/logos/peak-leads-mark.svg" alt="" width="40" height="40" decoding="async" />
+          <img src="/assets/logos/peak-leads-mark.svg" alt="Peak Leads logo" width="40" height="40" decoding="async" />
           <span>PeakLeads</span>
         </a>
         <button class="nav-burger" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Menu">
@@ -86,7 +92,7 @@
 
         <h2>Reach Bradley directly.</h2>
         <ul>
-          <li><strong>Email:</strong> <a href="mailto:bradley@peakleads.agency">bradley@peakleads.agency</a></li>
+          <li><strong>Email:</strong> <a href="/contact/" data-mail="bradley">bradley<span class="mail-at"></span>peakleads.agency</a></li>
           <li><strong>Book a call:</strong> <a href="#book">30 minutes on Calendly</a>. Free, direct, no pitch deck.</li>
           <li><strong>Instagram:</strong> <a href="https://www.instagram.com/bradley_mj_kid/" target="_blank" rel="noopener">@bradley_mj_kid</a></li>
           <li><strong>LinkedIn:</strong> <a href="https://za.linkedin.com/in/bradley-hartmann-372785336" target="_blank" rel="noopener">Bradley Hartmann</a></li>
@@ -97,7 +103,7 @@
         <form action="https://formsubmit.co/bradley@peakleads.agency" method="POST">
           <input type="hidden" name="_subject" value="New website contact" />
           <input type="hidden" name="_next" value="https://peakleads.agency/contact/?sent=1" />
-          <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <input type="text" name="_honey" class="form-honey" tabindex="-1" autocomplete="off" aria-hidden="true" />
           <p>
             <label for="contact-name">Name <span aria-hidden="true">*</span></label>
             <input id="contact-name" name="name" type="text" autocomplete="name" required minlength="2" />
@@ -127,7 +133,7 @@
         <h2 id="book-heading">Rather talk than type?</h2>
         <p class="book-sub">Thirty minutes with Bradley. Free, direct, no pitch deck.</p>
         <div class="calendly-inline-widget" data-url="https://calendly.com/bradley-hart/30min?hide_gdpr_banner=1"></div>
-        <p class="book-alt">Prefer to skip the widget? <a href="https://calendly.com/bradley-hart/30min" rel="noopener">Book directly on Calendly</a> or email <a href="mailto:bradley@peakleads.agency">bradley@peakleads.agency</a>.</p>
+        <p class="book-alt">Prefer to skip the widget? <a href="https://calendly.com/bradley-hart/30min" rel="noopener">Book directly on Calendly</a> or email <a href="/contact/" data-mail="bradley">bradley<span class="mail-at"></span>peakleads.agency</a>.</p>
       </section>
 
     </main>
@@ -137,7 +143,7 @@
         <div class="footer-about">
           <p class="footer-brand">PeakLeads</p>
           <p class="footer-tagline">Websites, SEO and exclusive leads for home service businesses.</p>
-          <p class="footer-contact"><a href="mailto:bradley@peakleads.agency">bradley@peakleads.agency</a></p>
+          <p class="footer-contact"><a href="/contact/" data-mail="bradley">bradley<span class="mail-at"></span>peakleads.agency</a></p>
         </div>
         <nav class="footer-nav" aria-label="Footer">
           <a href="/">Home</a>
