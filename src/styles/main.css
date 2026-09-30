@@ -4096,6 +4096,21 @@ div.web-portrait::after {
   margin: 0 auto;
 }
 
+/* Every <p> in the hero, not just .ty-lede. The base sheet caps p at 62ch, and
+   without an auto inline margin that box sits flush left while text-align
+   centres the text inside it - so the eyebrow and the caption read as
+   off-centre. Same fix as "#vsl p". */
+.ty-hero > p { margin-inline: auto; }
+
+/* The base h2 clamps to 3.25rem, which is LARGER than this page's h1 at 3rem,
+   so above about 960px the section headings outgrew the one they sit under.
+   .post caps its h2 the same way for the same reason. */
+.ty-next h2,
+.ty-faq h2,
+.ty-while h2 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
 /* --------------------------------------------------------------------------
    Video boxes
    -------------------------------------------------------------------------- */
@@ -4176,12 +4191,29 @@ div.web-portrait::after {
   cursor: pointer;
   box-shadow: var(--glow-accent);
   animation: ty-unmute-pulse 2.4s ease-in-out infinite;
+  /* Absolutely positioned with only `left`, so the shrink-to-fit width is
+     measured against half the box and "Tap for sound" wrapped to two lines at
+     every phone width. */
+  white-space: nowrap;
 }
 
+/* Lift and glow, never a new background - the same rule .btn-primary states.
+   This used to swap in #7DB1FF, which is the night palette's accent lift; on
+   this page --day is 1, so --accent-ink is white and white on #7DB1FF measures
+   2.19:1. Keeping the token pair holds it at 8.9:1 in both themes. The lift has
+   to carry the centring translate with it. */
 .ty-unmute:hover,
 .ty-unmute:focus-visible {
-  background: #7DB1FF;
+  background: var(--accent);
+  color: var(--accent-ink);
+  transform: translate(-50%, calc(-50% - 1px));
+  box-shadow: var(--glow-accent);
   animation: none;
+}
+
+.ty-unmute:active {
+  transform: translate(-50%, -50%);
+  box-shadow: none;
 }
 
 .ty-unmute svg { flex: none; }
@@ -4268,7 +4300,12 @@ div.web-portrait::after {
 
 .ty-q-more {
   margin-top: 14px;
-  color: var(--text-3);
+  /* --text-2, not --text-3. At 0.9rem (14.4px) WCAG wants 4.5:1 and --text-3
+     measures 4.36:1 on the daylight ground - close, but under. --text-2 is
+     5.38:1. Measured by rasterising both through a canvas, because the
+     computed values come back as oklab()/color-mix() and cannot be read as
+     sRGB directly. */
+  color: var(--text-2);
   font-size: 0.9rem;
 }
 
