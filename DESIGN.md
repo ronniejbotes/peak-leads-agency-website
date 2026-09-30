@@ -133,13 +133,14 @@ copy on both grounds, so it survives only inside the mark. Never set text in it,
 | `/google-ads/` | src/js/pages/subpage.js | Google Ads & Meta Ads Management South Africa \| Peak Leads |
 | `/lead-generation/` | src/js/pages/subpage.js | Exclusive Lead Generation South Africa \| Peak Leads |
 | `/pricing/` | src/js/pages/pricing.js | Lead Generation Pricing 2026 \| Peak Leads |
+| `/thank-you/` | src/js/pages/thankyou.js | Your call is booked \| Peak Leads |
 | `/404.html` | subpage.js | Page Not Found \| Peak Leads |
 
 Canonical host: `https://peakleads.agency` with trailing slash on folders. Every page:
 unique meta description (150-160ch), canonical, OG (og:image `/assets/images/og-image.jpg`
 1200×630), twitter:card summary_large_image, `<html lang="en">`, theme-color `#0D0C0A`,
 and `<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1,
-max-video-preview:-1">` (404.html is `noindex`).
+max-video-preview:-1">` (404.html is `noindex`, and so is `/thank-you/` — see 9d).
 
 ## 4. Landing page section map (index.html)
 
@@ -503,6 +504,57 @@ rather than section by section:
 
 **Adding a page: give `<body>` `page-static` and it is light. Do not add `.theme-day` to
 its sections.**
+
+## 9d. `/thank-you/` — the post-booking page (added 2026-09-30)
+
+Where Calendly sends someone once a call is actually booked. **This is the one page on the
+site whose job is dwell time rather than search traffic**: it holds a new lead's attention,
+keeps the pitch fresh in their memory and buys Bradley time to get back to them. It is
+`noindex, follow` and deliberately **not** in `public/sitemap.xml` — a visitor arriving here
+from a search result would be told their call is booked when it is not.
+
+**It is wired to Calendly, not to a form.** The redirect is set in Calendly's own event
+settings (Event type > Confirmation page > Redirect to an external site), not in this repo.
+The contact form's `_next` still points at `/contact/?sent=1` and the free-audit funnel keeps
+its in-page thanks screen; neither was changed, because the hero video opens with "thank you
+for booking this call" and that sentence is false for anyone who only filled in a form.
+
+Structure: hero video, "What happens next?" (three steps), five question-and-answer videos,
+then three links back into the site.
+
+**This is the one page that deliberately breaks 9b and carries no book-a-call band.** The
+visitor reached it *by booking a call*; putting the same Calendly embed under it invites a
+second booking for the same lead and reads as though the first one did not register. The
+three links at the foot do that job instead. `thankyou.js` still imports `subpage.js`, so
+`initBookSection()` runs and stamps any Calendly text link — it simply finds no embed and
+returns.
+
+**Video assets.** All six were supplied as 4K HEVC Main 10, which Chromium reports `""` for —
+they would not have played for most visitors, exactly like the September VSL. Transcoded to
+1080p H.264 8-bit, faststart, two-pass EBU R128 to −16 LUFS (the masters sat at −25 to −27 dB
+mean, well under the homepage VSL). 259 MB in, 24 MB out. The masters are **not** in the repo:
+`/*.mp4` is gitignored at the root, and `FAQ.mp4` at 124 MB is over GitHub's hard file limit
+anyway. Filenames carry a `-1` version suffix for the same reason `vsl-2` does — the Hostinger
+CDN serves replaced-in-place files stale to real browsers for 7 days.
+
+**Autoplay (`src/js/pages/thankyou.js`).** The hero starts on its own 2s in. It tries **with
+sound first**, because arriving from Calendly is a navigation and carries no user gesture, so
+most browsers refuse; on refusal it falls back to muted and raises a "Tap for sound" button.
+**Pressing that button restarts the video from 0**, because somebody who unmutes at 0:08 has
+already missed the opening line, which is the hook. Verified in headless Chrome under both
+`--autoplay-policy` settings.
+
+Two rules worth keeping if this code is touched: the takeover flag listens for **real input**
+(`pointerdown`/`keydown`/`click`), never for media events — `play` and `volumechange` fire for
+the script's own calls, and using them made the script mistake itself for the visitor and leave
+the hero playing silently with no way to turn sound on. And starting any video pauses every
+other one, hero included.
+
+**Captions are not optional here.** The answers exist only as speech, so each video carries a
+hand-corrected `.vtt`. They are also the text alternative that keeps the page accessible
+without writing the answers out — which is deliberate, because four of the five answer videos
+make claims that do not match the published site. See
+`seo-program/plans/peak-leads/LOG.md` for that reconciliation.
 
 ## 9b. Book-a-call band (EVERY page, including every future page)
 

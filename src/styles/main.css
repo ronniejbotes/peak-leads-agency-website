@@ -2591,6 +2591,12 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
   }
 
   #vsl video { animation: none; }
+  /* The universal rule above already stops both, but naming them matches the
+     #vsl line and survives anyone loosening that rule later. The hero video
+     still autoplays: reduced motion is about vestibular triggers, and the
+     native controls satisfy WCAG 1.4.2 on their own. */
+  .ty-video-hero::before { animation: none; }
+  .ty-unmute { animation: none; }
   .in { animation: none; }
   .btn-primary:hover,
   .btn-ghost:hover,
@@ -4054,3 +4060,256 @@ div.web-portrait::after {
 /* Blog post comparison tables: a plain horizontal scroller. Not .table-scroll,
    which adds its own border, margin and caption styling. */
 .table-overflow { overflow-x: auto; }
+
+/* ==========================================================================
+   /thank-you/ — the page Calendly sends people to once a call is booked
+
+   One prose column like the other static pages, but wider than .post's 68ch
+   because a 16:9 video in a 68ch column is small enough to be pointless. The
+   hero video carries the same conic accent rim as the homepage VSL, so the
+   two read as the same site; the five answer videos deliberately do not, or
+   five spinning rims would fight each other down the page.
+   ========================================================================== */
+
+.ty-hero,
+.ty-next,
+.ty-faq,
+.ty-while {
+  max-width: 860px;
+  margin-inline: auto;
+  padding-inline: var(--pad-x);
+}
+
+.ty-hero {
+  text-align: center;
+  padding-top: clamp(32px, 6vh, 56px);
+}
+
+.ty-hero h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin-bottom: 14px;
+}
+
+.ty-lede {
+  color: var(--text-2);
+  max-width: 56ch;
+  margin: 0 auto;
+}
+
+/* --------------------------------------------------------------------------
+   Video boxes
+   -------------------------------------------------------------------------- */
+
+.ty-video {
+  position: relative;
+  margin: 28px auto 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.ty-video video {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: calc(var(--radius) - 1.5px);
+  background: var(--bg);
+}
+
+/* Hero only: the same animated rim as #vsl, so the two videos on the site
+   are visibly the same component. */
+.ty-video-hero {
+  padding: 1.5px;
+}
+
+.ty-video-hero::before {
+  content: "";
+  position: absolute;
+  inset: -60%;
+  z-index: 0;
+  background:
+    conic-gradient(
+      rgba(91, 157, 255, 0.9) 0deg,
+      rgba(91, 157, 255, 0.35) 50deg,
+      rgba(91, 157, 255, 0.08) 110deg 290deg,
+      rgba(91, 157, 255, 0.35) 330deg,
+      rgba(91, 157, 255, 0.9) 360deg);
+  animation: rim-spin 7s linear infinite;
+  pointer-events: none;
+}
+
+.ty-caption {
+  margin-top: 18px;
+  text-align: center;
+  color: var(--text-2);
+  font-size: 0.9rem;
+}
+
+/* --------------------------------------------------------------------------
+   "Tap for sound"
+
+   Only ever visible when the browser refused sound, which is most arrivals,
+   since coming from Calendly is a navigation and carries no user gesture. It
+   sits clear of the native control bar at the bottom of the video, and it is
+   a real <button>, so it is reachable by keyboard and announced properly.
+   -------------------------------------------------------------------------- */
+
+.ty-unmute {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 44%;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--glow-accent);
+  animation: ty-unmute-pulse 2.4s ease-in-out infinite;
+}
+
+.ty-unmute:hover,
+.ty-unmute:focus-visible {
+  background: #7DB1FF;
+  animation: none;
+}
+
+.ty-unmute svg { flex: none; }
+
+@keyframes ty-unmute-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50%      { transform: translate(-50%, -50%) scale(1.05); }
+}
+
+/* --------------------------------------------------------------------------
+   What happens next
+   -------------------------------------------------------------------------- */
+
+.ty-next { padding-top: clamp(40px, 7vh, 72px); }
+
+.ty-steps {
+  list-style: none;
+  counter-reset: ty-step;
+  padding: 0;
+  margin: 24px 0 0;
+  display: grid;
+  gap: 14px;
+}
+
+.ty-steps li {
+  counter-increment: ty-step;
+  position: relative;
+  padding: 18px 20px 18px 62px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel-solid);
+  color: var(--text-2);
+}
+
+@supports (backdrop-filter: blur(10px)) {
+  .ty-steps li {
+    background: var(--panel);
+    backdrop-filter: blur(10px);
+  }
+}
+
+.ty-steps li::before {
+  content: counter(ty-step);
+  position: absolute;
+  left: 20px;
+  top: 18px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.ty-steps strong { color: var(--text); }
+
+/* --------------------------------------------------------------------------
+   The questions
+   -------------------------------------------------------------------------- */
+
+.ty-faq { padding-top: clamp(48px, 8vh, 88px); }
+
+.ty-faq-lede {
+  color: var(--text-2);
+  max-width: 62ch;
+}
+
+.ty-q {
+  margin-top: clamp(32px, 5vh, 52px);
+  padding-top: clamp(28px, 4vh, 40px);
+  border-top: 1px solid var(--border);
+}
+
+.ty-q:first-of-type { border-top: 0; }
+
+.ty-q h3 {
+  font-size: clamp(1.15rem, 2.4vw, 1.45rem);
+  margin: 0;
+}
+
+.ty-q-more {
+  margin-top: 14px;
+  color: var(--text-3);
+  font-size: 0.9rem;
+}
+
+/* --------------------------------------------------------------------------
+   Still have a few minutes
+   -------------------------------------------------------------------------- */
+
+.ty-while {
+  padding-top: clamp(48px, 8vh, 88px);
+  padding-bottom: var(--section-pad);
+}
+
+.ty-links {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0;
+  display: grid;
+  gap: 12px;
+}
+
+.ty-links li {
+  padding-left: 18px;
+  position: relative;
+  color: var(--text-2);
+}
+
+.ty-links li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.ty-reply {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  color: var(--text-2);
+  font-size: 0.95rem;
+}

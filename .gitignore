@@ -5,3 +5,10 @@ dist/
 *.local
 .DS_Store
 Thumbs.db
+
+# Source video masters dropped in the repo root (4K HEVC Main 10, ~259MB total).
+# The web encodes that actually ship live in public/assets/videos/. These are
+# masters, and FAQ.mp4 alone is 124MB - over GitHub's hard 100MB file limit, so
+# committing it would fail the push outright. Anchored to the root with a
+# leading slash so public/assets/videos/*.mp4 still ships.
+/*.mp4

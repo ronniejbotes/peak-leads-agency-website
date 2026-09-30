@@ -73,6 +73,9 @@ export default defineConfig({
         pricing: page('./pricing/index.html'),
         freeAudit: page('./free-audit/index.html'),
         privacy: page('./privacy/index.html'),
+        // Post-booking confirmation. noindex and deliberately not in
+        // public/sitemap.xml, but it still has to be built and shipped.
+        thankYou: page('./thank-you/index.html'),
         // Split service pages. /services/ stays as the hub that links them.
         webDesign: page('./web-design/index.html'),
         seo: page('./seo/index.html'),
