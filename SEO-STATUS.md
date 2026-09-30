@@ -1,23 +1,21 @@
 # SEO status - Peak Leads Agency
 
-This site is part of the SEO programme. **The plan and the run log are deliberately
-NOT in this repo** - this repo is public, and the plan names unverified claims and
-client figures.
+This site has an SEO plan and a run log in the programme's own repository.
+**They are deliberately NOT in this repo**, because this repo is public.
 
 | | |
 |---|---|
 | **Live site** | peakleads.agency |
-| **Progress** | 6 of 45 tasks complete |
+| **Progress** | 6 of 44 tasks complete |
 | **Last run** | 2026-09-30 |
 
 ## Where the real files are
 
 It is its own **private** repository, so it is readable on every device through
-github.com - phone browser, GitHub app, any laptop, any desktop. No OneDrive needed.
+github.com - phone browser, GitHub app, any laptop, any desktop.
 
 ```
 repo:  github.com/ronniejbotes/seo-program  (PRIVATE)
-local: C:\Users\ronja\iCloudDrive\Documents\GitHub\seo-program
 ```
 
 That repository is the single source of truth, at all times.
