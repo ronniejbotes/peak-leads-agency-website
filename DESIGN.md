@@ -507,14 +507,20 @@ its sections.**
 
 ## 9d. `/thank-you/` — the post-booking page (added 2026-09-30)
 
-Where Calendly sends someone once a call is actually booked. **This is the one page on the
+Where a visitor lands once a call is actually booked. **This is the one page on the
 site whose job is dwell time rather than search traffic**: it holds a new lead's attention,
 keeps the pitch fresh in their memory and buys Bradley time to get back to them. It is
 `noindex, follow` and deliberately **not** in `public/sitemap.xml` — a visitor arriving here
 from a search result would be told their call is booked when it is not.
 
-**It is wired to Calendly, not to a form.** The redirect is set in Calendly's own event
-settings (Event type > Confirmation page > Redirect to an external site), not in this repo.
+**It is wired to Calendly, not to a form, and the redirect lives in this repo** (added
+2026-10-04). `src/js/book.js` hears Calendly's `calendly.event_scheduled` from the embed,
+reports the conversion, and sends the visitor to `/thank-you/` — see 9b for the timing. It
+does not use Calendly's own setting (Event type > Confirmation page > Redirect to an external
+site): that needs a paid Calendly plan and cannot wait for the Pixel. **The gap:** someone who
+books on calendly.com through a "Book directly" text link never comes back to the site, so
+only that Calendly setting could send them here. If it is ever switched on, test an embed
+booking again, because nobody has checked how Calendly's redirect behaves inside the embed.
 The contact form's `_next` still points at `/contact/?sent=1` and the free-audit funnel keeps
 its in-page thanks screen; neither was changed, because the hero video opens with "thank you
 for booking this call" and that sentence is false for anyone who only filled in a form.
@@ -538,8 +544,9 @@ anyway. Filenames carry a `-1` version suffix for the same reason `vsl-2` does �
 CDN serves replaced-in-place files stale to real browsers for 7 days.
 
 **Autoplay (`src/js/pages/thankyou.js`).** The hero starts on its own 2s in. It tries **with
-sound first**, because arriving from Calendly is a navigation and carries no user gesture, so
-most browsers refuse; on refusal it falls back to muted and raises a "Tap for sound" button.
+sound first**; whether the browser allows that depends on the browser, and on whether it
+counts the booking click (made inside Calendly's iframe on the page before) as a gesture on
+this site. On refusal it falls back to muted and raises a "Tap for sound" button.
 **Pressing that button restarts the video from 0**, because somebody who unmutes at 0:08 has
 already missed the opening line, which is the hook. Verified in headless Chrome under both
 `--autoplay-policy` settings.
@@ -594,7 +601,12 @@ another page unchanged, the copy is wrong.
   keeps `utm_source=google&utm_medium=cpc&utm_campaign=...` all the way into the booking;
   page context only fills the keys the ad did not set. Params hand-written into the
   markup beat both.
-- Fires the `CallScheduled` Pixel event when Calendly reports a booking.
+- Fires the `CallScheduled` Pixel event when Calendly reports a booking, then sends the
+  visitor to `/thank-you/` (9d). It leaves 1.5s after the booking, so Calendly's "You are
+  scheduled!" registers. Where a conversion went to a Pixel that was not loaded yet, it also
+  waits for fbevents.js to come up plus 1s, so the event is sent before the page goes; the
+  Pixel sends by `sendBeacon` or keepalive fetch, which survive the navigation. It never
+  waits more than 4s, so an ad blocker cannot strand anyone.
 
 The email link in the block never carries a literal address in the HTML. CSS paints the
 `@` (`.mail-at::before`), so it reads and is announced as the full address, and

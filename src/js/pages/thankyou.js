@@ -1,7 +1,7 @@
 /*
  * Peak Leads - src/js/pages/thankyou.js
- * Entry for /thank-you/, the page Calendly sends people to once a call is
- * actually booked. subpage.js is imported for its side effects: styles, nav
+ * Entry for /thank-you/, the page book.js sends people to once Calendly
+ * reports a booking. subpage.js is imported for its side effects: styles, nav
  * burger, footer year, email links and the book band (this page has no #book,
  * so that one returns immediately).
  *
@@ -9,9 +9,11 @@
  *
  *   Hero autoplay   The hero starts on its own about two seconds in. It tries
  *                    with sound first, because that is what the video is for,
- *                    and falls back to muted the moment the browser refuses -
- *                    which it will for most visitors, since arriving from
- *                    Calendly is a navigation and carries no user gesture.
+ *                    and falls back to muted the moment the browser refuses.
+ *                    Whether it refuses depends on the browser, and on
+ *                    whether it counts the click that booked the call, made
+ *                    inside Calendly's iframe on the page before, as a
+ *                    gesture on this site. Both outcomes have to work.
  *                    When it lands muted, a "Tap for sound" button appears and
  *                    the video RESTARTS FROM 0 when it is pressed. Without the
  *                    restart somebody who unmutes at 0:08 has already missed

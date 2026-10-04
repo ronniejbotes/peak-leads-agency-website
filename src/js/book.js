@@ -13,8 +13,9 @@
  *                      finger, keyboard focus or click reaches it, so the href
  *                      is right before any click, middle-click or "copy link".
  *   initBookSection() Arms that link stamping on every page, lazy-loads the
- *                      widget when #book comes near the viewport, and reports
- *                      the booking to the Pixel.
+ *                      widget when #book comes near the viewport, reports the
+ *                      booking to the Pixel, then sends the visitor on to
+ *                      /thank-you/.
  *
  * Adding the band to a new page needs no JS change: drop the markup in
  * (see DESIGN.md > Book-a-call band) and the page entry already calls it.
@@ -28,6 +29,22 @@ const WIDGET_JS = 'https://assets.calendly.com/assets/external/widget.js';
    arrived on a Google Ad, that ad is the true source of the booking and
    must survive the hop into Calendly. */
 const PASS_THROUGH = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+
+/* Where a booked call goes next: Bradley's welcome video and the answers.
+   The site sends people there itself rather than leaving it to Calendly's
+   own redirect setting, which needs a paid Calendly plan and cannot wait
+   for the Pixel. It only covers bookings made in the embed; one made on
+   calendly.com through a "Book directly" link never comes back here. */
+const THANK_YOU = '/thank-you/';
+/* Long enough to see Calendly's "You are scheduled!" and know it worked. */
+const LEAVE_AFTER = 1500;
+/* After the Pixel's script is up: time to fetch its config and send the
+   conversion. Once sent it survives the navigation, because the Pixel
+   sends by sendBeacon or keepalive fetch. */
+const PIXEL_GRACE = 1000;
+/* Never longer than this. A blocker that stops the Pixel loading at all
+   must not leave the visitor sitting on Calendly's screen. */
+const LEAVE_BY = 4000;
 
 /* ====================================================================
  * Page context
@@ -192,6 +209,40 @@ export function injectCalendly() {
   document.head.appendChild(script);
 }
 
+/* ====================================================================
+ * After the booking
+ * ================================================================== */
+
+/* fbq has no completion callback. The nearest signal is the stub gaining
+   callMethod, which fbevents.js sets once it has loaded and taken over the
+   queue. */
+function pixelUp() {
+  return typeof window.fbq === 'function' && typeof window.fbq.callMethod === 'function';
+}
+
+let leaving = false;
+
+/* reported: whether a conversion was handed to the Pixel. A warm Pixel has
+   already sent it, so only LEAVE_AFTER applies; a cold one gets until its
+   script is up plus PIXEL_GRACE. LEAVE_BY overrides both. */
+function leaveForThankYou(reported) {
+  if (leaving) return;
+  leaving = true;
+  const start = Date.now();
+  let clearAt = !reported || pixelUp() ? start : 0;
+  const tick = () => {
+    const now = Date.now();
+    if (!clearAt && pixelUp()) clearAt = now + PIXEL_GRACE;
+    const waited = now - start;
+    if ((clearAt && now >= clearAt && waited >= LEAVE_AFTER) || waited >= LEAVE_BY) {
+      window.location.assign(THANK_YOU);
+    } else {
+      window.setTimeout(tick, 100);
+    }
+  };
+  window.setTimeout(tick, 100);
+}
+
 /* onBooked: what a booked call reports. Home and the free audit pass one
    that loads the Pixel if it has not started yet (a visitor can book with
    nothing but taps inside Calendly's iframe, which the page never hears);
@@ -218,6 +269,9 @@ export function initBookSection(options) {
       return;
     }
     if (host !== CALENDLY_HOST && !host.endsWith('.' + CALENDLY_HOST)) return;
+    /* Scheduled before reporting, so a throw in the report cannot strand
+       the visitor on Calendly's screen. */
+    leaveForThankYou(Boolean(onBooked) || typeof window.fbq === 'function');
     if (onBooked) onBooked();
     else if (typeof window.fbq === 'function') window.fbq('trackCustom', 'CallScheduled');
   });
