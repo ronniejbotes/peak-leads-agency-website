@@ -13,3 +13,10 @@ RewriteRule ^contact-us/?$ /contact/ [R=301,L]
 RewriteRule ^privacy-policy/?$ /privacy/ [R=301,L]
 RewriteRule ^cookie-policy/?$ /privacy/ [R=301,L]
 </IfModule>
+
+# Pages are checked with the server before a browser reuses them, so a deploy reaches returning visitors on their next visit. Files under /assets/ keep their long cache.
+<IfModule mod_headers.c>
+<FilesMatch "\.html$">
+Header set Cache-Control "no-cache"
+</FilesMatch>
+</IfModule>
