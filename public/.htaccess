@@ -1,0 +1,15 @@
+# One address for the whole site, and old addresses sent to their current pages.
+ErrorDocument 404 /404.html
+AddType text/vtt .vtt
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+RewriteCond %{HTTP_HOST} ^www\.peakleads\.agency$ [NC]
+RewriteRule ^(.*)$ https://peakleads.agency/$1 [R=301,L]
+
+RewriteRule ^about-us/?$ /about/ [R=301,L]
+RewriteRule ^contact-us/?$ /contact/ [R=301,L]
+RewriteRule ^privacy-policy/?$ /privacy/ [R=301,L]
+RewriteRule ^cookie-policy/?$ /privacy/ [R=301,L]
+</IfModule>
