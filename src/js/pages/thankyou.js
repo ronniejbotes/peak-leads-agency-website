@@ -7,7 +7,10 @@
  *
  * Three jobs beyond that, all of them about the video:
  *
- *   Hero autoplay   The hero starts on its own about two seconds in. It tries
+ *   Hero autoplay   The hero starts on its own about two seconds in, or, since
+ *                    it sits in step 2 under the invite instructions and is
+ *                    usually below the fold by then, the moment it scrolls
+ *                    into view. It tries
  *                    with sound first, because that is what the video is for,
  *                    and falls back to muted the moment the browser refuses.
  *                    Whether it refuses depends on the browser, and on
@@ -201,9 +204,11 @@ function initHeroAutoplay() {
       return;
     }
 
-    /* They have already jumped to the questions - the nav CTA links straight
-       to #questions - so the hero is off screen. Starting it now means a
-       voice from somewhere above them. Wait until it is back in view. */
+    /* The hero is off screen. That is the usual case: it sits in step 2,
+       under step 1's invite instructions, so on most screens it is below the
+       fold when the timer fires. It can also be above them, if they jumped
+       past it. Either way, starting it now means a voice from somewhere they
+       cannot see. Wait until it is in view. */
     if (!onScreen()) {
       if (!('IntersectionObserver' in window)) return;
       const observer = new window.IntersectionObserver(

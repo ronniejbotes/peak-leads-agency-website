@@ -1766,13 +1766,28 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
   color: var(--text);
 }
 
-.quote-card img {
+/* The named quotes carry initials, not photos: a face goes beside a name only
+   once that client has supplied their own. Shared with /thank-you/ step 3,
+   which sizes it up. Deep blue on its own tint measures well over 4.5:1. */
+.avatar-initials {
+  display: grid;
+  place-items: center;
   width: 48px;
   height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 1px solid var(--border);
   flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--accent-soft);
+  background:
+    linear-gradient(140deg,
+      color-mix(in oklab, var(--accent) 14%, transparent),
+      color-mix(in oklab, var(--star) 12%, transparent));
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
 }
 
 /* Star row — every tile carries a 5-star rating */
@@ -2597,6 +2612,8 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
      native controls satisfy WCAG 1.4.2 on their own. */
   .ty-video-hero::before { animation: none; }
   .ty-unmute { animation: none; }
+  .ty-down svg { animation: none; }
+  .ty-mock-yes { animation: none; }
   .in { animation: none; }
   .btn-primary:hover,
   .btn-ghost:hover,
@@ -4064,55 +4081,443 @@ div.web-portrait::after {
 /* ==========================================================================
    /thank-you/ — the page Calendly sends people to once a call is booked
 
-   One prose column like the other static pages, but wider than .post's 68ch
+   A confirmation banner, then three numbered steps: accept the invite, watch
+   the answers, see what's possible. A dashed rule runs down into each step's
+   number, so the banner's arrow, the three badges and the rules read as one
+   path down the page.
+
+   One column like the other static pages, but wider than .post's 68ch,
    because a 16:9 video in a 68ch column is small enough to be pointless. The
    hero video carries the same conic accent rim as the homepage VSL, so the
    two read as the same site; the five answer videos deliberately do not, or
    five spinning rims would fight each other down the page.
    ========================================================================== */
 
-.ty-hero,
-.ty-next,
-.ty-faq,
+.ty-confirm,
+.ty-step,
 .ty-while {
   max-width: 860px;
   margin-inline: auto;
   padding-inline: var(--pad-x);
 }
 
-.ty-hero {
-  text-align: center;
-  padding-top: clamp(32px, 6vh, 56px);
-}
+/* "main > section" gives every section --section-pad top and bottom. Here
+   the dashed rule at the top of each step is the gap, so the bottom half of
+   that padding would only push the steps apart. */
+.ty-confirm,
+.ty-step { padding-bottom: 0; }
 
-.ty-hero h1 {
-  font-size: clamp(2rem, 5vw, 3rem);
-  margin-bottom: 14px;
-}
-
-.ty-lede {
-  color: var(--text-2);
-  max-width: 56ch;
-  margin: 0 auto;
-}
-
-/* Every <p> in the hero, not just .ty-lede. The base sheet caps p at 62ch, and
-   without an auto inline margin that box sits flush left while text-align
-   centres the text inside it - so the eyebrow and the caption read as
-   off-centre. Same fix as "#vsl p". */
-.ty-hero > p { margin-inline: auto; }
-
-/* The base h2 clamps to 3.25rem, which is LARGER than this page's h1 at 3rem,
-   so above about 960px the section headings outgrew the one they sit under.
-   .post caps its h2 the same way for the same reason. */
-.ty-next h2,
-.ty-faq h2,
-.ty-while h2 {
-  font-size: clamp(1.5rem, 3vw, 2rem);
+/* Read out, not shown: the "Step 1:" in front of each step heading. */
+.ty-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* --------------------------------------------------------------------------
-   Video boxes
+   Confirmation banner
+
+   The one dark surface on the page, in the brand Ink, so the confirmation
+   reads as a different kind of message from the steps under it. Its colours
+   are written out rather than taken from the tokens, because the page
+   around it runs the daylight ramp. On Ink, #EEF2F8 measures 15.9:1 and
+   --brand-gold 7.97:1.
+   -------------------------------------------------------------------------- */
+
+.ty-banner {
+  position: relative;
+  padding: clamp(32px, 6vw, 52px) clamp(20px, 5vw, 48px) clamp(48px, 7vw, 64px);
+  border-radius: calc(var(--radius) + 8px);
+  background-color: var(--brand-ink);
+  background-image:
+    radial-gradient(110% 90% at 8% 0%, rgba(91, 157, 255, 0.24), transparent 62%),
+    radial-gradient(70% 90% at 100% 100%, rgba(223, 162, 46, 0.14), transparent 60%);
+  color: #EEF2F8;
+  text-align: center;
+  box-shadow: 0 18px 48px rgba(17, 23, 37, 0.16);
+}
+
+.ty-banner h1 {
+  max-width: 20ch;
+  margin: 0 auto;
+  color: #EEF2F8;
+  font-size: clamp(1.75rem, 4.8vw, 2.75rem);
+}
+
+.ty-alert {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  margin: 22px 0 0;
+  padding: 10px 18px 10px 14px;
+  border: 1px solid rgba(223, 162, 46, 0.42);
+  border-radius: 999px;
+  background: rgba(223, 162, 46, 0.12);
+  color: #EEF2F8;
+  font-size: 0.98rem;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.ty-alert strong { color: var(--brand-gold); }
+.ty-alert svg { flex: none; }
+.ty-alert-sign { fill: var(--brand-gold); }
+.ty-alert-mark {
+  fill: none;
+  stroke: var(--brand-ink);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+/* Sits on the banner's bottom edge, half on and half off, ringed in the page
+   ground so it reads as cut out of the banner rather than stuck on top. */
+.ty-down {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin: -28px auto 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 0 0 6px var(--bg), var(--glow-accent);
+  transition: transform 0.2s ease;
+}
+
+.ty-down:hover,
+.ty-down:focus-visible {
+  color: var(--accent-ink);
+  transform: translateY(2px);
+}
+
+.ty-down svg { animation: ty-nudge 2.4s ease-in-out infinite; }
+
+@keyframes ty-nudge {
+  0%, 100% { transform: translateY(-2px); }
+  50%      { transform: translateY(3px); }
+}
+
+/* --------------------------------------------------------------------------
+   The steps
+   -------------------------------------------------------------------------- */
+
+.ty-step {
+  padding-top: clamp(40px, 7vh, 72px);
+  text-align: center;
+}
+
+/* Step 1 follows straight on from the arrow, so its rule does too. */
+#step-1 { padding-top: 10px; }
+
+.ty-step::before {
+  content: "";
+  display: block;
+  width: 0;
+  height: clamp(40px, 7vh, 64px);
+  margin: 0 auto 14px;
+  border-left: 2px dashed var(--border);
+  border-left-color: color-mix(in oklab, var(--accent) 40%, transparent);
+}
+
+.ty-step-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin: 0 auto 12px;
+  font-size: clamp(1.6rem, 4vw, 2.25rem);
+}
+
+.ty-num {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  box-shadow: 0 0 0 7px var(--accent-soft);
+  box-shadow: 0 0 0 7px color-mix(in oklab, var(--accent) 12%, transparent);
+}
+
+.ty-step-lede {
+  max-width: 54ch;
+  margin: 0 auto;
+  color: var(--text-2);
+  font-size: 1.05rem;
+}
+
+.ty-step-lede strong { color: var(--text); }
+
+/* --------------------------------------------------------------------------
+   Step 1: the two invites
+
+   Drawn, not screenshotted, and aria-hidden: the sentence above already says
+   everything they show. Each one is laid out like the real thing - the email
+   asks "Yes, Maybe, No", the calendar "Yes, No, Maybe" - with Yes lit up.
+   -------------------------------------------------------------------------- */
+
+.ty-rsvp {
+  display: grid;
+  margin-top: 28px;
+  text-align: left;
+}
+
+.ty-rsvp-card {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 4px);
+  background: var(--panel-solid);
+  box-shadow: 0 10px 30px rgba(17, 23, 37, 0.06);
+}
+
+.ty-rsvp-card figcaption {
+  margin-bottom: 12px;
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* On a phone the cards stack and "or" overlaps the seam between them. */
+.ty-or {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: -12px auto;
+  border-radius: 50%;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: 0 0 0 5px var(--bg);
+}
+
+@media (min-width: 720px) {
+  .ty-rsvp {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .ty-or {
+    align-self: center;
+    margin: 0;
+  }
+}
+
+.ty-mock {
+  position: relative;
+  flex: 1;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text-2);
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.ty-mock-head,
+.ty-mock-event {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ty-mock-avatar {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.ty-mock-lines {
+  flex: 1;
+  display: grid;
+  gap: 7px;
+}
+
+.ty-mock-lines i {
+  display: block;
+  height: 7px;
+  border-radius: 4px;
+  background: var(--border);
+}
+
+.ty-mock-lines i:first-child {
+  width: 78%;
+  background: var(--text-3);
+  opacity: 0.55;
+}
+
+.ty-mock-lines i:last-child { width: 48%; }
+
+.ty-mock-event {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel-solid);
+}
+
+.ty-mock-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: var(--accent-soft);
+  background: color-mix(in oklab, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+
+.ty-mock-rsvp {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.ty-mock-going {
+  margin-right: 2px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.ty-mock-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 11px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--panel-solid);
+  color: var(--text-2);
+  font-weight: 600;
+}
+
+.ty-mock-yes {
+  position: relative;
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+  animation: ty-yes-pulse 2.4s ease-out infinite;
+}
+
+/* The pointer, resting on Yes. */
+.ty-mock-yes::after {
+  content: "";
+  position: absolute;
+  right: -11px;
+  bottom: -15px;
+  width: 22px;
+  height: 22px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 3v16l4.5-4.2 3.1 6.7 2.7-1.2-3-6.6h6.2z' fill='%23111725' stroke='%23fff' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+@keyframes ty-yes-pulse {
+  0%       { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 45%, transparent); }
+  70%,
+  100%     { box-shadow: 0 0 0 9px color-mix(in oklab, var(--accent) 0%, transparent); }
+}
+
+/* The calendar: one day, four hours, the call in the second, and the event's
+   own card open over it. */
+.ty-mock-cal { padding-bottom: 18px; }
+
+.ty-cal-day { position: relative; }
+
+.ty-cal-hour {
+  display: block;
+  height: 38px;
+  padding: 4px 0 0;
+  border-top: 1px solid var(--border);
+  color: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+}
+
+.ty-cal-hour:first-child { border-top: 0; }
+
+.ty-cal-event {
+  position: absolute;
+  top: 42px;
+  left: 24px;
+  width: 40%;
+  height: 32px;
+  padding: 8px;
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  background: var(--accent-soft);
+  background: color-mix(in oklab, var(--accent) 14%, transparent);
+}
+
+.ty-cal-event i {
+  display: block;
+  width: 70%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--accent);
+  opacity: 0.55;
+}
+
+.ty-cal-pop {
+  position: absolute;
+  top: 18px;
+  right: 12px;
+  width: min(76%, 250px);
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel-solid);
+  box-shadow: 0 12px 28px rgba(17, 23, 37, 0.14);
+}
+
+.ty-cal-pop .ty-mock-rsvp {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+/* The smallest phones: keep "Going? Yes No Maybe" on one line. */
+@media (max-width: 359.98px) {
+  .ty-cal-pop { width: 92%; }
+  .ty-mock-btn { padding-inline: 8px; }
+  .ty-mock-rsvp { gap: 5px; }
+}
+
+.ty-note {
+  margin: 20px auto 0;
+  color: var(--text-2);
+  font-size: 0.9rem;
+}
+
+/* --------------------------------------------------------------------------
+   Step 2: the video boxes
    -------------------------------------------------------------------------- */
 
 .ty-video {
@@ -4153,13 +4558,6 @@ div.web-portrait::after {
       rgba(91, 157, 255, 0.9) 360deg);
   animation: rim-spin 7s linear infinite;
   pointer-events: none;
-}
-
-.ty-caption {
-  margin-top: 18px;
-  text-align: center;
-  color: var(--text-2);
-  font-size: 0.9rem;
 }
 
 /* --------------------------------------------------------------------------
@@ -4224,82 +4622,32 @@ div.web-portrait::after {
 }
 
 /* --------------------------------------------------------------------------
-   What happens next
+   Step 2: the questions, straight under the hero
    -------------------------------------------------------------------------- */
 
-.ty-next { padding-top: clamp(40px, 7vh, 72px); }
-
-.ty-steps {
-  list-style: none;
-  counter-reset: ty-step;
-  padding: 0;
-  margin: 24px 0 0;
+.ty-faq {
   display: grid;
-  gap: 14px;
-}
-
-.ty-steps li {
-  counter-increment: ty-step;
-  position: relative;
-  padding: 18px 20px 18px 62px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--panel-solid);
-  color: var(--text-2);
-}
-
-@supports (backdrop-filter: blur(10px)) {
-  .ty-steps li {
-    background: var(--panel);
-    backdrop-filter: blur(10px);
-  }
-}
-
-.ty-steps li::before {
-  content: counter(ty-step);
-  position: absolute;
-  left: 20px;
-  top: 18px;
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.ty-steps strong { color: var(--text); }
-
-/* --------------------------------------------------------------------------
-   The questions
-   -------------------------------------------------------------------------- */
-
-.ty-faq { padding-top: clamp(48px, 8vh, 88px); }
-
-.ty-faq-lede {
-  color: var(--text-2);
-  max-width: 62ch;
+  gap: 18px;
+  margin-top: clamp(28px, 5vh, 44px);
+  text-align: left;
 }
 
 .ty-q {
-  margin-top: clamp(32px, 5vh, 52px);
-  padding-top: clamp(28px, 4vh, 40px);
-  border-top: 1px solid var(--border);
+  padding: clamp(18px, 3vw, 26px);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 4px);
+  background: var(--panel-solid);
 }
 
-.ty-q:first-of-type { border-top: 0; }
-
 .ty-q h3 {
-  font-size: clamp(1.15rem, 2.4vw, 1.45rem);
+  font-size: clamp(1.15rem, 2.4vw, 1.4rem);
   margin: 0;
 }
 
+.ty-q .ty-video { margin-top: 16px; }
+
 .ty-q-more {
-  margin-top: 14px;
+  margin: 14px 0 0;
   /* --text-2, not --text-3. At 0.9rem (14.4px) WCAG wants 4.5:1 and --text-3
      measures 4.36:1 on the daylight ground - close, but under. --text-2 is
      5.38:1. Measured by rasterising both through a canvas, because the
@@ -4310,13 +4658,138 @@ div.web-portrait::after {
 }
 
 /* --------------------------------------------------------------------------
+   Step 3: the testimonials
+
+   Two facts across the top - the trade, and the result in the client's own
+   words - then the full quote, then who said it.
+   -------------------------------------------------------------------------- */
+
+.ty-proof {
+  display: grid;
+  gap: 18px;
+  margin-top: 32px;
+  text-align: left;
+}
+
+@media (min-width: 720px) {
+  .ty-proof {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+}
+
+.ty-proof-card {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 4px);
+  background: var(--panel-solid);
+}
+
+.ty-proof-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.ty-proof-facts > div { padding: 16px 18px; }
+.ty-proof-facts > div + div { border-left: 1px dashed var(--border); }
+
+.ty-proof-facts dt {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--accent);
+  font-size: 0.82rem;
+}
+
+/* A four-point sparkle. */
+.ty-proof-facts dt::before {
+  content: "";
+  flex: none;
+  width: 9px;
+  height: 9px;
+  background: currentColor;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+}
+
+.ty-proof-facts dd {
+  margin: 6px 0 0;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.ty-proof-quote {
+  position: relative;
+  flex: 1;
+  margin: 16px 16px 0;
+  padding: 44px 20px 20px;
+  border-radius: var(--radius);
+  background: var(--bg-raise);
+  background: color-mix(in oklab, var(--accent) 5%, var(--bg));
+}
+
+.ty-proof-quote::before {
+  content: "\201C";
+  content: "\201C" / "";
+  position: absolute;
+  top: 8px;
+  left: 18px;
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: 3.2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.ty-proof-quote p {
+  margin: 0;
+  max-width: none;
+  color: var(--text);
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+
+.ty-proof-who {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px 18px;
+  color: var(--text-2);
+  font-size: 0.9rem;
+}
+
+.ty-proof-who .avatar-initials {
+  width: 52px;
+  height: 52px;
+  font-size: 1.02rem;
+}
+
+.ty-proof-who strong {
+  display: block;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+/* --------------------------------------------------------------------------
    Still have a few minutes
    -------------------------------------------------------------------------- */
 
 .ty-while {
-  padding-top: clamp(48px, 8vh, 88px);
+  padding-top: clamp(64px, 10vh, 104px);
   padding-bottom: var(--section-pad);
 }
+
+/* The base h2 clamps to 3.25rem, larger than this page's h1. .post caps its
+   h2 the same way for the same reason. */
+.ty-while h2 { font-size: clamp(1.5rem, 3vw, 2rem); }
 
 .ty-links {
   list-style: none;

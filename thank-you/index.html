@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>document.documentElement.classList.add('js-enabled')</script>
-    <title>Your call is booked | Peak Leads</title>
-    <meta name="description" content="Your call with Bradley is booked. Watch the answers to the questions we get asked most before we speak." />
+    <title>Call scheduled: 3 quick steps | Peak Leads</title>
+    <meta name="description" content="Your call with Peak Leads is scheduled. Three quick steps before we speak: accept the invite, watch the short answers, and see what our clients say." />
     <link rel="canonical" href="https://peakleads.agency/thank-you/" />
     <!-- noindex: this page confirms a booking that has already happened. A
          visitor arriving here from a search result would be told their call is
@@ -19,15 +19,15 @@
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Peak Leads" />
     <meta property="og:locale" content="en_ZA" />
-    <meta property="og:title" content="Your call is booked | Peak Leads" />
-    <meta property="og:description" content="Your call with Bradley is booked. Watch the answers to the questions we get asked most before we speak." />
+    <meta property="og:title" content="Call scheduled: 3 quick steps | Peak Leads" />
+    <meta property="og:description" content="Your call with Peak Leads is scheduled. Three quick steps before we speak: accept the invite, watch the short answers, and see what our clients say." />
     <meta property="og:url" content="https://peakleads.agency/thank-you/" />
     <meta property="og:image" content="https://peakleads.agency/assets/images/og-image.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Your call is booked | Peak Leads" />
-    <meta name="twitter:description" content="Your call with Bradley is booked. Watch the answers to the questions we get asked most before we speak." />
+    <meta name="twitter:title" content="Call scheduled: 3 quick steps | Peak Leads" />
+    <meta name="twitter:description" content="Your call with Peak Leads is scheduled. Three quick steps before we speak: accept the invite, watch the short answers, and see what our clients say." />
     <meta name="twitter:image" content="https://peakleads.agency/assets/images/og-image.jpg" />
     <!-- No JSON-LD. The page is noindex, so a VideoObject or FAQPage graph here
          would be markup no search engine is allowed to read, and T-20 is taking
@@ -65,17 +65,122 @@
 
     <main id="main" tabindex="-1">
       <!-- ============================================================
-           Hero. The video carries the whole message, so it sits directly
-           under the confirmation with nothing between them. It starts on
-           its own about two seconds in (src/js/pages/thankyou.js), muted
-           if the browser refuses sound, and restarts from the top the
-           moment sound is switched on so nobody misses the opening line.
+           Confirmation. Three numbered steps follow, and the banner's only
+           job is to make sure people scroll to all three instead of closing
+           the tab on the first line.
            ============================================================ -->
-      <section class="ty-hero">
-        <p class="eyebrow">You're booked</p>
-        <h1>Your call is booked.</h1>
-        <p class="ty-lede">The invitation is in your inbox. Before you and Bradley speak, he
-        recorded the answers to the questions almost everybody asks him. Start with this one.</p>
+      <section class="ty-confirm" aria-labelledby="ty-title">
+        <div class="ty-banner">
+          <h1 id="ty-title">Congratulations on scheduling your call!</h1>
+          <p class="ty-alert">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path class="ty-alert-sign" d="M10.27 3.5a2 2 0 0 1 3.46 0l8.66 15a2 2 0 0 1-1.73 3H3.34a2 2 0 0 1-1.73-3z"></path>
+              <path class="ty-alert-mark" d="M12 9.2v4.6M12 17.4v.01"></path>
+            </svg>
+            <span><strong>Important:</strong> please scroll and complete all 3 steps.</span>
+          </p>
+        </div>
+        <a class="ty-down" href="#step-1">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <path d="M12 5v14"></path>
+            <path d="m19 12-7 7-7-7"></path>
+          </svg>
+          <span class="ty-sr">Go to step 1</span>
+        </a>
+      </section>
+
+      <!-- ============================================================
+           Step 1. The two pictures are drawn in HTML, not screenshots: no
+           real inbox, no real names, nothing that dates. They are hidden
+           from screen readers because the sentence above them already says
+           everything they show.
+           ============================================================ -->
+      <section id="step-1" class="ty-step" aria-labelledby="step-1-heading">
+        <h2 id="step-1-heading" class="ty-step-title">
+          <span class="ty-num" aria-hidden="true">1</span>
+          <span class="ty-sr">Step 1:</span>
+          Accept the call invite
+        </h2>
+        <p class="ty-step-lede">The invitation is in your inbox. Click <strong>Yes</strong> on it, in your
+        email or in your calendar.</p>
+
+        <div class="ty-rsvp">
+          <figure class="ty-rsvp-card">
+            <figcaption>In your email</figcaption>
+            <div class="ty-mock ty-mock-mail" aria-hidden="true">
+              <div class="ty-mock-head">
+                <span class="ty-mock-avatar"></span>
+                <span class="ty-mock-lines"><i></i><i></i></span>
+              </div>
+              <div class="ty-mock-event">
+                <span class="ty-mock-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                    <rect x="3" y="4.5" width="18" height="16.5" rx="2.5"></rect>
+                    <path d="M3 9.5h18M8 2.5v4M16 2.5v4"></path>
+                  </svg>
+                </span>
+                <span class="ty-mock-lines"><i></i><i></i></span>
+              </div>
+              <div class="ty-mock-rsvp">
+                <span class="ty-mock-going">Going?</span>
+                <span class="ty-mock-btn ty-mock-yes">Yes</span>
+                <span class="ty-mock-btn">Maybe</span>
+                <span class="ty-mock-btn">No</span>
+              </div>
+            </div>
+          </figure>
+
+          <p class="ty-or">or</p>
+
+          <figure class="ty-rsvp-card">
+            <figcaption>In your calendar</figcaption>
+            <div class="ty-mock ty-mock-cal" aria-hidden="true">
+              <div class="ty-cal-day">
+                <span class="ty-cal-hour">9</span>
+                <span class="ty-cal-hour">10</span>
+                <span class="ty-cal-hour">11</span>
+                <span class="ty-cal-hour">12</span>
+                <span class="ty-cal-event"><i></i></span>
+              </div>
+              <div class="ty-cal-pop">
+                <span class="ty-mock-lines"><i></i><i></i></span>
+                <div class="ty-mock-rsvp">
+                  <span class="ty-mock-going">Going?</span>
+                  <span class="ty-mock-btn ty-mock-yes">Yes</span>
+                  <span class="ty-mock-btn">No</span>
+                  <span class="ty-mock-btn">Maybe</span>
+                </div>
+              </div>
+            </div>
+          </figure>
+        </div>
+
+        <p class="ty-note">Not in your inbox? Check your spam folder.</p>
+      </section>
+
+      <!-- ============================================================
+           Step 2. The hero video, then straight into the answers.
+
+           The hero starts on its own (src/js/pages/thankyou.js), muted if
+           the browser refuses sound, and restarts from the top the moment
+           sound is switched on so nobody misses the opening line. Sitting
+           under step 1, it is usually below the fold when the timer fires,
+           so it starts when it scrolls into view instead.
+
+           The answers are deliberately NOT written out underneath; the
+           captions carry them in full, as the text alternative. Read
+           seo-program/plans/peak-leads/LOG.md before putting any of them
+           into the page's own copy.
+
+           id="questions" stays on this section: the nav CTA links to it.
+           ============================================================ -->
+      <section id="questions" class="ty-step" aria-labelledby="step-2-heading">
+        <h2 id="step-2-heading" class="ty-step-title">
+          <span class="ty-num" aria-hidden="true">2</span>
+          <span class="ty-sr">Step 2:</span>
+          Watch this 50 sec video and FAQs
+        </h2>
+        <p class="ty-step-lede">Every answer is short and already sped up, with captions on.</p>
 
         <figure class="ty-video ty-video-hero" data-hero-video>
           <video
@@ -102,156 +207,186 @@
             <span>Tap for sound</span>
           </button>
         </figure>
-        <!-- A sibling <p>, not a <figcaption>. #vsl on the homepage does put a
-             figcaption inside its figure, but that figure is also the rim box,
-             so its caption sits over the spinning conic gradient. The sheet
-             already supports this shape instead - see the
-             "#vsl :has(> video) + p" rule in main.css. -->
-        <p class="ty-caption">Bradley Hartmann, who you are speaking to. Fifty seconds.</p>
-      </section>
 
-      <!-- What happens next. Every line here is something already published
-           on the site or something Calendly itself does; no new commitment,
-           no figure that is not already verified. -->
-      <section class="ty-next" aria-labelledby="next-heading">
-        <h2 id="next-heading">What happens next?</h2>
-        <ol class="ty-steps">
-          <li>
-            <strong>Check your inbox.</strong> Calendly has sent you the invitation and the
-            link for the call. If it is not there, look in spam before you worry.
-          </li>
-          <li>
-            <strong>Thirty minutes with Bradley.</strong> Free, direct, no pitch deck. One
-            founder, no gatekeepers: you are speaking to him, not to a salesperson.
-          </li>
-          <li>
-            <strong>Watch the answers below first.</strong> Then the call can be about your
-            business instead of the basics.
-          </li>
-        </ol>
+        <!-- Ordered the way the objections actually arrive: what it is, what
+             it costs, how long, when it pays, and what happens if it does not. -->
+        <div class="ty-faq">
+          <article class="ty-q">
+            <h3>What services do you offer?</h3>
+            <figure class="ty-video">
+              <video
+                src="/assets/videos/faq-services-1.mp4"
+                poster="/assets/images/faq-services-1-poster-400.webp"
+                data-poster="/assets/images/faq-services-1-poster-960.webp"
+                preload="none"
+                controls
+                playsinline
+                width="1920"
+                height="1080"
+                aria-label="Bradley lists what Peak Leads does, from lead generation and paid ads to SEO, websites and AI automation">
+                <track kind="captions" src="/assets/videos/faq-services-1.vtt" srclang="en" label="English" default>
+              </video>
+            </figure>
+          </article>
+
+          <article class="ty-q">
+            <h3>How much does this cost?</h3>
+            <figure class="ty-video">
+              <video
+                src="/assets/videos/faq-cost-1.mp4"
+                poster="/assets/images/faq-cost-1-poster-400.webp"
+                data-poster="/assets/images/faq-cost-1-poster-960.webp"
+                preload="none"
+                controls
+                playsinline
+                width="1920"
+                height="1080"
+                aria-label="Bradley explains how Peak Leads prices its work and why the package is built around each business">
+                <track kind="captions" src="/assets/videos/faq-cost-1.vtt" srclang="en" label="English" default>
+              </video>
+            </figure>
+            <p class="ty-q-more">What the published packages cost is on the
+            <a href="/pricing/">pricing page</a>.</p>
+          </article>
+
+          <article class="ty-q">
+            <h3>How long does the setup take?</h3>
+            <figure class="ty-video">
+              <video
+                src="/assets/videos/faq-setup-time-1.mp4"
+                poster="/assets/images/faq-setup-time-1-poster-400.webp"
+                data-poster="/assets/images/faq-setup-time-1-poster-960.webp"
+                preload="none"
+                controls
+                playsinline
+                width="1920"
+                height="1080"
+                aria-label="Bradley explains how long a Peak Leads setup takes from start to finish">
+                <track kind="captions" src="/assets/videos/faq-setup-time-1.vtt" srclang="en" label="English" default>
+              </video>
+            </figure>
+          </article>
+
+          <article class="ty-q">
+            <h3>When can you expect to see results?</h3>
+            <figure class="ty-video">
+              <video
+                src="/assets/videos/faq-results-1.mp4"
+                poster="/assets/images/faq-results-1-poster-400.webp"
+                data-poster="/assets/images/faq-results-1-poster-960.webp"
+                preload="none"
+                controls
+                playsinline
+                width="1920"
+                height="1080"
+                aria-label="Bradley explains when results start to show once implementation is finished">
+                <track kind="captions" src="/assets/videos/faq-results-1.vtt" srclang="en" label="English" default>
+              </video>
+            </figure>
+          </article>
+
+          <article class="ty-q">
+            <h3>What happens if it doesn't work out?</h3>
+            <figure class="ty-video">
+              <video
+                src="/assets/videos/faq-guarantee-1.mp4"
+                poster="/assets/images/faq-guarantee-1-poster-400.webp"
+                data-poster="/assets/images/faq-guarantee-1-poster-960.webp"
+                preload="none"
+                controls
+                playsinline
+                width="1920"
+                height="1080"
+                aria-label="Bradley explains what cover you have if the work does not deliver">
+                <track kind="captions" src="/assets/videos/faq-guarantee-1.vtt" srclang="en" label="English" default>
+              </video>
+            </figure>
+          </article>
+        </div>
       </section>
 
       <!-- ============================================================
-           The questions. Each one is the heading, the answer is the video,
-           and the captions carry the answer in text for anyone who cannot
-           or would rather not use sound. Ordered the way the objections
-           actually arrive: what it is, what it costs, how long, when it
-           pays, and what happens if it does not.
+           Step 3. The same four testimonials as the homepage's
+           #testimonials, word for word, with the same initials in place of
+           photos; nothing here is new. Anything that changes there changes
+           here too.
 
-           The answers are deliberately NOT written out underneath. Four of
-           these five videos make claims that do not match the published site
-           (the price range, four weeks, the 30-day guarantee, and results in
-           week five). Writing them out would put them in the page's own copy
-           and into the claims inventory, before anybody has signed them off.
-
-           This reduces how prominent those claims are. It does NOT make them
-           absent: a caption has to say what was said, so the .vtt files
-           beside this page carry all four in full, and a .vtt is its own URL
-           that this page's noindex does not reach. The thing actually keeping
-           them off the live site is that the push is being held. See
-           seo-program/plans/peak-leads/LOG.md for the reconciliation.
+           "In their words" is a verbatim fragment of each person's own quote,
+           never a paraphrase and never a number. Do not swap in figures
+           unless the client supplied them.
            ============================================================ -->
-      <section id="questions" class="ty-faq" aria-labelledby="faq-heading">
-        <h2 id="faq-heading">The questions everybody asks.</h2>
-        <p class="ty-faq-lede">Five short answers, already sped up so you can get through them
-        quickly. Captions are on; the <abbr title="Closed captions">CC</abbr> button turns them
-        off.</p>
+      <section id="step-3" class="ty-step" aria-labelledby="step-3-heading">
+        <h2 id="step-3-heading" class="ty-step-title">
+          <span class="ty-num" aria-hidden="true">3</span>
+          <span class="ty-sr">Step 3:</span>
+          See what&rsquo;s possible
+        </h2>
+        <p class="ty-step-lede">See how business owners just like you are generating more leads, closing
+        more customers and growing their monthly revenue using the same systems we&rsquo;ll walk you
+        through.</p>
 
-        <article class="ty-q">
-          <h3>What services do you offer?</h3>
-          <figure class="ty-video">
-            <video
-              src="/assets/videos/faq-services-1.mp4"
-              poster="/assets/images/faq-services-1-poster-400.webp"
-              data-poster="/assets/images/faq-services-1-poster-960.webp"
-              preload="none"
-              controls
-              playsinline
-              width="1920"
-              height="1080"
-              aria-label="Bradley lists what Peak Leads does, from lead generation and paid ads to SEO, websites and AI automation">
-              <track kind="captions" src="/assets/videos/faq-services-1.vtt" srclang="en" label="English" default>
-            </video>
+        <div class="ty-proof">
+          <figure class="ty-proof-card">
+            <dl class="ty-proof-facts">
+              <div><dt>Trade</dt><dd>Roofing</dd></div>
+              <div><dt>In their words</dt><dd>&ldquo;Dramatically increased our leads&rdquo;</dd></div>
+            </dl>
+            <blockquote class="ty-proof-quote">
+              <p>The team at Peak Leads exceeded all expectations. From the initial consultation to the final launch, they were communicative, creative, and truly cared about our success. Our new site has dramatically increased our leads.</p>
+            </blockquote>
+            <figcaption class="ty-proof-who">
+              <span class="avatar-initials" aria-hidden="true">ST</span>
+              <span><strong>Sarah Thompson</strong> Roofing company owner</span>
+            </figcaption>
           </figure>
-        </article>
 
-        <article class="ty-q">
-          <h3>How much does this cost?</h3>
-          <figure class="ty-video">
-            <video
-              src="/assets/videos/faq-cost-1.mp4"
-              poster="/assets/images/faq-cost-1-poster-400.webp"
-              data-poster="/assets/images/faq-cost-1-poster-960.webp"
-              preload="none"
-              controls
-              playsinline
-              width="1920"
-              height="1080"
-              aria-label="Bradley explains how Peak Leads prices its work and why the package is built around each business">
-              <track kind="captions" src="/assets/videos/faq-cost-1.vtt" srclang="en" label="English" default>
-            </video>
+          <figure class="ty-proof-card">
+            <dl class="ty-proof-facts">
+              <div><dt>Trade</dt><dd>Plumbing</dd></div>
+              <div><dt>In their words</dt><dd>&ldquo;Significant uptick in inquiries&rdquo;</dd></div>
+            </dl>
+            <blockquote class="ty-proof-quote">
+              <p>The attention to detail and understanding of our industry made all the difference. We&rsquo;ve seen a significant uptick in inquiries since launch.</p>
+            </blockquote>
+            <figcaption class="ty-proof-who">
+              <span class="avatar-initials" aria-hidden="true">DC</span>
+              <span><strong>David Chen</strong> Plumbing services</span>
+            </figcaption>
           </figure>
-          <p class="ty-q-more">What the published packages cost is on the
-          <a href="/pricing/">pricing page</a>.</p>
-        </article>
 
-        <article class="ty-q">
-          <h3>How long does the setup take?</h3>
-          <figure class="ty-video">
-            <video
-              src="/assets/videos/faq-setup-time-1.mp4"
-              poster="/assets/images/faq-setup-time-1-poster-400.webp"
-              data-poster="/assets/images/faq-setup-time-1-poster-960.webp"
-              preload="none"
-              controls
-              playsinline
-              width="1920"
-              height="1080"
-              aria-label="Bradley explains how long a Peak Leads setup takes from start to finish">
-              <track kind="captions" src="/assets/videos/faq-setup-time-1.vtt" srclang="en" label="English" default>
-            </video>
+          <figure class="ty-proof-card">
+            <dl class="ty-proof-facts">
+              <div><dt>Trade</dt><dd>Roofing &amp; renovations</dd></div>
+              <div><dt>In their words</dt><dd>&ldquo;Converts visitors into customers&rdquo;</dd></div>
+            </dl>
+            <blockquote class="ty-proof-quote">
+              <p>They understood exactly what we needed and delivered a website that not only looks amazing but converts visitors into customers. Highly recommended!</p>
+            </blockquote>
+            <figcaption class="ty-proof-who">
+              <span class="avatar-initials" aria-hidden="true">MA</span>
+              <span><strong>Michael Anderson</strong> Anderson Roofing &amp; Renovations</span>
+            </figcaption>
           </figure>
-        </article>
 
-        <article class="ty-q">
-          <h3>When can you expect to see results?</h3>
-          <figure class="ty-video">
-            <video
-              src="/assets/videos/faq-results-1.mp4"
-              poster="/assets/images/faq-results-1-poster-400.webp"
-              data-poster="/assets/images/faq-results-1-poster-960.webp"
-              preload="none"
-              controls
-              playsinline
-              width="1920"
-              height="1080"
-              aria-label="Bradley explains when results start to show once implementation is finished">
-              <track kind="captions" src="/assets/videos/faq-results-1.vtt" srclang="en" label="English" default>
-            </video>
+          <figure class="ty-proof-card">
+            <dl class="ty-proof-facts">
+              <div><dt>Trade</dt><dd>Water systems</dd></div>
+              <div><dt>In their words</dt><dd>&ldquo;Delivered everything on time&rdquo;</dd></div>
+            </dl>
+            <blockquote class="ty-proof-quote">
+              <p>Peak Leads built us a beautiful website that perfectly captures our brand. The team was professional, responsive, and delivered everything on time.</p>
+            </blockquote>
+            <figcaption class="ty-proof-who">
+              <span class="avatar-initials" aria-hidden="true">G</span>
+              <span><strong>Greg</strong> Water Automation</span>
+            </figcaption>
           </figure>
-        </article>
-
-        <article class="ty-q">
-          <h3>What happens if it doesn't work out?</h3>
-          <figure class="ty-video">
-            <video
-              src="/assets/videos/faq-guarantee-1.mp4"
-              poster="/assets/images/faq-guarantee-1-poster-400.webp"
-              data-poster="/assets/images/faq-guarantee-1-poster-960.webp"
-              preload="none"
-              controls
-              playsinline
-              width="1920"
-              height="1080"
-              aria-label="Bradley explains what cover you have if the work does not deliver">
-              <track kind="captions" src="/assets/videos/faq-guarantee-1.vtt" srclang="en" label="English" default>
-            </video>
-          </figure>
-        </article>
+        </div>
       </section>
 
       <!-- Somewhere to go that is still on the site, rather than back to the
-           tab they came from. -->
+           tab they came from. Bradley asked for this to stay as it is, below
+           the three steps. -->
       <section class="ty-while" aria-labelledby="while-heading">
         <h2 id="while-heading">Still have a few minutes?</h2>
         <p>Three things worth reading before the call.</p>

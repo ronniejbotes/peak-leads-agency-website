@@ -133,7 +133,7 @@ copy on both grounds, so it survives only inside the mark. Never set text in it,
 | `/google-ads/` | src/js/pages/subpage.js | Google Ads & Meta Ads Management South Africa \| Peak Leads |
 | `/lead-generation/` | src/js/pages/subpage.js | Exclusive Lead Generation South Africa \| Peak Leads |
 | `/pricing/` | src/js/pages/pricing.js | Lead Generation Pricing 2026 \| Peak Leads |
-| `/thank-you/` | src/js/pages/thankyou.js | Your call is booked \| Peak Leads |
+| `/thank-you/` | src/js/pages/thankyou.js | Call scheduled: 3 quick steps \| Peak Leads |
 | `/404.html` | subpage.js | Page Not Found \| Peak Leads |
 
 Canonical host: `https://peakleads.agency` with trailing slash on folders. Every page:
@@ -220,7 +220,10 @@ from-states. Eyebrow budget: max 3 on the whole page.
    Needs ≥5 cards: below that the ring is too short to hide its own seam. Adding one is
    just another `<figure>` — the ring, wrap and fade all size themselves off the count.
 7. **`#testimonials`** - H2 "Trusted by the trades." Asymmetric 2-col grid (1-col mobile) of
-   4 quotes, each ≤3 lines, real names + avatars (`/assets/images/avatar-*.webp`):
+   4 quotes, each ≤3 lines, real names + initials monograms (`.avatar-initials`), not photos.
+   Since 5 October 2026, with Bradley's go-ahead, a face goes beside a name only once that
+   client supplies their own photo. The `avatar-*.webp` files still appear, unnamed, as faces
+   in the hero orbits:
    Greg (Water Automation), Michael Anderson (Anderson Roofing & Renovations),
    Sarah Thompson (roofing), David Chen (plumbing). Verbatim quotes: builder MUST pull from
    `scratchpad/r-peak.json` + `scratchpad/page_about.html` (research copies). Star row
@@ -525,8 +528,26 @@ The contact form's `_next` still points at `/contact/?sent=1` and the free-audit
 its in-page thanks screen; neither was changed, because the hero video opens with "thank you
 for booking this call" and that sentence is false for anyone who only filled in a form.
 
-Structure: hero video, "What happens next?" (three steps), five question-and-answer videos,
-then three links back into the site.
+Structure (Bradley's brief, 5 October 2026): a dark Ink banner, "Congratulations on scheduling
+your call!" with a gold warning line asking people to complete all 3 steps, then three numbered
+steps joined by a dashed rule, then "Still have a few minutes?" with three links back into the
+site.
+
+1. **Accept the call invite.** One sentence, then two drawn invites side by side ("In your email"
+   OR "In your calendar") with Yes lit up. They are HTML, not screenshots, and `aria-hidden`: the
+   sentence says everything they show, and a drawing has no real inbox or names to go stale.
+2. **Watch this 50 sec video and FAQs.** The hero video (50.5 s), then straight into the five
+   answer videos as cards. `id="questions"` stays on this step because the nav CTA links to it.
+3. **See what's possible.** Bradley's line, then the homepage's four testimonials, word for word
+   and with the same initials in place of photos. Each card leads with the trade and an "In their words" line,
+   which is a verbatim fragment of that client's own quote, never a paraphrase or a number.
+   Anything that changes in `#testimonials` on the homepage changes here too.
+
+**Nothing on the page names who the call is with.** Bradley asked for that on 5 October 2026,
+because two or three people will be taking these calls, so "Before you and Bradley speak", the
+caption under the hero and "What happens next?" ("Thirty minutes with Bradley ... you are
+speaking to him, not to a salesperson") all came out. The hero video itself is still Bradley
+speaking, as the founder, and the email line at the foot still reaches him.
 
 **This is the one page that deliberately breaks 9b and carries no book-a-call band.** The
 visitor reached it *by booking a call*; putting the same Calendly embed under it invites a
@@ -543,7 +564,8 @@ mean, well under the homepage VSL). 259 MB in, 24 MB out. The masters are **not*
 anyway. Filenames carry a `-1` version suffix for the same reason `vsl-2` does — the Hostinger
 CDN serves replaced-in-place files stale to real browsers for 7 days.
 
-**Autoplay (`src/js/pages/thankyou.js`).** The hero starts on its own 2s in. It tries **with
+**Autoplay (`src/js/pages/thankyou.js`).** The hero starts on its own 2s in, or when it scrolls
+into view if it is off screen by then, which, now that it sits in step 2, is the usual case. It tries **with
 sound first**; whether the browser allows that depends on the browser, and on whether it
 counts the booking click (made inside Calendly's iframe on the page before) as a gesture on
 this site. On refusal it falls back to muted and raises a "Tap for sound" button.
