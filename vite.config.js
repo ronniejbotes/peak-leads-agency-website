@@ -12,6 +12,10 @@ import tailwindcss from '@tailwindcss/vite'
 // the pasted value. With no ID, or anything that is not G- followed by
 // capital letters and digits, nothing is injected and the build prints a
 // warning instead of failing.
+//
+// Before setting an ID, put the Google row and the "What is Google Analytics
+// doing?" section back into privacy/index.html (both were added in 79cdd3e),
+// in the same push. The notice and the tag go live together or not at all.
 const GA_MEASUREMENT_ID = process.env.GA_MEASUREMENT_ID || ''
 
 const page = (path) => fileURLToPath(new URL(path, import.meta.url))
