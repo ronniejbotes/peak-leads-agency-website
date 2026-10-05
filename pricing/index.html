@@ -75,8 +75,22 @@
           "name": "Lead Generation Pricing 2026 | Peak Leads",
           "description": "Lead generation packages for South Africa and the US. Appointment setting, email outreach and LinkedIn ads. Month to month, cancel any time.",
           "inLanguage": "en",
-          "dateModified": "2026-09-17",
+          "dateModified": "2026-10-05",
           "about": { "@id": "https://peakleads.agency/#organization" }
+        },
+        {
+          "@type": "Service",
+          "@id": "https://peakleads.agency/pricing/#launchpad",
+          "name": "Lead Gen Launchpad",
+          "serviceType": "Lead generation",
+          "url": "https://peakleads.agency/pricing/#packages",
+          "description": "Everything you need to build the foundation for consistent lead generation: a basic website or optimisation of yours, SEO foundations, ad account and tracking setup, Meta Pixel, an AI lead bot and targeted lead lists.",
+          "provider": { "@id": "https://peakleads.agency/#organization" },
+          "areaServed": [{ "@type": "Country", "name": "South Africa" }, { "@type": "Country", "name": "United States" }],
+          "offers": [
+            { "@type": "Offer", "price": "7950", "priceCurrency": "ZAR", "eligibleRegion": { "@type": "Country", "name": "South Africa" }, "priceValidUntil": "2026-12-31" },
+            { "@type": "Offer", "price": "499", "priceCurrency": "USD", "eligibleRegion": { "@type": "Country", "name": "United States" }, "priceValidUntil": "2026-12-31" }
+          ]
         },
         {
           "@type": "Service",
@@ -219,11 +233,11 @@
         <h1>Lead generation pricing.</h1>
 
         <p class="answer-block">Peak Leads runs lead generation on fixed monthly packages in
-        South Africa and the United States. Appointment setting starts at R19,950 per month in
-        South Africa and $1,999 per month in the US (August 2026). Every package is month to
+        South Africa and the United States. Packages start at R7,950 per month in South Africa
+        and $499 per month in the US with the Lead Gen Launchpad (October 2026). Every package is month to
         month, paid up front, and you can cancel any month without a penalty.</p>
 
-        <p class="price-meta">Prices current as at 18 August 2026. South African prices exclude VAT.</p>
+        <p class="price-meta">Prices current as at 5 October 2026. South African prices exclude VAT.</p>
 
         <!-- ============================================================
              Region switch. Doubles as the page's one moment of delight:
@@ -247,12 +261,39 @@
 
         <section id="packages" aria-labelledby="packages-title">
           <h2 id="packages-title">What does lead generation cost?</h2>
-          <p><strong>Lead generation with Peak Leads costs between R19,950 and R39,950 per
-          month in South Africa, or between $1,999 and $4,999 per month in the United States
-          (August 2026),</strong> depending on which channel you run. Each package carries a
+          <p><strong>Lead generation with Peak Leads costs between R7,950 and R39,950 per
+          month in South Africa, or between $499 and $4,999 per month in the United States
+          (October 2026),</strong> depending on which channel you run. Each package carries a
           once-off setup fee in month one. There is no lock-in contract on any of them.</p>
 
           <div class="pricing-grid" data-pricing-grid>
+
+            <article class="pricing-card" data-tilt>
+              <div class="pricing-card-glow" aria-hidden="true"></div>
+              <div class="pricing-card-body">
+                <p class="pricing-card-name">Lead Gen Launchpad</p>
+                <p class="pricing-card-price">
+                  <span class="pricing-amount" data-price data-za="7950" data-us="499" data-prefix-za="R" data-prefix-us="$">$499</span>
+                  <span class="pricing-period">per month</span>
+                </p>
+                <p class="pricing-card-setup">
+                  <span data-setup data-za="R4,950" data-us="$299">$299</span> once-off setup, charged in month one
+                </p>
+                <ul class="pricing-features">
+                  <li>Basic website build, or optimisation of your existing website</li>
+                  <li>SEO foundation and initial optimisation</li>
+                  <li>Ad account, campaign and tracking setup</li>
+                  <li>Meta Pixel setup and conversion tracking</li>
+                  <li>AI lead bot for faster lead follow-up</li>
+                  <li>Targeted lead lists</li>
+                  <li>Ongoing lead generation infrastructure</li>
+                  <li>Paid up front each month by debit order</li>
+                  <li>Cancel any month, no lock-in</li>
+                </ul>
+                <a class="btn btn-ghost pricing-cta" href="#book">Book a call</a>
+                <p class="pricing-card-foot">Everything you need to build the foundation for consistent lead generation.</p>
+              </div>
+            </article>
 
             <article class="pricing-card" data-tilt>
               <div class="pricing-card-glow" aria-hidden="true"></div>
@@ -392,7 +433,8 @@
 
         <section id="compare" aria-labelledby="compare-title">
           <h2 id="compare-title">Which package should you choose?</h2>
-          <p><strong>Choose appointment setting if your problem is an empty diary, email
+          <p><strong>Choose the Lead Gen Launchpad if you need the foundations built first,
+          appointment setting if your problem is an empty diary, email
           outreach if you need reach, and LinkedIn ads if your buyer is another business.</strong>
           The two larger packages also carry the paid ads and web design work, so the traffic
           and the page it lands on are built together rather than bought from two suppliers.
@@ -400,7 +442,7 @@
 
           <div class="table-scroll">
             <table>
-              <caption>Peak Leads lead generation packages, monthly fee and once-off setup, August 2026. South African prices exclude VAT. Paid ads and web design are included in the LinkedIn Ads and Full Climb packages only.</caption>
+              <caption>Peak Leads lead generation packages, monthly fee and once-off setup, August 2026. South African prices exclude VAT. The Lead Gen Launchpad sets up the ad accounts and a basic website; managed paid ads and web design are in the LinkedIn Ads and Full Climb packages.</caption>
               <thead>
                 <tr>
                   <th scope="col">Package</th>
@@ -413,6 +455,15 @@
                 </tr>
               </thead>
               <tbody>
+                <tr>
+                  <th scope="row">Lead Gen Launchpad</th>
+                  <td>R7,950</td>
+                  <td>R4,950</td>
+                  <td>$499</td>
+                  <td>$299</td>
+                  <td>Ad account and tracking setup, plus a basic website or optimisation of yours</td>
+                  <td>Building the foundations first</td>
+                </tr>
                 <tr>
                   <th scope="row">Appointments</th>
                   <td>R19,950</td>

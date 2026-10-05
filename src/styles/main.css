@@ -2739,7 +2739,17 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
   perspective: 1400px;
 }
 @media (min-width: 640px)  { .pricing-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1080px) { .pricing-grid { grid-template-columns: repeat(4, 1fr); } }
+/* Five packages. Two across leaves the last one alone, so it (The Full Climb,
+   the featured card) takes the full row. Wide screens run a 6-column track:
+   three cards of two on the first row, the last two at three each. */
+@media (min-width: 640px) and (max-width: 1079.98px) {
+  .pricing-grid > .pricing-card:last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+@media (min-width: 1080px) {
+  .pricing-grid { grid-template-columns: repeat(6, 1fr); }
+  .pricing-grid > .pricing-card { grid-column: span 2; }
+  .pricing-grid > .pricing-card:nth-child(n+4) { grid-column: span 3; }
+}
 
 .pricing-card {
   position: relative;
