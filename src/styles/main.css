@@ -2917,6 +2917,20 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
   transform: rotate(-45deg);
 }
 
+/* An optional extra, not an inclusion: a plus, not a tick. */
+.pricing-features li.is-extra::before {
+  content: "+";
+  left: 3px;
+  top: 0;
+  width: auto;
+  height: auto;
+  border: 0;
+  transform: none;
+  color: var(--accent);
+  font-weight: 700;
+  line-height: inherit;
+}
+
 .pricing-cta { width: 100%; }
 
 .pricing-card-foot {
