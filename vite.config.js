@@ -98,6 +98,7 @@ export default defineConfig({
         postSeoOrAds: page('./blog/seo-or-google-ads-first/index.html'),
         postSeoReport: page('./blog/what-should-an-seo-report-include/index.html'),
         postAiCrawlers: page('./blog/should-you-block-ai-crawlers/index.html'),
+        postChoosingAgency: page('./blog/how-to-choose-a-lead-generation-agency/index.html'),
         notFound: page('./404.html'),
       },
       output: {
