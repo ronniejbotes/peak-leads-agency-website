@@ -92,6 +92,7 @@ export default defineConfig({
         postAdsComparison: page('./blog/google-ads-vs-facebook-ads-for-contractors/index.html'),
         postGbpVsWebsite: page('./blog/google-business-profile-vs-website/index.html'),
         postWebsiteOwnership: page('./blog/who-owns-your-website/index.html'),
+        postWebsitePages: page('./blog/how-many-pages-does-a-website-need/index.html'),
         notFound: page('./404.html'),
       },
       output: {
