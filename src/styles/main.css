@@ -2473,6 +2473,33 @@ body.page-static main > article:first-child {
   color: var(--text);
 }
 
+/* Code in posts: robots.txt lines and bot names. The block scrolls sideways
+   on a narrow phone instead of wrapping, so a rule never splits mid-line. */
+.post code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.post pre {
+  margin: 20px 0 24px;
+  padding: 14px 18px;
+  overflow-x: auto;
+  background: var(--bg-raise);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.post pre code {
+  display: block;
+  white-space: pre;
+  overflow-wrap: normal;
+  line-height: 1.6;
+}
+
+/* A table of names a reader copies, such as bot names for robots.txt: each
+   name stays on one line, so "Claude-SearchBot" never breaks at its hyphen. */
+.table-names tbody th[scope='row'] { white-space: nowrap; }
+
 /* Answer-first highlighted box */
 .post-answer {
   padding: 18px 22px;
