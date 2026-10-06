@@ -90,6 +90,7 @@ export default defineConfig({
         postRoofingLeads: page('./blog/how-much-do-roofing-leads-cost/index.html'),
         postExclusiveLeads: page('./blog/exclusive-vs-shared-leads/index.html'),
         postAdsComparison: page('./blog/google-ads-vs-facebook-ads-for-contractors/index.html'),
+        postGbpVsWebsite: page('./blog/google-business-profile-vs-website/index.html'),
         notFound: page('./404.html'),
       },
       output: {
