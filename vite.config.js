@@ -95,6 +95,7 @@ export default defineConfig({
         postWebsitePages: page('./blog/how-many-pages-does-a-website-need/index.html'),
         postNewWebsiteGoogle: page('./blog/new-website-not-showing-on-google/index.html'),
         postOldWebsiteGoogle: page('./blog/old-website-still-on-google/index.html'),
+        postSeoOrAds: page('./blog/seo-or-google-ads-first/index.html'),
         notFound: page('./404.html'),
       },
       output: {
