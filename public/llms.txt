@@ -33,6 +33,7 @@ Web design, SEO and lead generation for South African trades: roofers, plumbers,
 - [Will my new website show up on Google?](https://peakleads.agency/blog/new-website-not-showing-on-google/): Will my new website show up on Google? For your name, usually. For your trade and suburb, it takes more. What Google needs first, and how to check.
 - [Why is my old website still showing on Google?](https://peakleads.agency/blog/old-website-still-on-google/): Old website still showing on Google after a redesign? Why it happens, how to redirect old pages properly and what to do if your domain changed too.
 - [SEO or Google Ads first? How South African trades should choose](https://peakleads.agency/blog/seo-or-google-ads-first/): SEO or Google Ads first? It depends on your diary, your website, the kind of work you do and what a job pays. How South African trades should choose.
+- [What should an SEO report include each month?](https://peakleads.agency/blog/what-should-an-seo-report-include/): What should an SEO report include? Calls and enquiries first, then the work done, what Search Console and your Business Profile show, and the red flags.
 
 ## Optional
 
