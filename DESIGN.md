@@ -118,7 +118,7 @@ copy on both grounds, so it survives only inside the mark. Never set text in it,
 
 | Path | Entry JS | Title (≤60ch) |
 |---|---|---|
-| `/` index.html | src/js/main.js | Lead Generation, Web Development, SEO, Paid Ads \| Peak Leads |
+| `/` index.html | src/js/main.js | Lead Generation Company in South Africa \| Peak Leads |
 | `/about/` | src/js/pages/subpage.js | About Bradley Hartmann, Founder \| Peak Leads |
 | `/services/` | src/js/pages/subpage.js | Web Development, SEO & Paid Ads for Contractors \| Peak Leads |
 | `/contact/` | src/js/pages/subpage.js | Contact Peak Leads \| Book a Call |
@@ -156,9 +156,12 @@ from-states. Eyebrow budget: max 3 on the whole page.
    CTA pill "Book A Call" → `/free-audit/` (a call is booked only after the audit, §8). Mobile <900px: burger → dropdown (js-enabled gated;
    no-JS gets static wrapped row). 2px `.nav-progress` bottom edge, scaleX = --scroll-progress.
 2. **`#hero`** (100svh, asymmetric: copy left max-w 620px, particles park RIGHT).
-   H1: "Build your presence." Sub (19 words): "We've helped businesses generate over
-   \[$13 million | R220 million] in sales through our websites, SEO, paid ads, and lead
-   generation systems." The amount is a `<span data-money-usd data-money-zar>` — see §7.
+   Eyebrow "Build your presence." (the slogan), then H1: "Lead generation company for South
+   African trades" (7 October 2026; the homepage's search is "lead generation companies south
+   africa"). Sub: "We're a South African agency, and every lead we bring in is yours alone.
+   We've helped businesses generate over \[$13 million | R220 million] in sales through our
+   websites, SEO, AI SEO, paid ads, and lead generation systems." The amount is a
+   `<span data-money-usd data-money-zar>` (see §7).
    CTAs: primary "Get your free audit" → `/free-audit/`; ghost "Book a call" → `/free-audit/`.
    Nothing else.
 3. **`#proof`** - 4 stat tiles (2-col mobile / 4-col desktop, count-up on view):
@@ -236,6 +239,13 @@ from-states. Eyebrow budget: max 3 on the whole page.
    are leaking." / 02 We build: "Website, SEO and campaigns assembled in a 2 to 3 week
    sprint. You get daily updates." / 03 You climb: "Leads land. We tune weekly. You book
    more jobs."
+8b. **`#what-we-do`** (added 7 October 2026) - H2 "What we do as a lead generation company."
+   Five short paragraphs of plain text, no panel: the trades served, exclusive lead generation
+   for trades, outbound (appointment setting, email outreach, LinkedIn ads) for businesses that
+   sell to businesses, the website/SEO/ads behind both, and a link to the "how to choose a lead
+   generation agency" post. It sits after `#process` because the machine has faded out by then
+   and stays gone until `#faq` (§6, scroll.js 5d), so bare copy reads cleanly. Only claims the
+   service pages and `/pricing/` already make. Never links to another agency's site.
 9. **`#book`** - H2 "Let's talk about your project." Sub: "30 minutes with Bradley. Free,
    direct, no pitch deck." Primary button "Book your call" → `/free-audit/`, then "Six quick
    questions first, then pick a time that suits you. Or email" + the email link
@@ -730,7 +740,8 @@ copy, done.
   ads,leads}` + WebSite + WebPage. NO postal address and NO aggregateRating (self-serving
   review markup; the 4.9/5 stays plain on-page text). FAQPage separate block mirroring
   the first six #faq questions (see #faq in §4).
-- H1s keyword-aware via section H2s (home H1 stays brand voice; H2s lead with the exact
+- Home H1 names the homepage's search ("Lead generation company for South African trades",
+  7 October 2026); the slogan stays above it as the eyebrow. Section H2s lead with the exact
   service keyword: "Web development that wins...", "SEO that climbs...", "Paid ads that
   buy...", "Lead generation that stays exclusive...").
 - No Calendly prefetch on the landing page: the calendar left it in October 2026.
