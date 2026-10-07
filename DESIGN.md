@@ -138,8 +138,9 @@ copy on both grounds, so it survives only inside the mark. Never set text in it,
 | `/404.html` | subpage.js | Page Not Found \| Peak Leads |
 
 Canonical host: `https://peakleads.agency` with trailing slash on folders. Every page:
-unique meta description (150-160ch), canonical, OG (og:image `/assets/images/og-image.jpg`
-1200×630), twitter:card summary_large_image, `<html lang="en">`, theme-color `#0D0C0A`,
+unique meta description (150-160ch), canonical, OG (og:image `/assets/images/og-image-2.jpg`
+1200×630, the branded share card built by `tools/og-card/build_card.py`; a page with its
+own image, like a blog post, uses that instead), twitter:card summary_large_image, `<html lang="en">`, theme-color `#0D0C0A`,
 and `<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1,
 max-video-preview:-1">` (404.html is `noindex`, and so are `/thank-you/` (9d) and
 `/book-a-call/` (8b)).
