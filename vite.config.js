@@ -99,6 +99,7 @@ export default defineConfig({
         postSeoReport: page('./blog/what-should-an-seo-report-include/index.html'),
         postAiCrawlers: page('./blog/should-you-block-ai-crawlers/index.html'),
         postChoosingAgency: page('./blog/how-to-choose-a-lead-generation-agency/index.html'),
+        postWebsiteCost: page('./blog/website-cost-for-trades-south-africa/index.html'),
         notFound: page('./404.html'),
       },
       output: {
