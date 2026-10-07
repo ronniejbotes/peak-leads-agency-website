@@ -1,9 +1,8 @@
 /*
  * Peak Leads - src/js/pages/thankyou.js
  * Entry for /thank-you/, the page book.js sends people to once Calendly
- * reports a booking. subpage.js is imported for its side effects: styles, nav
- * burger, footer year, email links and the book band (this page has no #book,
- * so that one returns immediately).
+ * reports a booking on /book-a-call/. subpage.js is imported for its side
+ * effects: styles, nav burger, footer year and email links.
  *
  * Three jobs beyond that, all of them about the video:
  *

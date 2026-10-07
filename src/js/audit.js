@@ -1,31 +1,69 @@
 /*
  * Peak Leads - audit.js
- * Entry for /free-audit/: the eight step audit funnel plus its own particle
+ * Entry for /free-audit/: the six step audit funnel plus its own particle
  * scene boot. No GSAP here - formation morphs run on a tiny rAF lerp so the
  * funnel stays light. Every scene call is guarded; any boot failure or
  * prefers-reduced-motion adds body.no-3d and the page runs on the static
  * gradient fallback.
+ *
+ * The audit is also the only way to book a call: every "Book a call" on the
+ * site links here, and the calendar lives on /book-a-call/ alone. Every
+ * finished audit is emailed to the team. Then:
+ *   - a monthly revenue band at or above BOOKING_MIN_REVENUE goes straight
+ *     on to /book-a-call/;
+ *   - anything below it stays here on a polite ending that offers no call,
+ *     and so does any browser turned away in the last DECLINE_HOLDS_FOR,
+ *     whatever it answers now, so reloading and picking a bigger number
+ *     does not open the calendar.
+ * The rule lives in this file and nowhere in the markup. Nothing a visitor
+ * sees may hint that one answer leads somewhere different from another, or
+ * people would simply pick the other answer.
  */
 import '../styles/main.css';
-import { armPixel, trackPixel } from './pixel.js';
+import { armPixel, trackPixel, pixelUp, pixelBlocked } from './pixel.js';
 import { initMailLinks } from './email.js';
-import { initBookSection } from './book.js';
+import {
+  sendLead,
+  flushOutbox,
+  readHandoff,
+  writeHandoff,
+  handoffWithin
+} from './lead.js';
 
 /* ==================================================================== *
  * Config
  * ==================================================================== */
-/* Set LEAD_WEBHOOK to a JSON POST endpoint (Apps Script, Web3Forms, a
-   worker) to take over lead delivery. While empty, leads POST to
-   formsubmit.co and land in Bradley's inbox. */
-const LEAD_WEBHOOK = '';
-const FORMSUBMIT_ENDPOINT = 'https://formsubmit.co/ajax/bradley@peakleads.agency';
 const CONTACT_EMAIL = 'bradley@peakleads.agency';
 const LEAD_KEY = 'pl_lead';
-const OUTBOX_KEY = 'pl_lead_outbox';
 const PAGE_URL = 'https://peakleads.agency/free-audit/';
+const BOOKING_PAGE = '/book-a-call/';
+
+/* Bradley's qualifier (October 2026): a business turning over less than
+   R75,000 a month is not offered a call. Compared with the data-floor on
+   the chosen revenue option, which is the bottom of its band in rand. */
+const BOOKING_MIN_REVENUE = 75000;
+/* How long a browser that was turned away keeps that answer. Short on
+   purpose (Ronnie, 7 October 2026): long enough to stop an instant retry
+   with a bigger number, never long enough to shut a business out. */
+const DECLINE_HOLDS_FOR = 2 * 60 * 60 * 1000;
+
+/* The "All of the above" box on the help question ticks every other box,
+   and ticking every other box ticks it. */
+const HELP_ALL = 'All of the above';
+
+/* Pages that are part of the funnel itself, never "where they came from". */
+const FUNNEL_PATHS = /^\/(free-audit|book-a-call|thank-you)(\/|$)/;
+const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+
+/* The hop to the calendar. Long enough to read "You're on the way up" and
+   see the condense pulse; a Pixel that comes up mid-wait gets PIXEL_GRACE
+   to send the Lead; LEAVE_BY overrides both, so a slow inbox relay or a
+   stalled Pixel can never strand a qualified visitor here. */
+const SHOW_FOR = 1400;
+const PIXEL_GRACE = 1000;
+const LEAVE_BY = 6000;
 
 const $ = (id) => document.getElementById(id);
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const motionQuery =
   typeof window.matchMedia === 'function'
@@ -38,22 +76,33 @@ const prefersReduced = () => !!(motionQuery && motionQuery.matches);
  * ==================================================================== */
 const SCREEN_IDS = [
   'screen-intro',
-  'screen-1', 'screen-2', 'screen-3', 'screen-4',
-  'screen-5', 'screen-6', 'screen-7', 'screen-8',
+  'screen-1', 'screen-2', 'screen-3',
+  'screen-4', 'screen-5', 'screen-6',
+  'screen-next',
   'screen-thanks'
 ];
-const THANKS_INDEX = SCREEN_IDS.length - 1;
-const TOTAL_STEPS = 8;
+/* The first screen after the audit is sent. The two endings sit at and
+   after it: screen-next goes on to the calendar, screen-thanks does not. */
+const DONE_INDEX = 7;
+const NEXT_INDEX = 7;
+const THANKS_INDEX = 8;
+const TOTAL_STEPS = 6;
 
-/* intro = 0 (PEAK); steps 1-8 walk the seven formations (PEAK, PLAY,
-   FRAME, RANKS, FUNNEL, GROWTH, SPHERE); the thanks screen returns to
-   the PEAK to match "You're on the way up." */
-const FORMATION_BY_SCREEN = [0, 0, 1, 2, 3, 4, 5, 6, 2, 0];
+/* intro = 0 (PEAK); steps 1-6 walk PEAK, PLAY, FRAME, RANKS, FUNNEL and
+   GROWTH (the revenue question gets the rising curve); the calendar hop
+   returns to the PEAK to match "You're on the way up."; the other ending
+   settles on the SPHERE, with no pulse. */
+const FORMATION_BY_SCREEN = [0, 0, 1, 2, 3, 4, 5, 0, 6];
 
-const FIELD_IDS = { 1: 'f-name', 2: 'f-email', 3: 'f-phone', 4: 'f-business', 5: 'f-trade', 8: 'f-website' };
-const ERROR_IDS = { 1: 'err-name', 2: 'err-email', 3: 'err-phone', 4: 'err-business', 5: 'err-trade', 6: 'err-service', 7: 'err-spend', 8: 'err-website' };
+const FIELD_IDS = { 1: 'f-name', 2: 'f-email', 3: 'f-phone', 4: 'f-business' };
+const ERROR_IDS = {
+  1: 'err-name', 2: 'err-email', 3: 'err-phone',
+  4: 'err-business', 5: 'err-help', 6: 'err-revenue'
+};
 
-const answers = { name: '', email: '', phone: '', business: '', trade: '', service: '', adSpend: '', website: '' };
+const answers = { name: '', email: '', phone: '', business: '', helpWith: [], revenue: '' };
+let revenueFloor = NaN;
+let origin = { path: '', host: '', utm: {} };
 let cur = 0;
 let done = false;
 
@@ -79,7 +128,7 @@ function sceneCall(method, ...args) {
   }
 }
 
-/* Condense pulse for the thanks screen: gather in, small bang, settle. */
+/* Condense pulse for the calendar hop: gather in, small bang, settle. */
 function condenseValue(t) {
   if (t < 0.35) {
     const k = t / 0.35;
@@ -179,7 +228,7 @@ function bindResize() {
 }
 
 function progressFor(i) {
-  return THANKS_INDEX ? i / THANKS_INDEX : 0;
+  return Math.min(1, i / DONE_INDEX);
 }
 
 function bootScene() {
@@ -251,12 +300,12 @@ function focusEl(el) {
 
 function focusScreen(section) {
   if (!section) return;
-  const text = section.querySelector('input:not([type="radio"])');
+  const text = section.querySelector('input:not([type="radio"]):not([type="checkbox"])');
   if (text) { focusEl(text); return; }
-  const radio =
+  const choice =
     section.querySelector('input[type="radio"]:checked') ||
-    section.querySelector('input[type="radio"]');
-  if (radio) { focusEl(radio); return; }
+    section.querySelector('input[type="radio"], input[type="checkbox"]');
+  if (choice) { focusEl(choice); return; }
   const heading = section.querySelector('[tabindex="-1"]');
   if (heading) { focusEl(heading); return; }
   focusEl(section.querySelector('.btn'));
@@ -267,12 +316,12 @@ function updateProgress(i) {
   const count = $('step-count');
   if (fill) {
     if (i <= 0) fill.style.width = '0%';
-    else if (i >= THANKS_INDEX) fill.style.width = '100%';
+    else if (i >= DONE_INDEX) fill.style.width = '100%';
     else fill.style.width = (i / TOTAL_STEPS) * 100 + '%';
   }
   if (count) {
     if (i <= 0) count.textContent = '';
-    else if (i >= THANKS_INDEX) count.textContent = 'All done';
+    else if (i >= DONE_INDEX) count.textContent = 'All done';
     else count.textContent = i + ' of ' + TOTAL_STEPS;
   }
 }
@@ -288,7 +337,7 @@ function showScreen(i) {
   void section.offsetWidth; /* restart the entrance animation */
   section.classList.add('in');
   const back = $('back-btn');
-  if (back) back.hidden = i < 2 || i >= THANKS_INDEX;
+  if (back) back.hidden = i < 2 || i >= DONE_INDEX;
   updateProgress(i);
   targetF = FORMATION_BY_SCREEN[i];
   sceneCall('setProgress', progressFor(i));
@@ -304,19 +353,9 @@ function validPhone(raw) {
   return /^\+?\d{7,15}$/.test((raw || '').replace(/[\s\-().]/g, ''));
 }
 
-function normalizeWebsite(raw) {
-  let s = (raw || '').trim();
-  if (!s) return null;
-  if (!/^https?:\/\//i.test(s)) s = 'https://' + s;
-  let u;
-  try {
-    u = new URL(s);
-  } catch (err) {
-    return null;
-  }
-  if (!/^https?:$/.test(u.protocol)) return null;
-  if (!u.hostname || u.hostname.indexOf('.') === -1) return null;
-  return u.href;
+/* Name and surname: two words at least. */
+function validFullName(raw) {
+  return (raw || '').trim().split(/\s+/).filter(Boolean).length >= 2;
 }
 
 function setError(step, msg) {
@@ -336,7 +375,71 @@ function failField(step, msg) {
 }
 
 /* ==================================================================== *
- * Lead storage: prefill + outbox retry queue
+ * The help question's boxes
+ * ==================================================================== */
+function helpBoxes() {
+  return Array.prototype.slice.call(document.querySelectorAll('input[name="helpWith"]'));
+}
+
+function syncHelpAll(changed) {
+  const boxes = helpBoxes();
+  const all = boxes.find((b) => b.value === HELP_ALL);
+  if (!all) return;
+  const rest = boxes.filter((b) => b !== all);
+  if (changed === all) rest.forEach((b) => { b.checked = all.checked; });
+  else all.checked = rest.every((b) => b.checked);
+}
+
+/* ==================================================================== *
+ * Where the visitor came from
+ *
+ * For the team's email, and for the booking's utm_campaign, which would
+ * otherwise read "book-a-call" for every call booked. A page on this site
+ * gives its path; anywhere else gives its host. Campaign params on this URL,
+ * or on the page that sent the visitor here, travel with the lead, so an ad
+ * that brought someone in stays the source of their booking.
+ * ==================================================================== */
+function utmFrom(params) {
+  const found = {};
+  if (!params) return found;
+  for (const key of UTM_KEYS) {
+    const value = params.get(key);
+    if (value) found[key] = value.slice(0, 120);
+  }
+  return found;
+}
+
+function captureOrigin() {
+  const found = { path: '', host: '', utm: {} };
+  let ref = null;
+  try {
+    ref = document.referrer ? new URL(document.referrer) : null;
+  } catch (err) {
+    ref = null;
+  }
+  if (ref && ref.origin === window.location.origin) {
+    if (!FUNNEL_PATHS.test(ref.pathname)) found.path = ref.pathname.slice(0, 200);
+    Object.assign(found.utm, utmFrom(ref.searchParams));
+  } else if (ref) {
+    found.host = ref.hostname;
+  }
+  try {
+    Object.assign(found.utm, utmFrom(new URLSearchParams(window.location.search)));
+  } catch (err) {
+    /* no URLSearchParams: the referrer's params, if any, stand */
+  }
+  return found;
+}
+
+function originText() {
+  let text = origin.path || origin.host || 'Direct (no referring page)';
+  const utm = Object.keys(origin.utm).map((key) => key + '=' + origin.utm[key]);
+  if (utm.length) text += ' | ' + utm.join(', ');
+  return text;
+}
+
+/* ==================================================================== *
+ * Lead storage: prefill as you go
  * ==================================================================== */
 function storeLead() {
   try {
@@ -355,90 +458,73 @@ function loadStoredLead() {
   }
 }
 
-function readOutbox() {
-  try {
-    const box = JSON.parse(localStorage.getItem(OUTBOX_KEY) || '[]');
-    return Array.isArray(box) ? box : [];
-  } catch (err) {
-    return [];
-  }
-}
-
-function writeOutbox(box) {
-  try {
-    localStorage.setItem(OUTBOX_KEY, JSON.stringify(box));
-  } catch (err) {
-    /* storage unavailable */
-  }
-}
-
-function pushOutbox(entry) {
-  const box = readOutbox();
-  box.push(entry);
-  while (box.length > 20) box.shift();
-  writeOutbox(box);
-}
-
-function removeFromOutbox(entry) {
-  writeOutbox(readOutbox().filter((e) => !(e && e.ts === entry.ts)));
-}
-
-function flushOutbox() {
-  const box = readOutbox().filter((e) => e && e.payload);
-  writeOutbox(box);
-  for (const entry of box) {
-    deliver(entry.payload)
-      .then(() => removeFromOutbox(entry))
-      .catch(() => {
-        /* stays queued for the next visit */
-      });
-  }
-}
-
 /* ==================================================================== *
  * Lead delivery
  * ==================================================================== */
-function buildPayload() {
+function helpText() {
+  return answers.helpWith.join(', ');
+}
+
+function rand(n) {
+  return 'R' + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+/* "25 minutes", "1 hour 5 minutes". Relative rather than a clock time, so
+   it means the same in Bradley's inbox whatever the visitor's time zone. */
+function agoText(ts) {
+  const mins = Math.max(0, Math.round((Date.now() - ts) / 60000));
+  if (!mins) return 'under a minute';
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  const parts = [];
+  if (h) parts.push(h + (h === 1 ? ' hour' : ' hours'));
+  if (m) parts.push(m + (m === 1 ? ' minute' : ' minutes'));
+  return parts.join(' ');
+}
+
+/* For the team only. It goes in the email, never on the page and never in
+   the visitor's own mailto fallback. */
+function bookingNote(open, earlier) {
+  if (open) return 'Qualified. Sent to the booking calendar.';
+  if (earlier) {
+    return (
+      'Disqualified. This browser was turned away ' + agoText(earlier.ts) + ' earlier' +
+      (earlier.revenue ? ' (answered "' + earlier.revenue + '")' : '') +
+      ', so no call was offered, whatever it answered this time.'
+    );
+  }
+  return 'Disqualified. Monthly revenue under ' + rand(BOOKING_MIN_REVENUE) + ', so no call was offered.';
+}
+
+function buildPayload(open, earlier) {
   return {
     name: answers.name,
     email: answers.email,
     phone: answers.phone,
     business: answers.business,
-    trade: answers.trade,
-    service: answers.service,
-    adSpend: answers.adSpend,
-    website: answers.website,
+    helpWith: helpText(),
+    monthlyRevenue: answers.revenue,
+    booking: bookingNote(open, earlier),
+    cameFrom: originText(),
     page: PAGE_URL,
-    _subject: 'New free audit request: ' + (answers.business || 'unknown business')
+    _subject: (open ? 'New free audit request: ' : 'New free audit request (disqualified): ') + answers.name
   };
 }
 
-function deliver(payload) {
-  const endpoint = LEAD_WEBHOOK || FORMSUBMIT_ENDPOINT;
-  return fetch(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify(payload),
-    keepalive: true
-  }).then((res) => {
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-  });
-}
-
+/* The visitor's own copy, so nothing here may say how the audit was
+   judged. */
 function mailtoHref() {
   const lines = [
     'Name: ' + answers.name,
     'Email: ' + answers.email,
     'Phone: ' + answers.phone,
-    'Business: ' + answers.business,
-    'Trade: ' + answers.trade,
-    'Service: ' + answers.service,
-    'Monthly ad spend: ' + answers.adSpend,
-    'Website: ' + answers.website
+    'About the business: ' + answers.business,
+    'Help with: ' + helpText(),
+    'Monthly revenue: ' + answers.revenue
   ];
   return (
     'mailto:' + CONTACT_EMAIL +
-    '?subject=' + encodeURIComponent('New free audit request: ' + (answers.business || 'my business')) +
+    '?subject=' + encodeURIComponent('New free audit request: ' + (answers.name || 'my business')) +
     '&body=' + encodeURIComponent(lines.join('\r\n'))
   );
 }
@@ -457,33 +543,93 @@ function showMailtoFallback() {
   note.appendChild(document.createTextNode(' and we will take it from there.'));
 }
 
+/* ", Jane" after "Thanks" on both endings. */
+function fillName() {
+  const first = (answers.name || '').trim().split(/\s+/)[0] || '';
+  document.querySelectorAll('[data-name-tail]').forEach((el) => {
+    el.textContent = first ? ', ' + first : '';
+  });
+}
+
+/* Onward to the calendar once the lead is acknowledged (or given up on:
+   it is still queued, and /book-a-call/ flushes the queue) and the Lead
+   event has had its chance to leave. */
+function leaveForBooking(sent) {
+  let settled = false;
+  sent.then(
+    () => { settled = true; },
+    () => { settled = true; }
+  );
+  const start = Date.now();
+  let pixelClearAt = pixelUp() ? start : 0;
+  const status = $('next-status');
+  const tick = () => {
+    const now = Date.now();
+    if (!pixelClearAt && pixelUp()) pixelClearAt = now + PIXEL_GRACE;
+    const pixelDone = pixelBlocked() || (pixelClearAt && now >= pixelClearAt);
+    const waited = now - start;
+    if ((settled && pixelDone && waited >= SHOW_FOR) || waited >= LEAVE_BY) {
+      if (status) status.textContent = 'Opening the calendar now.';
+      window.location.assign(BOOKING_PAGE);
+    } else {
+      window.setTimeout(tick, 100);
+    }
+  };
+  window.setTimeout(tick, 100);
+}
+
 function submitLead() {
   if (done) return;
   done = true;
-  showScreen(THANKS_INDEX);
-  pulseCondense();
+  fillName();
   const hp = $('pl-extra');
-  if (hp && hp.value) return; /* honeypot filled - show thanks, send nothing */
+  if (hp && hp.value) {
+    /* Honeypot filled: a bot. It gets the ending that offers no call, and
+       nothing is sent or stored. */
+    showScreen(THANKS_INDEX);
+    return;
+  }
+
+  const earlier = readHandoff();
+  const turnedAway = !!(earlier && earlier.open === false && handoffWithin(earlier, DECLINE_HOLDS_FOR));
+  /* A missing or unreadable floor counts as qualifying: a markup slip must
+     never quietly close the calendar to everyone. */
+  const qualifies = !(revenueFloor < BOOKING_MIN_REVENUE);
+  const open = qualifies && !turnedAway;
+
+  if (open) {
+    writeHandoff({
+      v: 1,
+      ts: Date.now(),
+      open: true,
+      revenue: answers.revenue,
+      name: answers.name,
+      email: answers.email,
+      from: origin.path,
+      utm: origin.utm
+    });
+  } else if (!turnedAway) {
+    /* A repeat visit keeps the first refusal's date and answer, so the
+       window runs from the first answer and the email can quote it. */
+    writeHandoff({ v: 1, ts: Date.now(), open: false, revenue: answers.revenue });
+  }
+
   try {
     trackPixel('track', 'Lead');
   } catch (err) {
     /* pixel is optional */
   }
-  /* Queue first, remove on ack - a navigation mid-send must never lose
-     the lead. Worst case is a duplicate on the next visit's flush. */
-  const entry = { ts: Date.now(), payload: buildPayload() };
-  pushOutbox(entry);
-  deliver(entry.payload)
-    .then(() => removeFromOutbox(entry))
-    .catch(async () => {
-      await sleep(2000);
-      try {
-        await deliver(entry.payload);
-        removeFromOutbox(entry);
-      } catch (err) {
-        showMailtoFallback();
-      }
-    });
+
+  const sent = sendLead(buildPayload(open, turnedAway ? earlier : null));
+
+  if (open) {
+    showScreen(NEXT_INDEX);
+    pulseCondense();
+    leaveForBooking(sent);
+  } else {
+    showScreen(THANKS_INDEX);
+    sent.catch(showMailtoFallback);
+  }
 }
 
 /* ==================================================================== *
@@ -497,8 +643,8 @@ function advance() {
       break;
     }
     case 1: {
-      const v = $('f-name').value.trim();
-      if (v.length < 2) { failField(1, 'Please enter your name.'); return; }
+      const v = $('f-name').value.trim().replace(/\s+/g, ' ');
+      if (!validFullName(v)) { failField(1, 'Please enter your name and surname.'); return; }
       setError(1, '');
       answers.name = v;
       storeLead();
@@ -525,7 +671,7 @@ function advance() {
     }
     case 4: {
       const v = $('f-business').value.trim();
-      if (v.length < 2) { failField(4, 'Please enter your business name.'); return; }
+      if (v.length < 2) { failField(4, 'Please tell us your industry, and your website or social media link if you have one.'); return; }
       setError(4, '');
       answers.business = v;
       storeLead();
@@ -533,37 +679,20 @@ function advance() {
       break;
     }
     case 5: {
-      const v = $('f-trade').value.trim();
-      if (v.length < 2) { failField(5, 'Please tell us your trade. Pick one from the list or type your own.'); return; }
+      const picked = helpBoxes().filter((b) => b.checked).map((b) => b.value);
+      if (!picked.length) { setError(5, 'Please choose at least one.'); focusScreen($(SCREEN_IDS[5])); return; }
       setError(5, '');
-      answers.trade = v;
+      answers.helpWith = picked.indexOf(HELP_ALL) !== -1 ? [HELP_ALL] : picked;
       storeLead();
       showScreen(6);
       break;
     }
     case 6: {
-      const r = document.querySelector('input[name="service"]:checked');
-      if (!r) { setError(6, 'Please choose a service.'); focusScreen($(SCREEN_IDS[6])); return; }
+      const r = document.querySelector('input[name="revenue"]:checked');
+      if (!r) { setError(6, 'Please choose an option.'); focusScreen($(SCREEN_IDS[6])); return; }
       setError(6, '');
-      answers.service = r.value;
-      storeLead();
-      showScreen(7);
-      break;
-    }
-    case 7: {
-      const r = document.querySelector('input[name="adSpend"]:checked');
-      if (!r) { setError(7, 'Please choose an option.'); focusScreen($(SCREEN_IDS[7])); return; }
-      setError(7, '');
-      answers.adSpend = r.value;
-      storeLead();
-      showScreen(8);
-      break;
-    }
-    case 8: {
-      const site = normalizeWebsite($('f-website').value);
-      if (!site) { failField(8, 'That does not look like a website address. Try something like yourbusiness.com'); return; }
-      setError(8, '');
-      answers.website = site;
+      answers.revenue = r.value;
+      revenueFloor = parseFloat(r.getAttribute('data-floor'));
       storeLead();
       submitLead();
       break;
@@ -594,17 +723,19 @@ function checkRadio(name, value) {
 function prefill() {
   const stored = loadStoredLead();
   if (!stored) return;
-  const map = { name: 'f-name', email: 'f-email', phone: 'f-phone', business: 'f-business', trade: 'f-trade' };
+  const map = { name: 'f-name', email: 'f-email', phone: 'f-phone', business: 'f-business' };
   for (const key of Object.keys(map)) {
     const input = $(map[key]);
     if (input && typeof stored[key] === 'string') input.value = stored[key];
   }
-  checkRadio('service', stored.service);
-  checkRadio('adSpend', stored.adSpend);
-  if (typeof stored.website === 'string' && stored.website && stored.website !== 'No website yet') {
-    const input = $('f-website');
-    if (input) input.value = stored.website;
+  if (Array.isArray(stored.helpWith)) {
+    const all = stored.helpWith.indexOf(HELP_ALL) !== -1;
+    helpBoxes().forEach((b) => {
+      b.checked = all || stored.helpWith.indexOf(b.value) !== -1;
+    });
+    syncHelpAll(null);
   }
+  checkRadio('revenue', stored.revenue);
 }
 
 /* ==================================================================== *
@@ -617,17 +748,6 @@ function bindFunnelEvents() {
 
   const back = $('back-btn');
   if (back) back.addEventListener('click', goBack);
-
-  const noSite = $('no-site-btn');
-  if (noSite) {
-    noSite.addEventListener('click', () => {
-      if (done) return;
-      setError(8, '');
-      answers.website = 'No website yet';
-      storeLead();
-      submitLead();
-    });
-  }
 
   document.addEventListener('keydown', (event) => {
     if (event.key !== 'Enter' || event.isComposing || done) return;
@@ -642,15 +762,19 @@ function bindFunnelEvents() {
     const input = $(FIELD_IDS[step]);
     if (input) input.addEventListener('input', () => setError(Number(step), ''));
   }
-  document.querySelectorAll('input[name="service"]').forEach((r) => {
-    r.addEventListener('change', () => setError(6, ''));
+  helpBoxes().forEach((box) => {
+    box.addEventListener('change', () => {
+      syncHelpAll(box);
+      setError(5, '');
+    });
   });
-  document.querySelectorAll('input[name="adSpend"]').forEach((r) => {
-    r.addEventListener('change', () => setError(7, ''));
+  document.querySelectorAll('input[name="revenue"]').forEach((r) => {
+    r.addEventListener('change', () => setError(6, ''));
   });
 }
 
 function init() {
+  origin = captureOrigin();
   prefill();
   updateProgress(0);
   bindFunnelEvents();
@@ -669,7 +793,6 @@ function init() {
     }
   }
 
-  initBookSection({ onBooked: () => trackPixel('trackCustom', 'CallScheduled') });
   initMailLinks();
 
   document.addEventListener('visibilitychange', () => {

@@ -76,6 +76,9 @@ export default defineConfig({
         contact: page('./contact/index.html'),
         pricing: page('./pricing/index.html'),
         freeAudit: page('./free-audit/index.html'),
+        // The booking calendar, reached only by finishing the free audit.
+        // noindex and deliberately not in public/sitemap.xml.
+        bookACall: page('./book-a-call/index.html'),
         privacy: page('./privacy/index.html'),
         // Post-booking confirmation. noindex and deliberately not in
         // public/sitemap.xml, but it still has to be built and shipped.

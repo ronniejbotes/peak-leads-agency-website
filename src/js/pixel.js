@@ -1,6 +1,7 @@
 /*
  * Peak Leads - src/js/pixel.js
- * Shared Facebook Pixel loader (deferred). Used by main.js and audit.js.
+ * Shared Facebook Pixel loader (deferred). Used by main.js, audit.js and
+ * pages/booking.js.
  * Loads once, on the first sign of a person: pointerdown, pointermove,
  * touchstart, keydown or wheel. There is no timer, and a bare scroll event
  * does not count: the browser fires one for an anchor jump or a restored
@@ -13,6 +14,7 @@
  */
 const PIXEL_ID = '1586557796001231';
 let pixelLoaded = false;
+let pixelFailed = false;
 
 export function loadPixel() {
   if (pixelLoaded) return;
@@ -33,6 +35,9 @@ export function loadPixel() {
     const script = document.createElement('script');
     script.async = true;
     script.src = 'https://connect.facebook.net/en_US/fbevents.js';
+    script.onerror = () => {
+      pixelFailed = true;
+    };
     document.head.appendChild(script);
   }
   /* No automatic events: without this, Meta's code also reports button
@@ -61,4 +66,17 @@ export function trackPixel(kind, eventName) {
   if (typeof window.fbq === 'function') {
     window.fbq(kind, eventName);
   }
+}
+
+/* fbevents.js is up and has taken over the queue (it sets callMethod on the
+   stub when it does), so an event handed to fbq now is sent straight away. */
+export function pixelUp() {
+  return typeof window.fbq === 'function' && typeof window.fbq.callMethod === 'function';
+}
+
+/* fbevents.js failed to load: an ad blocker or tracking protection, almost
+   always. Nothing queued will ever be sent, so a page holding a navigation
+   for the Pixel can stop waiting. */
+export function pixelBlocked() {
+  return pixelFailed;
 }

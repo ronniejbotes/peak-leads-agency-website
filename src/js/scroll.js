@@ -206,7 +206,7 @@ export function initScrollChoreography(scene) {
      has to recede further once it is dark particles on a light ground. */
   let dayT = 0;
   /* 0..1 SPHERE -> QUESTIONS morph across the #book to #faq handoff, and the
-     blackout that hides the machine while the Calendly embed is on screen.
+     blackout that hides the machine while #book is on screen.
      See section 5d. */
   let questionT = 0;
   let hideT = 0;
@@ -239,7 +239,7 @@ export function initScrollChoreography(scene) {
     base = Math.min(base, 1 - (1 - ZONE_DIM) * zt);
     /* Presence envelope for the back half, applied LAST so it can force a
        true zero rather than merely dimming. The machine fades out across
-       #process, stays gone through #network and the Calendly embed, and
+       #process, stays gone through #network and #book, and
        comes back only as the question marks - hence the max(): questionT is
        the one thing allowed to overrule the blackout. footerHideT then takes
        it out again so nothing bleeds into the footer. */
@@ -664,21 +664,19 @@ export function initScrollChoreography(scene) {
     }
 
     /* --------------------------------------------------------------
-     * 5d. Into the calendar, out as question marks.
+     * 5d. Into #book, out as question marks.
      *
      * Two scrubbed values, both rewinding like everything else:
      *
-     *   hideT     blackout while #book holds the viewport. The Calendly
-     *             iframe is the one piece of UI on this page whose inside we
-     *             do not control, so the machine leaves entirely rather than
+     *   hideT     blackout while #book holds the viewport, so the call to
+     *             book has the page to itself rather than the machine
      *             sitting behind it at reading dim.
      *
      *   questionT SPHERE(6) -> QUESTIONS(7) as #faq climbs in, paired with
      *             setCondense. At 0 the machine is imploded to a dot at dead
-     *             center - which is exactly where the embed was - so
-     *             releasing it while the glyphs form reads as the particles
-     *             pouring out of the calendar and settling either side of
-     *             the accordions.
+     *             center - right behind the booking button - so releasing
+     *             it while the glyphs form reads as the particles pouring
+     *             out of #book and settling either side of the accordions.
      *
      * The two windows overlap deliberately: the blackout is releasing while
      * the marks are forming, so the emergence is the part you actually see.
@@ -694,11 +692,11 @@ export function initScrollChoreography(scene) {
       sceneCall('setCondense', hideT * (1 - questionT));
     }
 
-    /* The machine leaves the page well before the Calendly embed, not at it.
+    /* The machine leaves the page well before #book, not at it.
        The fade runs across the whole of #process: it starts the moment that
        section clears the fold and is complete by the time its bottom gets
        there, which is exactly when #network is about to enter. So the orbit
-       visual and the embed each get the page to themselves, and the question
+       visual and #book each get the page to themselves, and the question
        marks are the machine's re-entrance rather than a change of shape. */
     function applyHide(self) {
       const p = self.progress;

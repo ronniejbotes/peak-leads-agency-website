@@ -1,6 +1,13 @@
 /*
  * Peak Leads - src/js/book.js
- * The closing "book a call" band, shared by every page.
+ * The Calendly booking calendar.
+ *
+ * Since October 2026 the calendar is on ONE page: /book-a-call/, which a
+ * visitor reaches only by finishing the free audit with answers that open it
+ * (src/js/pages/booking.js sets the embed up there). Every "Book a call" on
+ * the site links to /free-audit/ instead, and no other page carries an embed
+ * or a calendly.com link, so pages/booking.js is the only entry that imports
+ * this file.
  *
  * Two jobs, and neither touches the page until it has to, so the page a
  * crawler renders matches the page the server sent:
@@ -12,13 +19,13 @@
  *                      to calendly.com is stamped the first time a pointer,
  *                      finger, keyboard focus or click reaches it, so the href
  *                      is right before any click, middle-click or "copy link".
- *   initBookSection() Arms that link stamping on every page, lazy-loads the
+ *   initBookSection() Arms that link stamping, lazy-loads the
  *                      widget when #book comes near the viewport, reports the
  *                      booking to the Pixel, then sends the visitor on to
  *                      /thank-you/.
  *
- * Adding the band to a new page needs no JS change: drop the markup in
- * (see DESIGN.md > Book-a-call band) and the page entry already calls it.
+ * Do not add an embed to any other page: that would let a visitor book
+ * without the audit (DESIGN.md 9b).
  */
 
 const CALENDLY_HOST = 'calendly.com';
@@ -52,15 +59,10 @@ const LEAVE_BY = 4000;
 
 /* /blog/how-much-do-roofing-leads-cost/ -> blog-how-much-do-roofing-leads-cost
    /                                     -> home
-   On 404 this is whatever URL the visitor missed, which is worth knowing. */
-function pageSlug() {
-  let path = '';
-  try {
-    path = window.location.pathname || '';
-  } catch (err) {
-    return 'unknown';
-  }
-  path = path
+   Exported for /book-a-call/, which names the page that sent the visitor
+   to the audit rather than itself. */
+export function slugFor(rawPath) {
+  const path = (rawPath || '')
     .replace(/index\.html?$/i, '')
     .replace(/^\/+/, '')
     .replace(/\/+$/, '');
@@ -73,6 +75,17 @@ function pageSlug() {
       .replace(/-+/g, '-')
       .slice(0, 60) || 'home'
   );
+}
+
+/* On 404 this is whatever URL the visitor missed, which is worth knowing. */
+function pageSlug() {
+  let path = '';
+  try {
+    path = window.location.pathname || '';
+  } catch (err) {
+    return 'unknown';
+  }
+  return slugFor(path);
 }
 
 /* The page title, minus the " | Peak Leads" tail, so the Calendly event
@@ -131,7 +144,17 @@ function decorate(rawUrl, placement, inbound) {
     const value = inbound[key] || context[key];
     if (value) url.searchParams.set(key, value);
   }
-  return url.toString();
+  return spacesAsPercent20(url.toString());
+}
+
+/* URLSearchParams writes a space as "+". Calendly's widget.js reads the
+   embed's data-url as percent-encoding only and passes a "+" through as a
+   literal plus, so a prefilled "Thandi Nkosi" would reach the booking form
+   as "Thandi+Nkosi". %20 means a space to everyone. A real plus in a value
+   is already %2B, so every "+" left in the query is a space. */
+export function spacesAsPercent20(href) {
+  const at = href.indexOf('?');
+  return at === -1 ? href : href.slice(0, at) + href.slice(at).replace(/\+/g, '%20');
 }
 
 function canDecorate() {
@@ -243,11 +266,10 @@ function leaveForThankYou(reported) {
   window.setTimeout(tick, 100);
 }
 
-/* onBooked: what a booked call reports. Home and the free audit pass one
-   that loads the Pixel if it has not started yet (a visitor can book with
-   nothing but taps inside Calendly's iframe, which the page never hears);
-   every other page keeps the old rule and reports only to a Pixel that is
-   already running, which on those pages is never. */
+/* onBooked: what a booked call reports. /book-a-call/ passes one that loads
+   the Pixel if it has not started yet (a visitor can book with nothing but
+   taps inside Calendly's iframe, which the page never hears). Without one,
+   a booking reports only to a Pixel that is already running. */
 export function initBookSection(options) {
   const onBooked = options && typeof options.onBooked === 'function' ? options.onBooked : null;
   /* Every page, embed or not: its text links still need stamping. */

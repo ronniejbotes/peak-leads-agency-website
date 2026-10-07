@@ -1864,11 +1864,25 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
 }
 
 /* ==========================================================================
-   #book — Calendly embed
+   #book — "Book a call", and the one Calendly embed
    ========================================================================== */
 
 #book { text-align: center; }
 #book h2, #book p { margin-inline: auto; }
+
+/* Every #book section but /book-a-call/'s ends in a button to the free
+   audit, not a calendar: a booking starts with the audit, and only answers
+   that qualify reach the embed (DESIGN.md 9b). */
+#book .book-cta {
+  margin-top: 28px;
+  margin-bottom: 0;
+}
+#book .book-alt {
+  max-width: 58ch;
+  margin: 18px auto 0;
+  font-size: 0.92rem;
+  color: var(--text-3);
+}
 
 .calendly-inline-widget {
   width: 100%;
@@ -1886,11 +1900,11 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
   overflow: hidden;
 }
 
-/* -- .book-band — the closing embed on every static page ------------------
+/* -- .book-band — the closing "book a call" band on every static page -----
    The homepage runs #book as a daylight set-piece inside the 3D scene. The
    static pages have no scene to break out of, so the band stays on the page
-   ground and lets the white Calendly card be the bright thing. A hairline
-   separates it from the article above without a full-bleed slab. */
+   ground. A hairline separates it from the article above without a
+   full-bleed slab. */
 
 .book-band {
   border-top: 1px solid var(--border);
@@ -1907,12 +1921,6 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
   font-size: 1.05rem;
   line-height: 1.65;
   color: var(--text-2);
-}
-.book-band .book-alt {
-  max-width: 58ch;
-  margin: 18px auto 0;
-  font-size: 0.92rem;
-  color: var(--text-3);
 }
 
 /* ==========================================================================
@@ -2260,8 +2268,12 @@ body.no-3d .say-hi { display: none; }
   text-wrap: balance;
 }
 /* Keep legend.q-label in source order inside its fieldset */
-legend.q-label { float: left; width: 100%; }
+legend.q-label { float: left; width: 100%; margin-bottom: 10px; }
 legend.q-label + * { clear: both; }
+/* Whatever follows the floated legend clears it, and clearance swallows
+   that element's own top margin, so the gap has to come from the legend's
+   margin above plus, for an option grid straight after it, padding here. */
+legend.q-label + .option-grid { padding-top: 16px; }
 
 .q-sub {
   margin-top: 10px;
@@ -2392,6 +2404,35 @@ input[name="pl_extra"] {
   gap: 10px 16px;
   margin-top: 26px;
 }
+
+/* ==========================================================================
+   /book-a-call/ — the calendar after the audit
+   The funnel's chrome (wordmark, Contact, close) and its paper ground, but
+   no particle canvas: the calendar is the page. Wider than the question
+   column, so Calendly can set its calendar beside the event details.
+   ========================================================================== */
+
+.booking-shell { max-width: var(--content-max); }
+/* width: main is a flex column, and the auto inline margins every
+   main > section carries would otherwise shrink the section to its widest
+   line of text, squeezing Calendly into its narrow, stacked layout. */
+.booking-shell main > section {
+  width: 100%;
+  max-width: none;
+  padding-block: clamp(16px, 4vh, 40px) 0;
+  padding-inline: 0;
+}
+.booking-shell h1 {
+  font-size: clamp(1.9rem, 4.4vw, 2.9rem);
+  max-width: 22ch;
+  margin: 0 auto 14px;
+}
+.booking-shell .book-sub {
+  max-width: 58ch;
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+.booking-shell .calendly-inline-widget { margin-top: 20px; }
 
 /* ==========================================================================
    Static pages (about / services / contact / blog / 404)
@@ -3386,7 +3427,7 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
 :root:not(.js-enabled) #process.theme-day::before,
 body.no-3d #process.theme-day::before { display: none; }
 
-/* -- closing CTA + on-page Calendly --------------------------------------- */
+/* -- closing CTA ---------------------------------------------------------- */
 
 .pricing-final {
   margin-top: 56px;
@@ -3419,11 +3460,6 @@ body.no-3d #process.theme-day::before { display: none; }
   font-size: 1.1rem !important;
   line-height: 1.7 !important;
   color: var(--text) !important;
-}
-
-.pricing-final .calendly-inline-widget {
-  margin-top: 28px;
-  border: 1px solid var(--border);
 }
 
 .pricing-final-alt {

@@ -134,13 +134,15 @@ copy on both grounds, so it survives only inside the mark. Never set text in it,
 | `/lead-generation/` | src/js/pages/subpage.js | Exclusive Lead Generation South Africa \| Peak Leads |
 | `/pricing/` | src/js/pages/pricing.js | Lead Generation Pricing 2026 \| Peak Leads |
 | `/thank-you/` | src/js/pages/thankyou.js | Call scheduled: 3 quick steps \| Peak Leads |
+| `/book-a-call/` | src/js/pages/booking.js | Pick a time for your call \| Peak Leads |
 | `/404.html` | subpage.js | Page Not Found \| Peak Leads |
 
 Canonical host: `https://peakleads.agency` with trailing slash on folders. Every page:
 unique meta description (150-160ch), canonical, OG (og:image `/assets/images/og-image.jpg`
 1200×630), twitter:card summary_large_image, `<html lang="en">`, theme-color `#0D0C0A`,
 and `<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1,
-max-video-preview:-1">` (404.html is `noindex`, and so is `/thank-you/` — see 9d).
+max-video-preview:-1">` (404.html is `noindex`, and so are `/thank-you/` (9d) and
+`/book-a-call/` (8b)).
 
 ## 4. Landing page section map (index.html)
 
@@ -150,13 +152,13 @@ from-states. Eyebrow budget: max 3 on the whole page.
 1. **`nav.site-nav`** - fixed glass pill bar (h 64px, max-w 1200px, radius-full).
    Brand: logo img `/assets/images/logo.webp` (40px) + "PeakLeads" bold. Links: Home `/`,
    About `/about/`, What We Do `/services/`, Testimonials `/#testimonials`, Blog `/blog/`.
-   CTA pill "Book A Call" → `/#book`. Mobile <900px: burger → dropdown (js-enabled gated;
+   CTA pill "Book A Call" → `/free-audit/` (a call is booked only after the audit, §8). Mobile <900px: burger → dropdown (js-enabled gated;
    no-JS gets static wrapped row). 2px `.nav-progress` bottom edge, scaleX = --scroll-progress.
 2. **`#hero`** (100svh, asymmetric: copy left max-w 620px, particles park RIGHT).
    H1: "Build your presence." Sub (19 words): "We've helped businesses generate over
    \[$13 million | R220 million] in sales through our websites, SEO, paid ads, and lead
    generation systems." The amount is a `<span data-money-usd data-money-zar>` — see §7.
-   CTAs: primary "Get your free audit" → `/free-audit/`; ghost "Book a call" → `#book`.
+   CTAs: primary "Get your free audit" → `/free-audit/`; ghost "Book a call" → `/free-audit/`.
    Nothing else.
 3. **`#proof`** - 4 stat tiles (2-col mobile / 4-col desktop, count-up on view):
    `4.9/5` average client rating · `70+` reviews · `$13M+` \| `R220M+` client revenue
@@ -234,10 +236,11 @@ from-states. Eyebrow budget: max 3 on the whole page.
    sprint. You get daily updates." / 03 You climb: "Leads land. We tune weekly. You book
    more jobs."
 9. **`#book`** - H2 "Let's talk about your project." Sub: "30 minutes with Bradley. Free,
-   direct, no pitch deck." Calendly inline embed div
-   `data-url="https://calendly.com/bradley-hart/30min?hide_gdpr_banner=1"` lazy-loaded via
-   IntersectionObserver (script + CSS injected on approach). No-JS/blocked fallback link:
-   "Book directly on Calendly" + the email link (`a[data-mail]`, see §9b).
+   direct, no pitch deck." Primary button "Book your call" → `/free-audit/`, then "Six quick
+   questions first, then pick a time that suits you. Or email" + the email link
+   (`a[data-mail]`, see §9b). No calendar: until October 2026 this held the Calendly embed,
+   which now lives on `/book-a-call/` alone (§8b). The id stays, because links to `/#book`
+   from outside the site still land here.
 10. **`#faq`** - H2 "Questions, answered." 11 native `<details>` glass accordions, all
     carrying `open` so the answers are visible text at load (an open answer shows a minus,
     a closed one a plus). The first six are mirrored in FAQPage JSON-LD; the five added on
@@ -252,7 +255,7 @@ from-states. Eyebrow budget: max 3 on the whole page.
     email bradley@peakleads.agency,
     links (nav + Free audit + Blog + Instagram @bradley_mj_kid, LinkedIn), © 2026 Peak Leads.
 12. **Floating "Say hi" bubble** - fixed bottom-right circular video `/assets/videos/bradley.mp4`
-    (muted loop, 144px, border 3px bone), links to `#book`, hides while #book visible,
+    (muted loop, 144px, border 3px bone), links to `/free-audit/`, hides while #book visible,
     `aria-hidden` decorative label. Gated to js-enabled + pointer-fine + the 3D scene
     running, so it appears after the first interaction; never on /free-audit/. Ships
     `hidden` so it cannot paint before main.js decides. Poster `bradley-144.webp`
@@ -360,14 +363,14 @@ blanking it and replaying it. A reload or Back is left where the browser restore
 scroll 0 looks the same because the canvas draws nothing over the hero. All-or-nothing
 gate → on any failure or `prefers-reduced-motion`: `body.no-3d` (canvas hidden, static
 warm radial-gradient backdrop, everything readable). Also: nav burger, footer year,
-Calendly lazy-load, email links, video posters, "Say hi" bubble, Facebook Pixel
+email links, video posters, "Say hi" bubble, Facebook Pixel
 `1586557796001231` (autoConfig off, so no automatic events; init + PageView;
 `CallScheduled` custom event when Calendly
 `calendly.event_scheduled` postMessage fires; `Lead` on funnel submit). Pixel loads on
 the first interaction only (pointerdown, pointermove, touchstart, wheel or keydown; no
 timer, and not a bare scroll event, which an anchor jump or a restored scroll position
-fires with nobody there), or right before a conversion if it has not loaded yet: home and
-the free audit pass book.js an `onBooked` that loads it for `CallScheduled`, because a
+fires with nobody there), or right before a conversion if it has not loaded yet:
+`/book-a-call/` passes book.js an `onBooked` that loads it for `CallScheduled`, because a
 booking can be made with nothing but taps inside Calendly's iframe. A visitor who never
 interacts and never books sends no PageView.
 
@@ -426,38 +429,101 @@ headless browser; it is statically dropped from production builds.
 
 ## 8. Free-audit funnel (`/free-audit/` + `src/js/audit.js`)
 
-Full-screen dark shell, no site nav (brand wordmark + "peakleads.agency" link + X → `/`).
-Same particle canvas behind (formation morphs per step, walking 0→6 then back to 0), radial
-backdrop scrim so particles stay visible. 4px fixed top progress bar (accent), width
-(step)/(total). One question per screen, `.in` slide-up entrance, Enter advances,
-auto-focus, Back button from step 2, "N of 8" counter, error lines aria-live, honeypot
-input name `pl_extra`, localStorage prefill `pl_lead` + outbox retry `pl_lead_outbox`.
+**Every booking starts here** (Bradley's brief, October 2026). Every "Book a call" and
+"Get your free audit" on the site links to `/free-audit/`. The calendar lives on
+`/book-a-call/` alone (8b), and only answers that qualify reach it.
 
-Steps (labels Geist 800, q-num accent "N →"):
-1. name: "What's your name?" text, min 2 chars.
-2. email: "What's your business email?" sub "This is where we reply once we've reviewed
-   your answers."
+Full-screen shell on the light ground (9c), no site nav (brand wordmark + Contact link +
+X → `/`). Same particle canvas behind (formation morphs per step, walking 0→5, then the
+PEAK for the calendar hop and the SPHERE for the other ending), radial backdrop scrim so
+particles stay visible. 4px fixed top progress bar (accent), width (step)/(total). One
+question per screen, `.in` slide-up entrance, Enter advances, auto-focus, Back button from
+step 2, "N of 6" counter, error lines aria-live, honeypot input name `pl_extra`,
+localStorage prefill `pl_lead`, plus the outbox `pl_lead_outbox` and the hand-off
+`pl_booking`, both owned by `src/js/lead.js`.
+
+Steps (labels Geist 800, q-num accent "N →"). 1 to 3 are the contact details; 4 to 6 are
+Bradley's questions, worded as he sent them:
+1. name: "What's your full name?" placeholder "Name and surname"; two words at least.
+2. email: "What's your email address?"
 3. phone: "What's the best contact number?" tel, `/^\+?\d{7,15}$/` after stripping.
-4. business: "What's your business called?"
-5. trade: "What's your trade?" text + datalist: Roofing / Plumbing / HVAC / Electrical /
-  Solar / Construction / Landscaping / Painting / Garage Doors / Pest Control / Other.
-6. service: "Which service are you interested in?" radio cards 2-col: Web Design / SEO /
-   Google Ads and Meta Ads / Lead Generation / "Not sure yet, recommend for me".
-7. spend: "What's your current monthly ad spend?" radio: Not spending yet / Under $500 /
-   $500 to $2,000 / $2,000 to $10,000 / Over $10,000.
-8. website: "What's your website address?" sub "We'll review it before your audit. No
-   website yet? That's fine." input + escape text-button "I don't have a website yet".
-Intro screen: pill "Free audit", H1 "Get your free audit.", sub "Eight quick questions.
-We review your answers and reply within one business day with what we'd do, what it costs,
-and whether we're the right fit." Start button + "press Enter ↵".
-Thanks screen: "You're on the way up." / "Your answers are in. Bradley reviews every one
-personally and replies within one business day." Buttons: "Book a call now" →
-Calendly URL, ghost "Back to the site" → `/`.
-Submission: POST JSON to `https://formsubmit.co/ajax/bradley@peakleads.agency`
-(`_subject: "New free audit request: {business}"`), honeypot-suppressed, mailto fallback,
-config const slot `LEAD_WEBHOOK` at top of audit.js for a future Apps Script/Web3Forms swap.
-Fire Pixel `Lead`. Page is `noindex`? NO: index it (title above), but exclude from nav
-clutter. JSON-LD WebPage + BreadcrumbList.
+4. business: "Tell us about your business." sub "What industry are you in, and what's your
+   website or social media link?" One short-answer field, min 2 chars.
+5. help: "What do you want help with most right now?" sub "Choose as many as apply."
+   Checkbox cards 2-col: Generate more qualified leads / Increase sales/revenue / Improve
+   our website & Google presence / Grow our social media & brand / Improve our paid
+   advertising / All of the above. "All of the above" ticks every box, and ticking every
+   other box ticks it.
+6. revenue: "What is your business currently generating in monthly revenue?" radio:
+   Under R30,000 / R30,000 to R75,000 / R75,000 to R150,000 / R150,000 to R300,000 /
+   R300,000 to R500,000 / R500,000+. Each option carries `data-floor`, the bottom of its
+   band in rand. Button "Send my answers".
+Intro screen: eyebrow "Free audit", H1 "Get your free audit.", sub "Six quick questions
+about your business. Then pick a time for a free 30 minute call, and we'll walk you through
+what we'd do and what it costs." Start button + "press Enter ↵".
+
+**Two endings, decided in audit.js and nowhere in the markup.** Every finished audit is
+emailed to the team. Then:
+- A revenue floor at or above `BOOKING_MIN_REVENUE`: `#screen-next`, "You're on the way
+  up." with the condense pulse, then on to `/book-a-call/` once the lead is acknowledged
+  and the Lead event has gone, never later than `LEAVE_BY`. A "Pick a time" button is the
+  manual route.
+- Below it: `#screen-thanks`, "Thanks for your answers, {first name}." / "Unfortunately,
+  based on the answers you've provided, we're not able to assist you right now. One of our
+  team members may be in touch in future." Buttons "Back to the site" → `/` and ghost
+  "Read the blog" → `/blog/`. No calendar link anywhere on it.
+- A browser that was turned away keeps that answer for `DECLINE_HOLDS_FOR`, 2 hours from
+  the first refusal, whatever it answers in that time, so reloading and picking a bigger
+  band does not open the calendar straight away. Short on purpose (Ronnie, 7 October
+  2026): it stops an instant retry, never shuts a business out. Audits in that window still
+  reach the team, quoting the earlier answer and how long ago it was. Testing both endings
+  therefore needs a fresh private window per run, or a 2 hour wait.
+
+**Nothing a visitor can see may hint that one answer leads somewhere different**, or people
+would simply pick the other answer: no copy, label, id, class or attribute that names the
+rule (`data-floor` is a plain band value), and the visitor's own mailto fallback carries
+only their answers. The outcome goes to the team alone, in the email.
+
+Submission: POST JSON to `https://formsubmit.co/ajax/bradley@peakleads.agency` with `name`,
+`email`, `phone`, `business`, `helpWith`, `monthlyRevenue`, `booking` (the outcome, for the
+team), `cameFrom` (the referring page or host, plus any utm params) and `page`. `_subject`
+is "New free audit request: {name}", or "New free audit request (disqualified): {name}".
+Honeypot-suppressed (a bot gets the no-call ending; nothing is sent or stored), mailto
+fallback, config const slot `LEAD_WEBHOOK` at the top of `lead.js` for a future Apps
+Script/Web3Forms swap. Fire Pixel `Lead` on every real submission. Page is `noindex`? NO:
+index it (title above), but exclude from nav clutter. JSON-LD WebPage + BreadcrumbList.
+
+## 8b. `/book-a-call/` — the calendar after the audit (added October 2026)
+
+The only page on the site with a booking calendar, and so the only place a call can be
+booked (entry `src/js/pages/booking.js`). `noindex, follow` and deliberately **not** in
+`public/sitemap.xml`, like `/thank-you/`.
+
+- **The gate.** An inline script at the top of `<head>` reads `pl_booking` and sends anyone
+  without an open audit under seven days old to `/free-audit/` before the page draws: a
+  typed address, a shared link, an old bookmark, a browser that was turned away. A store
+  the browser will not let it read lets the visitor through rather than lock a finished
+  audit out. `src/js/lead.js` owns the format; keep the seven days in step with
+  `BOOKING_OPEN_FOR` there.
+- **No booking link in the markup.** booking.js sets the embed's `data-url` and the "Open
+  it on Calendly" fallback href, filled in with the audit's name and email so nobody types
+  them twice. Spaces go out as `%20`, never `+`: Calendly's widget.js passes a `+` through
+  literally, so "Thandi Nkosi" would arrive as "Thandi+Nkosi".
+- **Source.** `utm_campaign` is the slug of the page that sent the visitor to the audit
+  (`free-audit` when they came straight in), and campaign params they arrived with ride
+  along and win, as they always have. book.js fills the remaining `utm_*` keys
+  (`utm_content` = `book-embed` or `text-link`).
+- **book.js** lazy-loads widget.js, fires `CallScheduled` when Calendly reports a booking,
+  then sends the visitor to `/thank-you/` (9d). It leaves 1.5s after the booking, so
+  Calendly's "You are scheduled!" registers; where the conversion went to a Pixel that was
+  not loaded yet, it also waits for fbevents.js to come up plus 1s. It never waits more
+  than 4s, so an ad blocker cannot strand anyone. A booking made on calendly.com through
+  the fallback link never comes back here.
+- It flushes the lead outbox, so an audit that was not acknowledged before the hop is sent
+  from here.
+- Funnel chrome (wordmark, Contact, X) on the light ground, no particle canvas. Eyebrow
+  "Last step", H1 "Pick a time for your call, {first name}." The page's own copy does not
+  name who the call is with (see 9d).
 
 ## 9. Subpages (about / services / contact / blog / 404)
 
@@ -474,8 +540,9 @@ fixed radial-gradient backdrop (deep blue and gold 3-6% glows on the light groun
   the old and new phrasings still rank. Each: what you get list,
   who it's for, mini-FAQ line, CTA. Service JSON-LD ×4 (provider → Organization,
   areaServed US).
-- **/contact/**: H1 "Talk to us." Email, Calendly link, IG/LinkedIn, simple no-backend
-  form (formsubmit.co action post, name/email/phone/message) + note "or book directly".
+- **/contact/**: H1 "Talk to us." Email, a "Book a call" link to the free audit,
+  IG/LinkedIn, simple no-backend form (formsubmit.co action post,
+  name/email/phone/message) + a note linking to the audit to book a call.
 - **/blog/**: H1 "Insights for the trades." Card grid (16:9 thumbs
   `/assets/images/blog-{slug}.webp`, fallback shared placeholder OK at build time).
 - **3 posts**: 1200-1800 words each, H1 = title, answer-first highlighted box, H2 question
@@ -525,16 +592,19 @@ keeps the pitch fresh in their memory and buys Bradley time to get back to them.
 from a search result would be told their call is booked when it is not.
 
 **It is wired to Calendly, not to a form, and the redirect lives in this repo** (added
-2026-10-04). `src/js/book.js` hears Calendly's `calendly.event_scheduled` from the embed,
-reports the conversion, and sends the visitor to `/thank-you/` — see 9b for the timing. It
+2026-10-04). `src/js/book.js` hears Calendly's `calendly.event_scheduled` from the embed on
+`/book-a-call/`, the only one on the site, reports the conversion, and sends the visitor
+to `/thank-you/` — see 8b for the timing. It
 does not use Calendly's own setting (Event type > Confirmation page > Redirect to an external
 site): that needs a paid Calendly plan and cannot wait for the Pixel. **The gap:** someone who
-books on calendly.com through a "Book directly" text link never comes back to the site, so
+books on calendly.com through the "Open it on Calendly" fallback on `/book-a-call/` never
+comes back to the site, so
 only that Calendly setting could send them here. If it is ever switched on, test an embed
 booking again, because nobody has checked how Calendly's redirect behaves inside the embed.
-The contact form's `_next` still points at `/contact/?sent=1` and the free-audit funnel keeps
-its in-page thanks screen; neither was changed, because the hero video opens with "thank you
-for booking this call" and that sentence is false for anyone who only filled in a form.
+The contact form's `_next` still points at `/contact/?sent=1`, and the free audit ends on
+`/book-a-call/` or on its own no-call screen, never here, because the hero video opens with
+"thank you for booking this call" and that sentence is false for anyone who only filled in a
+form.
 
 Structure (Bradley's brief, 5 October 2026): a dark Ink banner, "Congratulations on scheduling
 your call!" with a gold warning line asking people to complete all 3 steps, then three numbered
@@ -558,11 +628,10 @@ speaking to him, not to a salesperson") all came out. The hero video itself is s
 speaking, as the founder, and the email line at the foot still reaches him.
 
 **This is the one page that deliberately breaks 9b and carries no book-a-call band.** The
-visitor reached it *by booking a call*; putting the same Calendly embed under it invites a
+visitor reached it *by booking a call*; putting a "Book your call" band under it invites a
 second booking for the same lead and reads as though the first one did not register. The
-three links at the foot do that job instead. `thankyou.js` still imports `subpage.js`, so
-`initBookSection()` runs and stamps any Calendly text link — it simply finds no embed and
-returns.
+three links at the foot do that job instead. `thankyou.js` imports `subpage.js` for styles,
+nav, footer year and email links; neither touches book.js.
 
 **Video assets.** All six were supplied as 4K HEVC Main 10, which Chromium reports `""` for —
 they would not have played for most visitors, exactly like the September VSL. Transcoded to
@@ -595,17 +664,22 @@ make claims that do not match the published site. See
 
 ## 9b. Book-a-call band (EVERY page, including every future page)
 
-Every page ends in the same Calendly embed. Home and /pricing/ keep their own
-long-standing `#book` sections; every other page carries the `.book-band` block below,
-placed as the last child of `<main>`, after the article and before the footer.
+**No page carries a Calendly embed or a calendly.com link except `/book-a-call/` (8b).** A
+call is booked only after the free audit, so every "Book a call" on the site, this band's
+button included, goes to `/free-audit/`. Until October 2026 this band WAS the embed: a page
+or post copied from an older one must have it swapped for the block below.
+
+Every page ends in the same band. Home and /pricing/ keep their own long-standing `#book`
+sections, with the same button and line; every other page carries the `.book-band` block
+below, placed as the last child of `<main>`, after the article and before the footer.
 
 ```html
 <section id="book" class="book-band" aria-labelledby="book-heading">
   <p class="eyebrow">Book a call</p>
   <h2 id="book-heading">PAGE-SPECIFIC QUESTION</h2>
   <p class="book-sub">Thirty minutes with Bradley. PAGE-SPECIFIC PROMISE.</p>
-  <div class="calendly-inline-widget" data-url="https://calendly.com/bradley-hart/30min?hide_gdpr_banner=1"></div>
-  <p class="book-alt">Prefer to skip the widget? <a href="https://calendly.com/bradley-hart/30min" rel="noopener">Book directly on Calendly</a> or email <a href="/contact/" data-mail="bradley">bradley<span class="mail-at"></span>peakleads.agency</a>.</p>
+  <p class="book-cta"><a class="btn btn-primary" href="/free-audit/">Book your call</a></p>
+  <p class="book-alt">Six quick questions first, then pick a time that suits you. Or email <a href="/contact/" data-mail="bradley">bradley<span class="mail-at"></span>peakleads.agency</a>.</p>
 </section>
 ```
 
@@ -616,27 +690,11 @@ post about lead costs asks "Want to know what a roofing lead is worth to you?"; 
 page asks "Want to know why you are not ranking?". If the band could be copy-pasted onto
 another page unchanged, the copy is wrong.
 
-**Everything else is automatic.** `src/js/book.js` runs on every entry
-(`main.js`, `pages/subpage.js` — which `pages/pricing.js` imports — and `audit.js`) and:
+**Nothing else to wire**: no embed and no widget script. The id stays `book`,
+so links to `/#book` or `/pricing/#book` from outside the site still land on a way to book.
 
-- Lazy-loads Calendly's widget.js when `#book` is within 800px of the viewport, and
-  immediately on any click of a link to `#book`, so the embed is building during the scroll.
-- Stamps the booking URL with this page's context at the last moment (the embed's
-  `data-url` just before widget.js is appended, a text link the first time a pointer,
-  finger, keyboard focus or click reaches it; nothing changes at load), so the Calendly
-  event says where the booking came from: `utm_campaign` = the page slug
-  (`blog-how-much-do-roofing-leads-cost`), `utm_term` = the page title, `utm_content` =
-  `book-embed` or `text-link`.
-- Passes inbound campaign params straight through. A visitor who lands on a Google Ad
-  keeps `utm_source=google&utm_medium=cpc&utm_campaign=...` all the way into the booking;
-  page context only fills the keys the ad did not set. Params hand-written into the
-  markup beat both.
-- Fires the `CallScheduled` Pixel event when Calendly reports a booking, then sends the
-  visitor to `/thank-you/` (9d). It leaves 1.5s after the booking, so Calendly's "You are
-  scheduled!" registers. Where a conversion went to a Pixel that was not loaded yet, it also
-  waits for fbevents.js to come up plus 1s, so the event is sent before the page goes; the
-  Pixel sends by `sendBeacon` or keepalive fetch, which survive the navigation. It never
-  waits more than 4s, so an ad blocker cannot strand anyone.
+A post's CTA box (`aside.post-cta`) may name what the audit asks, but only what it really
+asks (§8), and says that a call follows: "..., then pick a time for a free 30 minute call."
 
 The email link in the block never carries a literal address in the HTML. CSS paints the
 `@` (`.mail-at::before`), so it reads and is announced as the full address, and
@@ -644,9 +702,8 @@ The email link in the block never carries a literal address in the HTML. CSS pai
 real `@` the first time a pointer, finger, keyboard focus, click or copy reaches it.
 With JS off it links to /contact/. Use the same markup anywhere the address appears.
 
-So a new page or blog post needs **no JS change** — paste the block, write two lines of
-copy, done. In-page CTAs that used to link out to calendly.com now link to `#book`
-instead, keeping the visitor on the page and warming the embed on click.
+So a new page or blog post needs **no JS change**: paste the block, write two lines of
+copy, done.
 
 ## 10. SEO layer
 
@@ -675,9 +732,9 @@ instead, keeping the visitor on the page and warming the embed on click.
 - H1s keyword-aware via section H2s (home H1 stays brand voice; H2s lead with the exact
   service keyword: "Web development that wins...", "SEO that climbs...", "Paid ads that
   buy...", "Lead generation that stays exclusive...").
-- `<link rel="dns-prefetch">` to assets.calendly.com on the landing page. Not a
-  preconnect: the embed only loads near #book, so a preconnect at load goes unused and
-  PageSpeed flags it.
+- No Calendly prefetch on the landing page: the calendar left it in October 2026.
+  `/book-a-call/` preconnects to calendly.com and assets.calendly.com instead, because
+  there the calendar is the page and loads at once.
 - Images: width/height attrs, lazy below fold, descriptive alt with trade keywords.
 - Three/GSAP dynamically imported on the first interaction → hero text is LCP, not canvas.
 

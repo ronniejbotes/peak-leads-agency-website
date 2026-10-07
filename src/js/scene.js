@@ -521,9 +521,9 @@ function buildSphere(count) {
 }
 
 // 7 - QUESTIONS: two question marks, one in each gutter beside #faq. The
-// machine implodes to a point behind the Calendly embed and then flies out
-// into these as the accordions arrive, so the particles read as spilling out
-// of the calendar.
+// machine implodes to a point behind #book's booking button and then flies
+// out into these as the accordions arrive, so the particles read as spilling
+// out of it.
 //
 // Placement is in world units, not pixels: the camera is at z 7 with a 50deg
 // fov, so the frame is ~6.53 units tall and (6.53 * aspect) wide. At desktop
@@ -760,7 +760,7 @@ void main() {
   float disc = smoothstep(0.5, 0.1, d);
   if (disc < 0.004) discard;
   // Dust dims less than the machine so the backdrop never dies fully - but
-  // the smoothstep lets a true blackout (uDim -> 0, the Calendly section)
+  // the smoothstep lets a true blackout (uDim -> 0, the #book section)
   // take it all the way out. It only bites below 0.25, and reading dim
   // bottoms out at 0.35, so every existing state is untouched.
   float alpha = disc * 0.32 * (0.5 + 0.5 * vTone)

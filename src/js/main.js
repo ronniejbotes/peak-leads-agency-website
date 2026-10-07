@@ -15,7 +15,7 @@
  *   choreography. A choreography failure after the scene started also
  *   tears everything down to no-3d. The page stays fully readable.
  * - Always-on utilities run with or without 3D: nav burger, footer year,
- *   Calendly lazy-load, email links, video posters, "Say hi" bubble gating,
+ *   email links, video posters, "Say hi" bubble gating,
  *   Facebook Pixel.
  * - #work's card cylinder is gated on prefers-reduced-motion ONLY, not on
  *   the WebGL boot: it is plain CSS 3D, so a machine that fails scene.init
@@ -25,10 +25,9 @@
  * - No THREE and no GSAP imports in this file.
  */
 import '../styles/main.css';
-import { armPixel, trackPixel } from './pixel.js';
+import { armPixel } from './pixel.js';
 import { initNetwork } from './network.js';
 import { initMailLinks } from './email.js';
-import { initBookSection } from './book.js';
 
 const docEl = document.documentElement;
 const body = document.body || docEl;
@@ -406,7 +405,7 @@ function reaimLanding() {
   /* After arrival a re-aim only ever corrects drift (the cylinder's taller
      stage, late fonts). A target far from where the jump left it means the
      visitor has scrolled on by a route the takeover events cannot see
-     (scrolling over the Calendly iframe, find in page, a screen reader), so
+     (find in page, a screen reader), so
      the position is theirs. */
   if (landing.arrived) {
     const drift = Math.abs(landing.target.getBoundingClientRect().top - landingOffset(landing.target));
@@ -571,7 +570,7 @@ function initYear() {
 /* ====================================================================
  * "Say hi" bubble. Shown only when the 3D experience is running
  * (body not .no-3d), on precise pointers at >=900px. Hidden while #book
- * is on screen so it never covers the Calendly embed.
+ * is on screen, so it never sits beside the booking button it repeats.
  * ================================================================== */
 const mqPointerFine =
   typeof window.matchMedia === 'function'
@@ -806,7 +805,6 @@ function init() {
   initNav();
   initNavTheme();
   initYear();
-  initBookSection({ onBooked: () => trackPixel('trackCustom', 'CallScheduled') });
   initMailLinks();
   initSayHi();
   initVslPoster();
