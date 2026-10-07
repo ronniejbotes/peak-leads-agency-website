@@ -481,8 +481,16 @@ fixed radial-gradient backdrop (deep blue and gold 3-6% glows on the light groun
 - **3 posts**: 1200-1800 words each, H1 = title, answer-first highlighted box, H2 question
   subheads, concrete numbers from research (roofing leads $41-150 shared vs exclusive
   economics, channel comparisons), internal links to `/services/` sections + other posts,
-  honest voice, BlogPosting JSON-LD (author Bradley Hartmann, datePublished 2026-07-30),
+  honest voice, BlogPosting JSON-LD (author the Organization, datePublished 2026-07-30),
   CTA box → /free-audit/.
+- **No author name on any post, present or future** (owner's decision, 7 October 2026).
+  A post has no byline: no person's name, photo or role as its author. Under the H1 it
+  shows the date alone, `<p><time datetime="2026-10-01">1 October 2026</time></p>`. The
+  BlogPosting JSON-LD `author` is the Organization, never a Person:
+  `"author": { "@type": "Organization", "@id": "https://peakleads.agency/#organization", "name": "Peak Leads", "url": "https://peakleads.agency/" }`.
+  The post's entry in the `/blog/` JSON-LD `blogPost` list carries the same author, and
+  its `/blog/` card shows the date, never a name. `publisher` stays as it is. No `author`
+  or `article:author` meta tag.
 - **/404.html**: "Wrong turn on the climb." Link home + popular pages.
 
 ## 9c. Daylight on every non-landing page (added 2026-08-26)
