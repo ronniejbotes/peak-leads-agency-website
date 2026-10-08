@@ -469,8 +469,10 @@ Bradley's questions, worded as he sent them:
    Under R30,000 / R30,000 to R75,000 / R75,000 to R150,000 / R150,000 to R300,000 /
    R300,000 to R500,000 / R500,000+. Each option carries `data-floor`, the bottom of its
    band in rand. Button "Send my answers".
-Intro screen: eyebrow "Free audit", H1 "Get your free audit.", sub "Just a few questions
-to see if we are a good fit for your business." Start button + "press Enter ↵" under it.
+Intro screen: only the H1 (`.q-label` size) "Just a few questions to see if we are a good
+fit for your business." and a Start button under it. No eyebrow, sub, key hint or "free
+audit" wording (Ronnie, 8 October 2026). The privacy notice line sits under "Send my
+answers" instead, where the answers leave the browser.
 
 **Two endings, decided in audit.js and nowhere in the markup.** Every finished audit is
 emailed to the team. Then:
