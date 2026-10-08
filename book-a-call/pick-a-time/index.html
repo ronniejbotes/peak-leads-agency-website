@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en-ZA">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+  /* The gate. This calendar is only for a visitor who has just answered the
+     questions on /book-a-call/ in a way that opens it, which
+     src/js/audit.js records in localStorage under pl_booking (src/js/lead.js
+     owns the format; keep the seven days here in step with BOOKING_OPEN_FOR
+     there). Anyone else - a typed address, a shared link, an old bookmark -
+     goes back to the questions before the page draws. A store the browser
+     will not let us read proves nothing either way, so it lets the visitor
+     through rather than lock finished answers out of their own calendar. */
+  (function () {
+    var d = document.documentElement;
+    d.classList.add('js-enabled');
+    var raw = null;
+    var blocked = false;
+    try { raw = window.localStorage.getItem('pl_booking'); } catch (e) { blocked = true; }
+    var rec = null;
+    try { rec = JSON.parse(raw || 'null'); } catch (e) { rec = null; }
+    var age = rec && typeof rec.ts === 'number' ? Date.now() - rec.ts : -1;
+    var open = blocked || !!(rec && rec.open === true && age >= 0 && age < 7 * 24 * 60 * 60 * 1000);
+    if (!open) {
+      d.style.visibility = 'hidden';
+      window.location.replace('/book-a-call/');
+    }
+  })();
+  </script>
+  <title>Pick a time for your call | Peak Leads</title>
+  <meta name="description" content="The last step of booking a call with Peak Leads: pick a time for your free 30 minute call.">
+  <link rel="canonical" href="https://peakleads.agency/book-a-call/pick-a-time/">
+  <!-- noindex: only a visitor who has just answered the questions can use
+       this page; everyone else is sent back to /book-a-call/. A search result
+       pointing here would only ever bounce. Deliberately absent from
+       public/sitemap.xml for the same reason. -->
+  <meta name="robots" content="noindex, follow">
+  <meta name="theme-color" content="#111725">
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <!-- The calendar is the page, and it starts loading at once. -->
+  <link rel="preconnect" href="https://assets.calendly.com">
+  <link rel="preconnect" href="https://calendly.com">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Peak Leads">
+  <meta property="og:title" content="Pick a time for your call | Peak Leads">
+  <meta property="og:description" content="The last step of booking a call with Peak Leads: pick a time for your free 30 minute call.">
+  <meta property="og:url" content="https://peakleads.agency/book-a-call/pick-a-time/">
+  <meta property="og:image" content="https://peakleads.agency/assets/images/og-image-2.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="module" src="/src/js/pages/booking.js"></script>
+</head>
+<body class="page-funnel page-booking no-3d">
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="progress-track" aria-hidden="true"><i style="width: 100%"></i></div>
+
+  <div class="audit-shell booking-shell">
+
+    <header>
+      <a href="/" aria-label="Peak Leads home">
+        <img src="/assets/logos/peak-leads-mark.svg" alt="Peak Leads logo" width="40" height="40">
+        <strong>PeakLeads</strong>
+      </a>
+      <a href="/contact/">Contact</a>
+      <a href="/" aria-label="Close the calendar and go back to the homepage">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg>
+      </a>
+    </header>
+
+    <main id="main">
+      <!-- The one Calendly embed on the site. src/js/pages/booking.js sets
+           its data-url (filled in with the name and email just given) and the
+           direct link's href; src/js/book.js loads the widget and sends a
+           booked visitor on to /thank-you/. Neither URL is in this file, so
+           the page source carries no booking link. -->
+      <section id="book" aria-labelledby="book-heading">
+        <p class="eyebrow">Last step</p>
+        <h1 id="book-heading">Pick a time for your call<span data-name-tail></span>.</h1>
+        <p class="book-sub">Thirty minutes, free. Choose a day and a time below and you are booked in.</p>
+        <div class="calendly-inline-widget"></div>
+        <p class="book-alt">Calendar not loading? <a id="calendly-direct" href="/contact/">Open it on Calendly</a>, or email <a href="/contact/" data-mail="bradley">bradley<span class="mail-at"></span>peakleads.agency</a>.</p>
+      </section>
+
+      <noscript>
+        <p>The booking calendar needs JavaScript. Email <a href="/contact/">bradley at peakleads.agency</a> and we will find a time with you.</p>
+      </noscript>
+    </main>
+  </div>
+
+</body>
+</html>

@@ -1,16 +1,16 @@
 /*
  * Peak Leads - audit.js
- * Entry for /free-audit/: the six step audit funnel plus its own particle
- * scene boot. No GSAP here - formation morphs run on a tiny rAF lerp so the
- * funnel stays light. Every scene call is guarded; any boot failure or
+ * Entry for /book-a-call/: the six questions before a call is booked, plus
+ * its own particle scene boot. No GSAP here - formation morphs run on a tiny
+ * rAF lerp so the funnel stays light. Every scene call is guarded; any boot failure or
  * prefers-reduced-motion adds body.no-3d and the page runs on the static
  * gradient fallback.
  *
- * The audit is also the only way to book a call: every "Book a call" on the
- * site links here, and the calendar lives on /book-a-call/ alone. Every
- * finished audit is emailed to the team. Then:
+ * The questions are the only way to book a call: every "Book a call" on the
+ * site links here, and the calendar lives on /book-a-call/pick-a-time/
+ * alone. Every finished set of answers is emailed to the team. Then:
  *   - a monthly revenue band at or above BOOKING_MIN_REVENUE goes straight
- *     on to /book-a-call/;
+ *     on to /book-a-call/pick-a-time/;
  *   - anything below it stays here on a polite ending that offers no call,
  *     and so does any browser turned away in the last DECLINE_HOLDS_FOR,
  *     whatever it answers now, so reloading and picking a bigger number
@@ -35,8 +35,8 @@ import {
  * ==================================================================== */
 const CONTACT_EMAIL = 'bradley@peakleads.agency';
 const LEAD_KEY = 'pl_lead';
-const PAGE_URL = 'https://peakleads.agency/free-audit/';
-const BOOKING_PAGE = '/book-a-call/';
+const PAGE_URL = 'https://peakleads.agency/book-a-call/';
+const BOOKING_PAGE = '/book-a-call/pick-a-time/';
 
 /* Bradley's qualifier (October 2026): a business turning over less than
    R75,000 a month is not offered a call. Compared with the data-floor on
@@ -52,7 +52,7 @@ const DECLINE_HOLDS_FOR = 2 * 60 * 60 * 1000;
 const HELP_ALL = 'All of the above';
 
 /* Pages that are part of the funnel itself, never "where they came from". */
-const FUNNEL_PATHS = /^\/(free-audit|book-a-call|thank-you)(\/|$)/;
+const FUNNEL_PATHS = /^\/(book-a-call|thank-you)(\/|$)/;
 const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
 
 /* The hop to the calendar. Long enough to read "You're on the way up" and
@@ -81,7 +81,7 @@ const SCREEN_IDS = [
   'screen-next',
   'screen-thanks'
 ];
-/* The first screen after the audit is sent. The two endings sit at and
+/* The first screen after the answers are sent. The two endings sit at and
    after it: screen-next goes on to the calendar, screen-thanks does not. */
 const DONE_INDEX = 7;
 const NEXT_INDEX = 7;
@@ -394,7 +394,7 @@ function syncHelpAll(changed) {
  * Where the visitor came from
  *
  * For the team's email, and for the booking's utm_campaign, which would
- * otherwise read "book-a-call" for every call booked. A page on this site
+ * otherwise read "book-a-call-pick-a-time" for every call booked. A page on this site
  * gives its path; anywhere else gives its host. Campaign params on this URL,
  * or on the page that sent the visitor here, travel with the lead, so an ad
  * that brought someone in stays the source of their booking.
@@ -507,11 +507,11 @@ function buildPayload(open, earlier) {
     booking: bookingNote(open, earlier),
     cameFrom: originText(),
     page: PAGE_URL,
-    _subject: (open ? 'New free audit request: ' : 'New free audit request (disqualified): ') + answers.name
+    _subject: (open ? 'New call request: ' : 'New call request (disqualified): ') + answers.name
   };
 }
 
-/* The visitor's own copy, so nothing here may say how the audit was
+/* The visitor's own copy, so nothing here may say how the answers were
    judged. */
 function mailtoHref() {
   const lines = [
@@ -524,7 +524,7 @@ function mailtoHref() {
   ];
   return (
     'mailto:' + CONTACT_EMAIL +
-    '?subject=' + encodeURIComponent('New free audit request: ' + (answers.name || 'my business')) +
+    '?subject=' + encodeURIComponent('Call request: ' + (answers.name || 'my business')) +
     '&body=' + encodeURIComponent(lines.join('\r\n'))
   );
 }
@@ -552,7 +552,7 @@ function fillName() {
 }
 
 /* Onward to the calendar once the lead is acknowledged (or given up on:
-   it is still queued, and /book-a-call/ flushes the queue) and the Lead
+   it is still queued, and /book-a-call/pick-a-time/ flushes the queue) and the Lead
    event has had its chance to leave. */
 function leaveForBooking(sent) {
   let settled = false;

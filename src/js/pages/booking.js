@@ -1,21 +1,21 @@
 /*
  * Peak Leads - src/js/pages/booking.js
- * Entry for /book-a-call/, the one page on the site with a booking calendar.
- * A visitor gets here only by finishing the free audit with answers that
- * open it: the inline script in the page's <head> sends everyone else to
- * /free-audit/ before anything draws.
+ * Entry for /book-a-call/pick-a-time/, the one page on the site with a
+ * booking calendar. A visitor gets here only by answering the questions on
+ * /book-a-call/ in a way that opens it: the inline script in the page's
+ * <head> sends everyone else back to /book-a-call/ before anything draws.
  *
  *   Calendar   Calendly's inline embed, filled in with the name and email
- *              the audit has just taken, so nobody types them twice. The
+ *              the questions have just taken, so nobody types them twice. The
  *              event URL is set here, not in the markup, so the page source
  *              carries no booking link. src/js/book.js loads the widget,
  *              reports the booking to the Pixel and sends the visitor on to
  *              /thank-you/.
  *   Source     utm_campaign names the page that sent the visitor to the
- *              audit, not this one, and the campaign params they arrived
+ *              questions, not this one, and the campaign params they arrived
  *              with ride along, so Calendly still shows where a booking came
  *              from now that every booking happens on this page.
- *   Outbox     Retries an audit that had not been acknowledged when the
+ *   Outbox     Retries answers that had not been acknowledged when the
  *              funnel moved on, in case that send failed.
  */
 import '../../styles/main.css';
@@ -37,8 +37,8 @@ function bookingUrl(handoff) {
 function addPrefill(url, handoff) {
   if (handoff.name) url.searchParams.set('name', handoff.name);
   if (handoff.email) url.searchParams.set('email', handoff.email);
-  /* "free-audit" when they came straight into the audit from outside. */
-  url.searchParams.set('utm_campaign', handoff.from ? slugFor(handoff.from) : 'free-audit');
+  /* "book-a-call" when they came straight into the questions from outside. */
+  url.searchParams.set('utm_campaign', handoff.from ? slugFor(handoff.from) : 'book-a-call');
   /* Set after the campaign above, so an ad's own params win, as they always
      have. book.js fills in whichever utm_* keys are still missing. */
   const utm = handoff.utm && typeof handoff.utm === 'object' ? handoff.utm : {};

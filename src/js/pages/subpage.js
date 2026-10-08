@@ -3,7 +3,7 @@
  * Static-page entry (about, services, contact, blog, posts, 404; pricing.js
  * imports it too). Styles + nav burger + footer year + email links. No
  * Three.js, no GSAP. The booking calendar is not here: it lives on
- * /book-a-call/ alone, which has its own entry (pages/booking.js).
+ * /book-a-call/pick-a-time/ alone, which has its own entry (pages/booking.js).
  */
 import '../../styles/main.css';
 import { initMailLinks } from '../email.js';

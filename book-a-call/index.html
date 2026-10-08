@@ -3,64 +3,59 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script>
-  /* The gate. This calendar is only for a visitor who has just finished the
-     free audit with answers that open it, which src/js/audit.js records in
-     localStorage under pl_booking (src/js/lead.js owns the format; keep the
-     seven days here in step with BOOKING_OPEN_FOR there). Anyone else - a
-     typed address, a shared link, an old bookmark - goes to the audit
-     before the page draws. A store the browser will not let us read proves
-     nothing either way, so it lets the visitor through rather than lock a
-     finished audit out of its own calendar. */
-  (function () {
-    var d = document.documentElement;
-    d.classList.add('js-enabled');
-    var raw = null;
-    var blocked = false;
-    try { raw = window.localStorage.getItem('pl_booking'); } catch (e) { blocked = true; }
-    var rec = null;
-    try { rec = JSON.parse(raw || 'null'); } catch (e) { rec = null; }
-    var age = rec && typeof rec.ts === 'number' ? Date.now() - rec.ts : -1;
-    var open = blocked || !!(rec && rec.open === true && age >= 0 && age < 7 * 24 * 60 * 60 * 1000);
-    if (!open) {
-      d.style.visibility = 'hidden';
-      window.location.replace('/free-audit/');
-    }
-  })();
-  </script>
-  <title>Pick a time for your call | Peak Leads</title>
-  <meta name="description" content="The last step of the Peak Leads free audit: pick a time for your free 30 minute call.">
+  <title>Book a Call | Peak Leads</title>
+  <meta name="description" content="Book a free 30 minute call with Peak Leads. Just a few questions first to see if we are a good fit for your business, then pick a time.">
   <link rel="canonical" href="https://peakleads.agency/book-a-call/">
-  <!-- noindex: only a visitor who has just finished the free audit can use
-       this page; everyone else is sent to /free-audit/. A search result
-       pointing here would only ever bounce. Deliberately absent from
-       public/sitemap.xml for the same reason. -->
-  <meta name="robots" content="noindex, follow">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
   <meta name="theme-color" content="#111725">
   <link rel="icon" href="/favicon.png" type="image/png">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  <!-- The calendar is the page, and it starts loading at once. -->
-  <link rel="preconnect" href="https://assets.calendly.com">
-  <link rel="preconnect" href="https://calendly.com">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Peak Leads">
-  <meta property="og:title" content="Pick a time for your call | Peak Leads">
-  <meta property="og:description" content="The last step of the Peak Leads free audit: pick a time for your free 30 minute call.">
+  <meta property="og:title" content="Book a Call | Peak Leads">
+  <meta property="og:description" content="Book a free 30 minute call with Peak Leads. Just a few questions first to see if we are a good fit for your business, then pick a time.">
   <meta property="og:url" content="https://peakleads.agency/book-a-call/">
   <meta property="og:image" content="https://peakleads.agency/assets/images/og-image-2.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Peak Leads: websites, SEO and exclusive leads for home service businesses.">
   <meta name="twitter:card" content="summary_large_image">
-  <script type="module" src="/src/js/pages/booking.js"></script>
+  <meta name="twitter:title" content="Book a Call | Peak Leads">
+  <meta name="twitter:description" content="Book a free 30 minute call with Peak Leads. Just a few questions first to see if we are a good fit for your business, then pick a time.">
+  <meta name="twitter:image" content="https://peakleads.agency/assets/images/og-image-2.jpg">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Book a Call",
+    "url": "https://peakleads.agency/book-a-call/",
+    "description": "Book a free 30 minute call with Peak Leads. Just a few questions first to see if we are a good fit for your business, then pick a time.",
+    "publisher": { "@type": "Organization", "name": "Peak Leads", "url": "https://peakleads.agency" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://peakleads.agency/" },
+      { "@type": "ListItem", "position": 2, "name": "Book a call", "item": "https://peakleads.agency/book-a-call/" }
+    ]
+  }
+  </script>
+  <script>document.documentElement.classList.add('js-enabled')</script>
+  <script type="module" src="/src/js/audit.js"></script>
 </head>
-<body class="page-funnel page-booking no-3d">
+<body class="page-funnel">
+
+  <canvas id="scene-canvas" aria-hidden="true"></canvas>
 
   <a class="skip-link" href="#main">Skip to content</a>
 
-  <div class="progress-track" aria-hidden="true"><i style="width: 100%"></i></div>
+  <div class="progress-track" aria-hidden="true"><i id="progress-fill"></i></div>
 
-  <div class="audit-shell booking-shell">
+  <div class="audit-shell">
 
     <header>
       <a href="/" aria-label="Peak Leads home">
@@ -68,28 +63,136 @@
         <strong>PeakLeads</strong>
       </a>
       <a href="/contact/">Contact</a>
-      <a href="/" aria-label="Close the calendar and go back to the homepage">
+      <a href="/" aria-label="Close and go back to the homepage">
         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg>
       </a>
     </header>
 
     <main id="main">
-      <!-- The one Calendly embed on the site. src/js/pages/booking.js sets
-           its data-url (filled in with the audit's name and email) and the
-           direct link's href; src/js/book.js loads the widget and sends a
-           booked visitor on to /thank-you/. Neither URL is in this file, so
-           the page source carries no booking link. -->
-      <section id="book" aria-labelledby="book-heading">
-        <p class="eyebrow">Last step</p>
-        <h1 id="book-heading">Pick a time for your call<span data-name-tail></span>.</h1>
-        <p class="book-sub">Thirty minutes, free. Choose a day and a time below and you are booked in.</p>
-        <div class="calendly-inline-widget"></div>
-        <p class="book-alt">Calendar not loading? <a id="calendly-direct" href="/contact/">Open it on Calendly</a>, or email <a href="/contact/" data-mail="bradley">bradley<span class="mail-at"></span>peakleads.agency</a>.</p>
-      </section>
+
+      <div class="q-meta">
+        <button type="button" id="back-btn" hidden>&#8592; Back</button>
+        <span id="step-count" aria-live="polite"></span>
+      </div>
+
+      <div class="screen in" id="screen-intro">
+        <h1 class="q-label">Just a few questions to see if we are a good fit for your business.</h1>
+        <div>
+          <button type="button" class="btn btn-primary" data-next>Start</button>
+        </div>
+      </div>
+
+      <div class="screen" id="screen-1" hidden>
+        <p class="q-num" aria-hidden="true">1 &#8594;</p>
+        <label class="q-label" for="f-name">What's your full name?</label>
+        <input id="f-name" name="name" type="text" autocomplete="name" maxlength="100" placeholder="Name and surname" enterkeyhint="next" aria-describedby="err-name">
+        <p class="field-error" id="err-name" aria-live="polite"></p>
+        <div>
+          <button type="button" class="btn btn-primary" data-next>Next</button>
+          <small>press Enter &#8629;</small>
+        </div>
+      </div>
+
+      <div class="screen" id="screen-2" hidden>
+        <p class="q-num" aria-hidden="true">2 &#8594;</p>
+        <label class="q-label" for="f-email">What's your email address?</label>
+        <input id="f-email" name="email" type="email" autocomplete="email" maxlength="254" placeholder="you@company.com" enterkeyhint="next" aria-describedby="err-email">
+        <p class="field-error" id="err-email" aria-live="polite"></p>
+        <div>
+          <button type="button" class="btn btn-primary" data-next>Next</button>
+          <small>press Enter &#8629;</small>
+        </div>
+      </div>
+
+      <div class="screen" id="screen-3" hidden>
+        <p class="q-num" aria-hidden="true">3 &#8594;</p>
+        <label class="q-label" for="f-phone">What's the best contact number?</label>
+        <input id="f-phone" name="phone" type="tel" autocomplete="tel" maxlength="40" placeholder="082 000 0000" enterkeyhint="next" aria-describedby="err-phone">
+        <p class="field-error" id="err-phone" aria-live="polite"></p>
+        <div>
+          <button type="button" class="btn btn-primary" data-next>Next</button>
+          <small>press Enter &#8629;</small>
+        </div>
+      </div>
+
+      <div class="screen" id="screen-4" hidden>
+        <p class="q-num" aria-hidden="true">4 &#8594;</p>
+        <label class="q-label" for="f-business">Tell us about your business.</label>
+        <p class="q-sub" id="sub-business">What industry are you in, and what's your website or social media link?</p>
+        <input id="f-business" name="business" type="text" autocomplete="off" maxlength="500" placeholder="e.g. Roofing, yourbusiness.co.za" enterkeyhint="next" aria-describedby="sub-business err-business">
+        <p class="field-error" id="err-business" aria-live="polite"></p>
+        <div>
+          <button type="button" class="btn btn-primary" data-next>Next</button>
+          <small>press Enter &#8629;</small>
+        </div>
+      </div>
+
+      <fieldset class="screen" id="screen-5" aria-describedby="sub-help" hidden>
+        <legend class="q-label"><span class="q-num" aria-hidden="true">5 &#8594;</span>What do you want help with most right now?</legend>
+        <p class="q-sub" id="sub-help">Choose as many as apply.</p>
+        <div class="option-grid">
+          <label class="option-card"><input type="checkbox" name="helpWith" value="Generate more qualified leads" aria-describedby="err-help"><span>Generate more qualified leads</span></label>
+          <label class="option-card"><input type="checkbox" name="helpWith" value="Increase sales/revenue" aria-describedby="err-help"><span>Increase sales/revenue</span></label>
+          <label class="option-card"><input type="checkbox" name="helpWith" value="Improve our website &amp; Google presence" aria-describedby="err-help"><span>Improve our website &amp; Google presence</span></label>
+          <label class="option-card"><input type="checkbox" name="helpWith" value="Grow our social media &amp; brand" aria-describedby="err-help"><span>Grow our social media &amp; brand</span></label>
+          <label class="option-card"><input type="checkbox" name="helpWith" value="Improve our paid advertising" aria-describedby="err-help"><span>Improve our paid advertising</span></label>
+          <label class="option-card"><input type="checkbox" name="helpWith" value="All of the above" aria-describedby="err-help"><span>All of the above</span></label>
+        </div>
+        <p class="field-error" id="err-help" aria-live="polite"></p>
+        <div>
+          <button type="button" class="btn btn-primary" data-next>Next</button>
+          <small>press Enter &#8629;</small>
+        </div>
+      </fieldset>
+
+      <fieldset class="screen" id="screen-6" hidden>
+        <legend class="q-label"><span class="q-num" aria-hidden="true">6 &#8594;</span>What is your business currently generating in monthly revenue?</legend>
+        <div class="option-grid">
+          <label class="option-card"><input type="radio" name="revenue" value="Under R30,000" data-floor="0" aria-describedby="err-revenue"><span>Under R30,000</span></label>
+          <label class="option-card"><input type="radio" name="revenue" value="R30,000 to R75,000" data-floor="30000" aria-describedby="err-revenue"><span>R30,000 to R75,000</span></label>
+          <label class="option-card"><input type="radio" name="revenue" value="R75,000 to R150,000" data-floor="75000" aria-describedby="err-revenue"><span>R75,000 to R150,000</span></label>
+          <label class="option-card"><input type="radio" name="revenue" value="R150,000 to R300,000" data-floor="150000" aria-describedby="err-revenue"><span>R150,000 to R300,000</span></label>
+          <label class="option-card"><input type="radio" name="revenue" value="R300,000 to R500,000" data-floor="300000" aria-describedby="err-revenue"><span>R300,000 to R500,000</span></label>
+          <label class="option-card"><input type="radio" name="revenue" value="R500,000+" data-floor="500000" aria-describedby="err-revenue"><span>R500,000+</span></label>
+        </div>
+        <p class="field-error" id="err-revenue" aria-live="polite"></p>
+        <div>
+          <button type="button" class="btn btn-primary" data-next>Send my answers</button>
+          <small>press Enter &#8629;</small>
+        </div>
+        <p class="q-sub">Your answers are used to reply to you and nothing else. Who else sees them, how long they are kept and how to have them deleted are in the <a href="/privacy/">privacy notice</a>.</p>
+      </fieldset>
+
+      <!-- The two endings. Which one a visitor sees is decided in
+           src/js/audit.js; neither names the other. -->
+      <div class="screen" id="screen-next" hidden>
+        <h2 class="q-label" tabindex="-1">You're on the way up.</h2>
+        <p class="q-sub">Thanks<span data-name-tail></span>. Your answers are in. Next, pick a time for your free 30 minute call.</p>
+        <div>
+          <a class="btn btn-primary" href="/book-a-call/pick-a-time/">Pick a time</a>
+          <small id="next-status" aria-live="polite">Opening the calendar&hellip;</small>
+        </div>
+      </div>
+
+      <div class="screen" id="screen-thanks" hidden>
+        <h2 class="q-label" tabindex="-1">Thanks for your answers<span data-name-tail></span>.</h2>
+        <p class="q-sub">Unfortunately, based on the answers you've provided, we're not able to assist you right now. One of our team members may be in touch in future.</p>
+        <p class="field-error" id="send-fallback" aria-live="polite"></p>
+        <div>
+          <a class="btn btn-primary" href="/">Back to the site</a>
+          <a class="btn btn-ghost" href="/blog/">Read the blog</a>
+        </div>
+      </div>
+
+      <div class="form-honeypot" aria-hidden="true">
+        <label for="pl-extra">Leave this field empty</label>
+        <input id="pl-extra" name="pl_extra" type="text" tabindex="-1" autocomplete="off">
+      </div>
 
       <noscript>
-        <p>The booking calendar needs JavaScript. Email <a href="/contact/">bradley at peakleads.agency</a> and we will find a time with you.</p>
+        <p>This page needs JavaScript to run the questions. Prefer to skip it? <a href="/contact/">Contact us directly</a>. We reply within one business day.</p>
       </noscript>
+
     </main>
   </div>
 

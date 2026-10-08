@@ -12,6 +12,7 @@ RewriteRule ^about-us/?$ /about/ [R=301,L]
 RewriteRule ^contact-us/?$ /contact/ [R=301,L]
 RewriteRule ^privacy-policy/?$ /privacy/ [R=301,L]
 RewriteRule ^cookie-policy/?$ /privacy/ [R=301,L]
+RewriteRule ^free-audit/?$ /book-a-call/ [R=301,L]
 </IfModule>
 
 # Pages are checked with the server before a browser reuses them, so a deploy reaches returning visitors on their next visit. Files under /assets/ keep their long cache.

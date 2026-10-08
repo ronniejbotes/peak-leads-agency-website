@@ -108,7 +108,7 @@
 
 :root { --day: 0; }
 
-/* Static subpages and the audit funnel run in daylight end to end, so the
+/* Static subpages and the booking pages run in daylight end to end, so the
    token block is applied to <body> itself rather than section by section.
    Everything inside then inherits the light ramp - sections, footer, cards -
    without each page having to remember to stamp .theme-day on every node.
@@ -1870,9 +1870,9 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
 #book { text-align: center; }
 #book h2, #book p { margin-inline: auto; }
 
-/* Every #book section but /book-a-call/'s ends in a button to the free
-   audit, not a calendar: a booking starts with the audit, and only answers
-   that qualify reach the embed (DESIGN.md 9b). */
+/* Every #book section but the calendar page's ends in a button to the
+   questions on /book-a-call/, not a calendar: a booking starts with the
+   questions, and only answers that qualify reach the embed (DESIGN.md 9b). */
 #book .book-cta {
   margin-top: 28px;
   margin-bottom: 0;
@@ -2149,7 +2149,7 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
 body.no-3d .say-hi { display: none; }
 
 /* ==========================================================================
-   Free-audit funnel
+   Booking questions (/book-a-call/)
    ========================================================================== */
 
 .audit-shell {
@@ -2406,7 +2406,7 @@ input[name="pl_extra"] {
 }
 
 /* ==========================================================================
-   /book-a-call/ — the calendar after the audit
+   /book-a-call/pick-a-time/ — the calendar after the questions
    The funnel's chrome (wordmark, Contact, close) and its paper ground, but
    no particle canvas: the calendar is the page. Wider than the question
    column, so Calendly can set its calendar beside the event details.
@@ -4150,7 +4150,7 @@ div.web-portrait::after {
    to stay hidden the way the old inline style did. */
 .form-honey { display: none !important; }
 
-/* Free audit honeypot wrapper: parked off screen rather than display:none,
+/* Booking questions honeypot wrapper: parked off screen rather than display:none,
    so bots still see and fill #pl-extra. */
 .form-honeypot {
   position: absolute;

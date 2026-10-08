@@ -2,10 +2,11 @@
  * Peak Leads - src/js/book.js
  * The Calendly booking calendar.
  *
- * Since October 2026 the calendar is on ONE page: /book-a-call/, which a
- * visitor reaches only by finishing the free audit with answers that open it
- * (src/js/pages/booking.js sets the embed up there). Every "Book a call" on
- * the site links to /free-audit/ instead, and no other page carries an embed
+ * Since October 2026 the calendar is on ONE page: /book-a-call/pick-a-time/,
+ * which a visitor reaches only by answering the questions on /book-a-call/
+ * in a way that opens it (src/js/pages/booking.js sets the embed up there).
+ * Every "Book a call" on the site links to those questions, and no other
+ * page carries an embed
  * or a calendly.com link, so pages/booking.js is the only entry that imports
  * this file.
  *
@@ -25,7 +26,7 @@
  *                      /thank-you/.
  *
  * Do not add an embed to any other page: that would let a visitor book
- * without the audit (DESIGN.md 9b).
+ * without answering the questions (DESIGN.md 9b).
  */
 
 const CALENDLY_HOST = 'calendly.com';
@@ -59,8 +60,8 @@ const LEAVE_BY = 4000;
 
 /* /blog/how-much-do-roofing-leads-cost/ -> blog-how-much-do-roofing-leads-cost
    /                                     -> home
-   Exported for /book-a-call/, which names the page that sent the visitor
-   to the audit rather than itself. */
+   Exported for /book-a-call/pick-a-time/, which names the page that sent
+   the visitor to the questions rather than itself. */
 export function slugFor(rawPath) {
   const path = (rawPath || '')
     .replace(/index\.html?$/i, '')
@@ -266,7 +267,7 @@ function leaveForThankYou(reported) {
   window.setTimeout(tick, 100);
 }
 
-/* onBooked: what a booked call reports. /book-a-call/ passes one that loads
+/* onBooked: what a booked call reports. /book-a-call/pick-a-time/ passes one that loads
    the Pixel if it has not started yet (a visitor can book with nothing but
    taps inside Calendly's iframe, which the page never hears). Without one,
    a booking reports only to a Pixel that is already running. */

@@ -1,8 +1,8 @@
 /*
  * Peak Leads - src/js/lead.js
- * Free-audit lead delivery, and the hand-off from the audit to the booking
- * page. Shared by audit.js (/free-audit/) and pages/booking.js
- * (/book-a-call/).
+ * Lead delivery for the booking questions, and the hand-off from the
+ * questions to the calendar. Shared by audit.js (/book-a-call/) and
+ * pages/booking.js (/book-a-call/pick-a-time/).
  *
  *   Delivery   A lead is queued in localStorage BEFORE it is sent and comes
  *              off the queue only when the endpoint acknowledges it, so a
@@ -10,10 +10,10 @@
  *              never loses one: the next page that calls flushOutbox()
  *              retries it, and both entries do. Worst case is a duplicate
  *              email, never a missing lead.
- *   Hand-off   What the audit decided, kept under pl_booking: whether the
+ *   Hand-off   What the answers decided, kept under pl_booking: whether the
  *              booking calendar is open to this browser, since when, and what
  *              the calendar is filled in with. The inline gate in
- *              book-a-call/index.html reads the same key and the same seven
+ *              book-a-call/pick-a-time/index.html reads the same key and the same seven
  *              days without importing this file, so change the two together.
  */
 
@@ -27,7 +27,8 @@ const HANDOFF_KEY = 'pl_booking';
 
 const DAY = 24 * 60 * 60 * 1000;
 
-/* How long a finished audit keeps /book-a-call/ open to its browser. */
+/* How long finished answers keep /book-a-call/pick-a-time/ open to their
+   browser. */
 export const BOOKING_OPEN_FOR = 7 * DAY;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -102,11 +103,11 @@ export function flushOutbox() {
  * Hand-off
  *
  * { v: 1, ts, open, revenue, name?, email?, from?, utm? }
- *   ts       when the audit was sent (ms)
- *   open     true: /book-a-call/ is open to this browser
+ *   ts       when the answers were sent (ms)
+ *   open     true: /book-a-call/pick-a-time/ is open to this browser
  *   revenue  the monthly revenue answer that decided it
  *   name, email, from, utm   only when open: the calendar's prefill, the
- *            path of the page that sent the visitor to the audit, and the
+ *            path of the page that sent the visitor to the questions, and the
  *            campaign params they arrived with
  * ==================================================================== */
 export function readHandoff() {
@@ -123,7 +124,7 @@ export function writeHandoff(record) {
     localStorage.setItem(HANDOFF_KEY, JSON.stringify(record));
   } catch (err) {
     /* storage unavailable: the booking page's gate lets an unreadable
-       store through, so a finished audit still reaches its calendar */
+       store through, so finished answers still reach their calendar */
   }
 }
 

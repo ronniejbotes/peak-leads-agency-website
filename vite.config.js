@@ -75,10 +75,12 @@ export default defineConfig({
         services: page('./services/index.html'),
         contact: page('./contact/index.html'),
         pricing: page('./pricing/index.html'),
-        freeAudit: page('./free-audit/index.html'),
-        // The booking calendar, reached only by finishing the free audit.
-        // noindex and deliberately not in public/sitemap.xml.
+        // The questions every "Book a call" leads to. Old /free-audit/ links
+        // are sent here by a 301 in public/.htaccess.
         bookACall: page('./book-a-call/index.html'),
+        // The booking calendar, reached only by answering those questions.
+        // noindex and deliberately not in public/sitemap.xml.
+        pickATime: page('./book-a-call/pick-a-time/index.html'),
         privacy: page('./privacy/index.html'),
         // Post-booking confirmation. noindex and deliberately not in
         // public/sitemap.xml, but it still has to be built and shipped.

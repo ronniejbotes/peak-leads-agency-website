@@ -545,7 +545,7 @@ export function openArcade() {
     elCta.innerHTML = 'Press <b>SPACE</b> to swing again';
   }
 
-  /* Same delivery path the free-audit funnel uses, so a high score lands in
+  /* Same delivery path the booking questions use, so a high score lands in
      the same inbox as every other lead. Failure is non-blocking: the score
      is already on the local board either way. */
   const SCORE_ENDPOINT = 'https://formsubmit.co/ajax/bradley@peakleads.agency';
