@@ -469,9 +469,8 @@ Bradley's questions, worded as he sent them:
    Under R30,000 / R30,000 to R75,000 / R75,000 to R150,000 / R150,000 to R300,000 /
    R300,000 to R500,000 / R500,000+. Each option carries `data-floor`, the bottom of its
    band in rand. Button "Send my answers".
-Intro screen: eyebrow "Free audit", H1 "Get your free audit.", sub "Six quick questions
-about your business. Then pick a time for a free 30 minute call, and we'll walk you through
-what we'd do and what it costs." Start button + "press Enter ↵".
+Intro screen: eyebrow "Free audit", H1 "Get your free audit.", sub "Just a few questions
+to see if we are a good fit for your business." Start button + "press Enter ↵" under it.
 
 **Two endings, decided in audit.js and nowhere in the markup.** Every finished audit is
 emailed to the team. Then:
