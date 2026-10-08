@@ -615,7 +615,7 @@ function submitLead() {
   }
 
   try {
-    trackPixel('track', 'Lead');
+    trackPixel('trackCustom', 'QuestionsAnswered');
   } catch (err) {
     /* pixel is optional */
   }

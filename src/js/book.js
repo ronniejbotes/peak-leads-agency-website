@@ -296,7 +296,7 @@ export function initBookSection(options) {
        the visitor on Calendly's screen. */
     leaveForThankYou(Boolean(onBooked) || typeof window.fbq === 'function');
     if (onBooked) onBooked();
-    else if (typeof window.fbq === 'function') window.fbq('trackCustom', 'CallScheduled');
+    else if (typeof window.fbq === 'function') window.fbq('track', 'Lead');
   });
 
   /* Any in-page jump to #book means the visitor is on their way: start

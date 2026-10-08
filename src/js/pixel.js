@@ -42,7 +42,7 @@ export function loadPixel() {
   }
   /* No automatic events: without this, Meta's code also reports button
      clicks and page metadata of its own accord, and the privacy notice
-     promises exactly three events (PageView, CallScheduled, Lead). */
+     promises exactly three events (PageView, Lead, QuestionsAnswered). */
   window.fbq('set', 'autoConfig', false, PIXEL_ID);
   window.fbq('init', PIXEL_ID);
   window.fbq('track', 'PageView');

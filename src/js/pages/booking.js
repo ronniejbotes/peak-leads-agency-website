@@ -72,7 +72,7 @@ function init() {
     direct.setAttribute('rel', 'noopener');
   }
 
-  initBookSection({ onBooked: () => trackPixel('trackCustom', 'CallScheduled') });
+  initBookSection({ onBooked: () => trackPixel('track', 'Lead') });
   initMailLinks();
   armPixel();
   flushOutbox();

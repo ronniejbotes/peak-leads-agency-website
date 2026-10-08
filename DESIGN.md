@@ -376,12 +376,12 @@ gate → on any failure or `prefers-reduced-motion`: `body.no-3d` (canvas hidden
 warm radial-gradient backdrop, everything readable). Also: nav burger, footer year,
 email links, video posters, "Say hi" bubble, Facebook Pixel
 `1586557796001231` (autoConfig off, so no automatic events; init + PageView;
-`CallScheduled` custom event when Calendly
-`calendly.event_scheduled` postMessage fires; `Lead` on funnel submit). Pixel loads on
+standard `Lead` event when Calendly
+`calendly.event_scheduled` postMessage fires; `QuestionsAnswered` custom event on funnel submit). Pixel loads on
 the first interaction only (pointerdown, pointermove, touchstart, wheel or keydown; no
 timer, and not a bare scroll event, which an anchor jump or a restored scroll position
 fires with nobody there), or right before a conversion if it has not loaded yet:
-`/book-a-call/` passes book.js an `onBooked` that loads it for `CallScheduled`, because a
+`/book-a-call/` passes book.js an `onBooked` that loads it for `Lead`, because a
 booking can be made with nothing but taps inside Calendly's iframe. A visitor who never
 interacts and never books sends no PageView.
 
@@ -484,7 +484,7 @@ answers" instead, where the answers leave the browser.
 answers is emailed to the team. Then:
 - A revenue floor at or above `BOOKING_MIN_REVENUE`: `#screen-next`, "You're on the way
   up." with the condense pulse, then on to `/book-a-call/pick-a-time/` once the lead is acknowledged
-  and the Lead event has gone, never later than `LEAVE_BY`. A "Pick a time" button is the
+  and the QuestionsAnswered event has gone, never later than `LEAVE_BY`. A "Pick a time" button is the
   manual route.
 - Below it: `#screen-thanks`, "Thanks for your answers, {first name}." / "Unfortunately,
   based on the answers you've provided, we're not able to assist you right now. One of our
@@ -535,7 +535,7 @@ booked (entry `src/js/pages/booking.js`). `noindex, follow` and deliberately **n
   questions (`book-a-call` when they came straight in; `free-audit` before 8 October 2026), and campaign params they arrived with ride
   along and win, as they always have. book.js fills the remaining `utm_*` keys
   (`utm_content` = `book-embed` or `text-link`).
-- **book.js** lazy-loads widget.js, fires `CallScheduled` when Calendly reports a booking,
+- **book.js** lazy-loads widget.js, fires the `Lead` event when Calendly reports a booking,
   then sends the visitor to `/thank-you/` (9d). It leaves 1.5s after the booking, so
   Calendly's "You are scheduled!" registers; where the conversion went to a Pixel that was
   not loaded yet, it also waits for fbevents.js to come up plus 1s. It never waits more
