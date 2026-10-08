@@ -10,6 +10,11 @@
  *              never loses one: the next page that calls flushOutbox()
  *              retries it, and both entries do. Worst case is a duplicate
  *              email, never a missing lead.
+ *   HubSpot    Qualified answers also go to /api/hubspot-lead.php, which
+ *              puts the contact in HubSpot and gives it an owner. They wait
+ *              in a queue of their own, so a HubSpot outage can never push an
+ *              email off the email queue, and nothing waits on them: the
+ *              visitor moves on as soon as the email is acknowledged.
  *   Hand-off   What the answers decided, kept under pl_booking: whether the
  *              booking calendar is open to this browser, since when, and what
  *              the calendar is filled in with. The inline gate in
@@ -23,6 +28,8 @@
 const LEAD_WEBHOOK = '';
 const FORMSUBMIT_ENDPOINT = 'https://formsubmit.co/ajax/bradley@peakleads.agency';
 const OUTBOX_KEY = 'pl_lead_outbox';
+const CRM_ENDPOINT = '/api/hubspot-lead.php';
+const CRM_OUTBOX_KEY = 'pl_crm_outbox';
 const HANDOFF_KEY = 'pl_booking';
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -36,32 +43,32 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 /* ==================================================================== *
  * Outbox
  * ==================================================================== */
-function readOutbox() {
+function readOutbox(key = OUTBOX_KEY) {
   try {
-    const box = JSON.parse(localStorage.getItem(OUTBOX_KEY) || '[]');
+    const box = JSON.parse(localStorage.getItem(key) || '[]');
     return Array.isArray(box) ? box : [];
   } catch (err) {
     return [];
   }
 }
 
-function writeOutbox(box) {
+function writeOutbox(box, key = OUTBOX_KEY) {
   try {
-    localStorage.setItem(OUTBOX_KEY, JSON.stringify(box));
+    localStorage.setItem(key, JSON.stringify(box));
   } catch (err) {
     /* storage unavailable */
   }
 }
 
-function pushOutbox(entry) {
-  const box = readOutbox();
+function pushOutbox(entry, key = OUTBOX_KEY) {
+  const box = readOutbox(key);
   box.push(entry);
   while (box.length > 20) box.shift();
-  writeOutbox(box);
+  writeOutbox(box, key);
 }
 
-function removeFromOutbox(entry) {
-  writeOutbox(readOutbox().filter((e) => !(e && e.ts === entry.ts)));
+function removeFromOutbox(entry, key = OUTBOX_KEY) {
+  writeOutbox(readOutbox(key).filter((e) => !(e && e.ts === entry.ts)), key);
 }
 
 function deliver(payload) {
@@ -76,11 +83,40 @@ function deliver(payload) {
   });
 }
 
+/* A 4xx means the endpoint read the lead and will never take it (a bad
+   email, say): it comes off the queue like a success. Anything else (5xx,
+   not configured yet, offline, the dev server's missing PHP) leaves it
+   queued for the next flushOutbox(). */
+function deliverCrm(entry) {
+  return fetch(CRM_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({ ...entry.payload, leadId: String(entry.ts) }),
+    keepalive: true
+  }).then((res) => {
+    const refused = res.status >= 400 && res.status < 500 && ![404, 408, 429].includes(res.status);
+    if (!res.ok && !refused) throw new Error('HTTP ' + res.status);
+  });
+}
+
+function sendCrm(entry) {
+  deliverCrm(entry)
+    .then(() => removeFromOutbox(entry, CRM_OUTBOX_KEY))
+    .catch(() => {
+      /* stays queued for the next visit */
+    });
+}
+
 /* Queue, send, and try once more two seconds later. Resolves once the lead
    is acknowledged; rejects if both tries fail, leaving it queued for the
-   next flushOutbox(). */
-export function sendLead(payload) {
+   next flushOutbox(). { crm: true } also hands the lead to HubSpot, on its
+   own queue; the promise does not wait for it. */
+export function sendLead(payload, options) {
   const entry = { ts: Date.now(), payload };
+  if (options && options.crm) {
+    pushOutbox(entry, CRM_OUTBOX_KEY);
+    sendCrm(entry);
+  }
   pushOutbox(entry);
   return deliver(payload)
     .catch(() => sleep(2000).then(() => deliver(payload)))
@@ -97,6 +133,9 @@ export function flushOutbox() {
         /* stays queued for the next visit */
       });
   }
+  const crm = readOutbox(CRM_OUTBOX_KEY).filter((e) => e && e.payload);
+  writeOutbox(crm, CRM_OUTBOX_KEY);
+  crm.forEach(sendCrm);
 }
 
 /* ==================================================================== *

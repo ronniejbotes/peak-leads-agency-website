@@ -620,7 +620,7 @@ function submitLead() {
     /* pixel is optional */
   }
 
-  const sent = sendLead(buildPayload(open, turnedAway ? earlier : null));
+  const sent = sendLead(buildPayload(open, turnedAway ? earlier : null), { crm: open });
 
   if (open) {
     showScreen(NEXT_INDEX);
