@@ -377,11 +377,14 @@ warm radial-gradient backdrop, everything readable). Also: nav burger, footer ye
 email links, video posters, "Say hi" bubble, Facebook Pixel
 `1586557796001231` (autoConfig off, so no automatic events; init + PageView;
 standard `Lead` event when Calendly
-`calendly.event_scheduled` postMessage fires; `QuestionsAnswered` custom event on funnel submit). Pixel loads on
+`calendly.event_scheduled` postMessage fires; `QuestionsAnswered` custom event on funnel submit).
+The Pixel runs on **every page** (8 October 2026): main.js, audit.js, pages/booking.js and
+pages/subpage.js (which pricing.js and thankyou.js import) all call `armPixel()`, so a new
+page on any of those entries gets it for free. Pixel loads on
 the first interaction only (pointerdown, pointermove, touchstart, wheel or keydown; no
 timer, and not a bare scroll event, which an anchor jump or a restored scroll position
 fires with nobody there), or right before a conversion if it has not loaded yet:
-`/book-a-call/` passes book.js an `onBooked` that loads it for `Lead`, because a
+`/book-a-call/pick-a-time/` passes book.js an `onBooked` that loads it for `Lead`, because a
 booking can be made with nothing but taps inside Calendly's iframe. A visitor who never
 interacts and never books sends no PageView.
 

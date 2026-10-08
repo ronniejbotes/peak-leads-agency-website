@@ -1,7 +1,7 @@
 /*
  * Peak Leads - src/js/pixel.js
- * Shared Facebook Pixel loader (deferred). Used by main.js, audit.js and
- * pages/booking.js.
+ * Shared Facebook Pixel loader (deferred). Used by main.js, audit.js,
+ * pages/booking.js and pages/subpage.js, so it runs on every page.
  * Loads once, on the first sign of a person: pointerdown, pointermove,
  * touchstart, keydown or wheel. There is no timer, and a bare scroll event
  * does not count: the browser fires one for an anchor jump or a restored
