@@ -568,8 +568,11 @@ fixed radial-gradient backdrop (deep blue and gold 3-6% glows on the light groun
 - **/contact/**: H1 "Talk to us." Email, a "Book a call" link to `/book-a-call/`,
   IG/LinkedIn, simple no-backend form (formsubmit.co action post,
   name/email/phone/message) + a note linking to `/book-a-call/`.
-- **/blog/**: H1 "Insights for the trades." Card grid (16:9 thumbs
-  `/assets/images/blog-{slug}.webp`, fallback shared placeholder OK at build time).
+- **/blog/**: H1 "Insights for the trades." Card grid (16:9 thumbs). Each post picture is a
+  1200x675 `/assets/images/blog-{name}.jpg`, kept for og:image, twitter:image and the JSON-LD,
+  plus `-480`, `-720`, `-960` and `-1200.webp` copies (WebP quality 90) that the cards and the
+  post's own picture load through `srcset` and `sizes`. Where the full-size WebP came out no
+  smaller than the JPEG, the 1200w entry is the JPEG itself. A new post adds all of them.
 - **3 posts**: 1200-1800 words each, H1 = title, answer-first highlighted box, H2 question
   subheads, concrete numbers from research (roofing leads $41-150 shared vs exclusive
   economics, channel comparisons), internal links to `/services/` sections + other posts,
