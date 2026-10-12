@@ -12,7 +12,12 @@
  *   Owner     Brad and Jesse take turns, in the order the config lists them.
  *             A contact that already has an owner keeps them, so a retry or a
  *             repeat visit never moves a lead between the two or skips a turn.
- *   Note      Everything the questions asked, on the contact's timeline.
+ *   Deal      A deal card in the sales pipeline at "Call booked", owned by the
+ *             contact's owner and linked to the contact. A contact that already
+ *             has an open deal gets no second one, so a repeat visit does not
+ *             clutter the board.
+ *   Note      Everything the questions asked, on the contact's timeline and
+ *             on the deal.
  *
  * The token and the owners live OUTSIDE the web root, in
  * peakleads-private/hubspot.php next to public_html, so a deploy can neither
@@ -21,6 +26,9 @@
  *   <?php return [
  *     'token'  => 'pat-eu1-...',
  *     'owners' => ['bradley@peakleads.agency', 'jesse@...'],  // emails or owner IDs
+ *     // optional, defaults below
+ *     'deal_pipeline' => 'default',
+ *     'deal_stage'    => '6194177258',
  *   ];
  *
  * The rotation counter and the ids of leads already handled are kept in the
@@ -33,7 +41,11 @@ header('Cache-Control: no-store');
 
 const MAX_BODY = 20000;
 const ALLOWED_ORIGINS = ['https://peakleads.agency', 'https://www.peakleads.agency'];
-const NOTE_TO_CONTACT = 202; // HubSpot-defined association type: note -> contact
+const NOTE_TO_CONTACT = 202; // HubSpot-defined association types
+const NOTE_TO_DEAL = 214;
+const DEAL_TO_CONTACT = 3;
+const DEAL_PIPELINE = 'default';     // Sales Pipeline
+const DEAL_STAGE = '6194177258';     // Call booked
 const SEEN_KEEP = 200;
 
 function reply($status, $body)
@@ -92,6 +104,21 @@ function find_contact($email)
         'limit' => 1,
     ]);
     return !empty($res['results'][0]) ? $res['results'][0] : null;
+}
+
+/* True when the contact is already on a deal that is not closed. */
+function has_open_deal($contactId)
+{
+    $res = hs('GET', '/crm/v4/objects/contacts/' . rawurlencode($contactId) . '/associations/deals?limit=100');
+    $ids = [];
+    foreach (isset($res['results']) ? $res['results'] : [] as $row) $ids[] = ['id' => (string) $row['toObjectId']];
+    if (!$ids) return false;
+    $deals = hs('POST', '/crm/v3/objects/deals/batch/read', ['properties' => ['dealstage'], 'inputs' => $ids]);
+    foreach (isset($deals['results']) ? $deals['results'] : [] as $deal) {
+        $stage = isset($deal['properties']['dealstage']) ? $deal['properties']['dealstage'] : '';
+        if ($stage !== 'closedwon' && $stage !== 'closedlost') return true;
+    }
+    return false;
 }
 
 /* An owner in the config is an owner ID or the email they log in with. */
@@ -173,6 +200,8 @@ try {
 
         $contact = find_contact($email);
         $owners = array_values($config['owners']);
+        $ownerId = $contact !== null && !empty($contact['properties']['hubspot_owner_id'])
+            ? $contact['properties']['hubspot_owner_id'] : '';
 
         if ($contact === null) {
             $ownerId = owner_id($owners[$state['next'] % count($owners)]);
@@ -190,7 +219,7 @@ try {
         } else {
             $props = [];
             if (empty($contact['properties']['hubspot_owner_id'])) {
-                $props['hubspot_owner_id'] = owner_id($owners[$state['next'] % count($owners)]);
+                $ownerId = $props['hubspot_owner_id'] = owner_id($owners[$state['next'] % count($owners)]);
                 $state['next'] = ($state['next'] + 1) % count($owners);
             }
             if ($phone !== '' && empty($contact['properties']['phone'])) $props['phone'] = $phone;
@@ -211,12 +240,33 @@ try {
             if ($value === '') continue;
             $html .= '<p><strong>' . htmlspecialchars($label) . ':</strong> ' . htmlspecialchars($value) . '</p>';
         }
+        $noteTo = [[
+            'to' => ['id' => $contact['id']],
+            'types' => [['associationCategory' => 'HUBSPOT_DEFINED', 'associationTypeId' => NOTE_TO_CONTACT]],
+        ]];
+
+        if (!has_open_deal($contact['id'])) {
+            $deal = hs('POST', '/crm/v3/objects/deals', [
+                'properties' => array_filter([
+                    'dealname' => ($name !== '' ? $name : $email) . ' (book a call)',
+                    'pipeline' => isset($config['deal_pipeline']) ? $config['deal_pipeline'] : DEAL_PIPELINE,
+                    'dealstage' => isset($config['deal_stage']) ? $config['deal_stage'] : DEAL_STAGE,
+                    'hubspot_owner_id' => $ownerId,
+                ], 'strlen'),
+                'associations' => [[
+                    'to' => ['id' => $contact['id']],
+                    'types' => [['associationCategory' => 'HUBSPOT_DEFINED', 'associationTypeId' => DEAL_TO_CONTACT]],
+                ]],
+            ]);
+            $noteTo[] = [
+                'to' => ['id' => $deal['id']],
+                'types' => [['associationCategory' => 'HUBSPOT_DEFINED', 'associationTypeId' => NOTE_TO_DEAL]],
+            ];
+        }
+
         hs('POST', '/crm/v3/objects/notes', [
             'properties' => ['hs_timestamp' => gmdate('Y-m-d\TH:i:s\Z'), 'hs_note_body' => $html],
-            'associations' => [[
-                'to' => ['id' => $contact['id']],
-                'types' => [['associationCategory' => 'HUBSPOT_DEFINED', 'associationTypeId' => NOTE_TO_CONTACT]],
-            ]],
+            'associations' => $noteTo,
         ]);
 
         if ($leadId !== '') {
