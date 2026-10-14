@@ -116,8 +116,38 @@ function microsoftClarity(id) {
   }
 }
 
+/*
+ * Footer year, build only. Every page's footer prints "(c) <year> Peak Leads"
+ * inside a span marked data-year or id="year" / id="footer-year". The page
+ * scripts (initYear in src/js/main.js and src/js/pages/subpage.js) already
+ * swap in the visitor's current year when the page loads; this writes the
+ * build year into the HTML itself as well, so the raw page (what a crawler
+ * or a visitor without JavaScript sees) is right after every deploy. Added
+ * 14 October 2026. Nothing to update by hand at New Year.
+ */
+function footerYear() {
+  const year = String(new Date().getFullYear())
+  const span = /(<span\b[^>]*\b(?:data-year|id=["']?(?:footer-)?year["']?)[^>]*>)\s*\d{4}\s*(<\/span>)/g
+
+  return {
+    name: 'peak-leads-footer-year',
+    apply: 'build',
+    transformIndexHtml: {
+      order: 'post',
+      handler(html) {
+        return html.replace(span, (match, open, close) => `${open}${year}${close}`)
+      },
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [tailwindcss(), googleAnalytics(GA_MEASUREMENT_ID), microsoftClarity(CLARITY_PROJECT_ID)],
+  plugins: [
+    tailwindcss(),
+    googleAnalytics(GA_MEASUREMENT_ID),
+    microsoftClarity(CLARITY_PROJECT_ID),
+    footerYear(),
+  ],
   build: {
     rollupOptions: {
       // Hybrid multi-page setup — every page ships prerendered HTML for SEO.
