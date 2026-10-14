@@ -18,6 +18,15 @@ import tailwindcss from '@tailwindcss/vite'
 // in the same push. The notice and the tag go live together or not at all.
 const GA_MEASUREMENT_ID = process.env.GA_MEASUREMENT_ID || ''
 
+// Microsoft Clarity project ID (heatmaps and visit recordings), switched on
+// 14 October 2026 with Ronnie's yes. Like the GA ID it is public by design:
+// Clarity's tag prints it in every page's HTML. A CLARITY_PROJECT_ID
+// environment variable, when set, wins over this value. The "What is
+// Microsoft Clarity doing?" section and the Clarity row in
+// privacy/index.html disclose it: remove them in the same push if this tag
+// is ever taken out, and keep them if the ID only changes.
+const CLARITY_PROJECT_ID = process.env.CLARITY_PROJECT_ID || 'yxi80jp50q'
+
 const page = (path) => fileURLToPath(new URL(path, import.meta.url))
 
 /*
@@ -64,8 +73,51 @@ function googleAnalytics(id) {
   }
 }
 
+/*
+ * Microsoft Clarity, build only, so `npx vite` in dev never records a visit.
+ * Microsoft's standard tag is written into every built page's <head> exactly
+ * as Clarity's setup screen gives it, the same way and in the same place as
+ * the GA tag above: straight after the viewport meta, or right after <head>
+ * on a page without one. The tag only queues calls and fetches
+ * https://www.clarity.ms/tag/<id> asynchronously, so it does not hold up the
+ * page. A page that already carries a Clarity tag is left alone, so no page
+ * ever gets two. An ID that is not lowercase letters and digits adds nothing
+ * and the build prints a warning instead of failing.
+ */
+function microsoftClarity(id) {
+  const valid = /^[a-z0-9]+$/.test(id)
+
+  return {
+    name: 'peak-leads-microsoft-clarity',
+    apply: 'build',
+    configResolved(config) {
+      if (valid) return
+      config.logger.warn(
+        `\n[clarity] "${id}" is not a Clarity project ID (lowercase letters and digits). No Clarity tag was added to the built pages.\n`,
+      )
+    },
+    transformIndexHtml: {
+      order: 'post',
+      handler(html) {
+        if (!valid || html.includes('clarity.ms/tag/')) return html
+
+        const clarityTag =
+          '<script type="text/javascript">(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};' +
+          't=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})' +
+          `(window, document, "clarity", "script", "${id}");</script>`
+
+        const viewport = /^([ \t]*)<meta\b[^>]*\bname=["']?viewport["']?[^>]*>/im
+        if (viewport.test(html)) {
+          return html.replace(viewport, (tag, indent) => `${tag}\n${indent}${clarityTag}`)
+        }
+        return html.replace(/<head\b[^>]*>/i, (tag) => `${tag}\n${clarityTag}`)
+      },
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [tailwindcss(), googleAnalytics(GA_MEASUREMENT_ID)],
+  plugins: [tailwindcss(), googleAnalytics(GA_MEASUREMENT_ID), microsoftClarity(CLARITY_PROJECT_ID)],
   build: {
     rollupOptions: {
       // Hybrid multi-page setup — every page ships prerendered HTML for SEO.

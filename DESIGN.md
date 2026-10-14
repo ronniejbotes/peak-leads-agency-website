@@ -388,6 +388,12 @@ fires with nobody there), or right before a conversion if it has not loaded yet:
 booking can be made with nothing but taps inside Calendly's iframe. A visitor who never
 interacts and never books sends no PageView.
 
+Microsoft Clarity `yxi80jp50q` (heatmaps and visit recordings, 14 October 2026) is not in
+any JS entry: the `microsoftClarity` plugin in `vite.config.js` writes Microsoft's standard
+tag into the `<head>` of every built page, after the viewport meta, so a new page in
+`rollupOptions.input` gets it for free. It loads with the page (async), not on first
+interaction. The privacy notice has its own section and table row for it.
+
 Easter egg: typing `spiderman` on the landing page dynamic-imports `src/js/arcade.js`
 (a 2D pixel web-swinging mini-game; see section 7b). The keystroke buffer ignores
 INPUT/TEXTAREA/SELECT/contenteditable targets and any modifier combo, so it can never
