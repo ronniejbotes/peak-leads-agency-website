@@ -13,10 +13,12 @@ import tailwindcss from '@tailwindcss/vite'
 // capital letters and digits, nothing is injected and the build prints a
 // warning instead of failing.
 //
-// Before setting an ID, put the Google row and the "What is Google Analytics
-// doing?" section back into privacy/index.html (both were added in 79cdd3e),
-// in the same push. The notice and the tag go live together or not at all.
-const GA_MEASUREMENT_ID = process.env.GA_MEASUREMENT_ID || ''
+// Switched on 15 October 2026 (property "Peak Leads" in the agency's
+// "Position Xero clients" Analytics account). The Google row and the "What is
+// Google Analytics doing?" section in privacy/index.html disclose it: remove
+// them in the same push if this tag is ever taken out, and keep them if the
+// ID only changes.
+const GA_MEASUREMENT_ID = process.env.GA_MEASUREMENT_ID || 'G-074HV1DSPW'
 
 // Microsoft Clarity project ID (heatmaps and visit recordings), switched on
 // 14 October 2026 with Ronnie's yes. Like the GA ID it is public by design:
