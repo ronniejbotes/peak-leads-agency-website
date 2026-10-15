@@ -579,6 +579,10 @@ fixed radial-gradient backdrop (deep blue and gold 3-6% glows on the light groun
   plus `-480`, `-720`, `-960` and `-1200.webp` copies (WebP quality 90) that the cards and the
   post's own picture load through `srcset` and `sizes`. Where the full-size WebP came out no
   smaller than the JPEG, the 1200w entry is the JPEG itself. A new post adds all of them.
+  **A post with no suitable picture has none** (15 October 2026: no post reuses another
+  post's picture, and none is generated). The post shows no image, its card on `/blog/` is
+  `class="blog-card blog-card-text"` with no `<img>`, and og:image, twitter:image (1200x630)
+  and both JSON-LD `image` entries use the share card `og-image-2.jpg`, as section 3 sets out.
 - **3 posts**: 1200-1800 words each, H1 = title, answer-first highlighted box, H2 question
   subheads, concrete numbers from research (roofing leads $41-150 shared vs exclusive
   economics, channel comparisons), internal links to `/services/` sections + other posts,

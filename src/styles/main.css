@@ -2638,6 +2638,10 @@ body.page-static main > article:first-child {
   background: var(--bg-raise);
 }
 
+/* A post with no picture of its own (DESIGN.md 9) has a card without one,
+   so its text needs the top padding the picture otherwise gives it. */
+.blog-card-text { padding-top: 26px; }
+
 .blog-card h2, .blog-card h3 {
   font-size: 1.2rem;
   line-height: 1.3;

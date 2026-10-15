@@ -272,6 +272,9 @@ export default defineConfig({
         postAiCrawlers: page('./blog/should-you-block-ai-crawlers/index.html'),
         postChoosingAgency: page('./blog/how-to-choose-a-lead-generation-agency/index.html'),
         postWebsiteCost: page('./blog/website-cost-for-trades-south-africa/index.html'),
+        postAdvertiseOnline: page('./blog/advertise-your-business-online-south-africa/index.html'),
+        postMoreCustomers: page('./blog/how-to-get-more-customers/index.html'),
+        postFreelancerVsAgency: page('./blog/freelancer-vs-agency/index.html'),
         notFound: page('./404.html'),
       },
       output: {
