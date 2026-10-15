@@ -76,13 +76,21 @@ function googleAnalytics(id) {
 /*
  * Microsoft Clarity, build only, so `npx vite` in dev never records a visit.
  * Microsoft's standard tag is written into every built page's <head> exactly
- * as Clarity's setup screen gives it, the same way and in the same place as
- * the GA tag above: straight after the viewport meta, or right after <head>
- * on a page without one. The tag only queues calls and fetches
- * https://www.clarity.ms/tag/<id> asynchronously, so it does not hold up the
- * page. A page that already carries a Clarity tag is left alone, so no page
- * ever gets two. An ID that is not lowercase letters and digits adds nothing
- * and the build prints a warning instead of failing.
+ * as Clarity's setup screen gives it, at the END of the head, after the
+ * stylesheet. The tag only queues calls and fetches
+ * https://www.clarity.ms/tag/<id> asynchronously. A page that already carries
+ * a Clarity tag is left alone, so no page ever gets two. An ID that is not
+ * lowercase letters and digits adds nothing and the build prints a warning
+ * instead of failing.
+ *
+ * Why the end of the head (15 October 2026 mobile review): it used to go
+ * straight after the viewport meta, ahead of the long JSON-LD blocks and the
+ * stylesheet. On a first visit Clarity's script then arrived and ran before
+ * the stylesheet, measured the page with the browser's default styles (the
+ * body's 8px margin), and the page was laid out again when the CSS landed:
+ * a layout shift of 0.55 to 0.70 on every page, enough on its own to fail
+ * Google's CLS threshold (0.1). Blocking clarity.ms in a test browser made
+ * the shift disappear. After the stylesheet, the CSS is always in first.
  */
 function microsoftClarity(id) {
   const valid = /^[a-z0-9]+$/.test(id)
@@ -106,9 +114,8 @@ function microsoftClarity(id) {
           't=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})' +
           `(window, document, "clarity", "script", "${id}");</script>`
 
-        const viewport = /^([ \t]*)<meta\b[^>]*\bname=["']?viewport["']?[^>]*>/im
-        if (viewport.test(html)) {
-          return html.replace(viewport, (tag, indent) => `${tag}\n${indent}${clarityTag}`)
+        if (/<\/head>/i.test(html)) {
+          return html.replace(/<\/head>/i, (tag) => `  ${clarityTag}\n${tag}`)
         }
         return html.replace(/<head\b[^>]*>/i, (tag) => `${tag}\n${clarityTag}`)
       },
@@ -185,6 +192,38 @@ function tableCellLabels() {
   }
 }
 
+/*
+ * Body font preload, build only. Geist is self-hosted through fontsource with
+ * font-display: swap, so on a first visit the hero is painted in the fallback
+ * font and reflowed when Geist arrives: on the homepage at 390px that moved
+ * the hero's trust line and the orbit ring about 27px down (a layout shift of
+ * 0.18, 15 October 2026 mobile review). Preloading the one Latin Geist file
+ * (about 29 KB) starts it alongside the stylesheet, so it is usually there
+ * before first paint. The file name is hashed, so it is looked up in the
+ * bundle. Only the Latin subset is preloaded; the others load as before.
+ */
+function preloadBodyFont() {
+  return {
+    name: 'peak-leads-preload-body-font',
+    apply: 'build',
+    transformIndexHtml: {
+      order: 'post',
+      handler(html, ctx) {
+        const file = Object.keys(ctx.bundle || {}).find((name) =>
+          /(^|\/)geist-latin-wght-normal-[^/]*\.woff2$/.test(name),
+        )
+        if (!file || html.includes(file)) return html
+        const tag = `<link rel="preload" href="/${file}" as="font" type="font/woff2" crossorigin>`
+        const viewport = /^([ \t]*)<meta\b[^>]*\bname=["']?viewport["']?[^>]*>/im
+        if (viewport.test(html)) {
+          return html.replace(viewport, (m, indent) => `${m}\n${indent}${tag}`)
+        }
+        return html.replace(/<head\b[^>]*>/i, (m) => `${m}\n${tag}`)
+      },
+    },
+  }
+}
+
 export default defineConfig({
   plugins: [
     tailwindcss(),
@@ -192,6 +231,7 @@ export default defineConfig({
     microsoftClarity(CLARITY_PROJECT_ID),
     footerYear(),
     tableCellLabels(),
+    preloadBodyFont(),
   ],
   build: {
     rollupOptions: {
