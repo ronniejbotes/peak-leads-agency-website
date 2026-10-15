@@ -242,6 +242,15 @@ a:hover { color: var(--accent); text-decoration: underline; }
 
 ul, ol { margin: 0 0 1em; padding-left: 22px; }
 li { color: var(--text-2); }
+/* Plain lists in page copy (blog posts, /contact/, /pricing/) had lost their
+   bullets and numbers to Tailwind's reset, so on a phone a list read as one
+   run of indented lines and numbered steps lost their numbers (15 October
+   2026 mobile review). Lists with a class are styled components and keep
+   their own markers. */
+main ul:not([class]) { list-style: disc; }
+main ol:not([class]) { list-style: decimal; }
+main :is(ul, ol):not([class]) > li + li { margin-top: 8px; }
+main :is(ul, ol):not([class]) > li::marker { color: var(--accent); }
 
 button, input, textarea, select { font: inherit; color: inherit; }
 button { background: none; border: 0; padding: 0; }
@@ -891,6 +900,17 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
   color: var(--text-3);
 }
 .service-siblings strong { color: var(--text); font-weight: 600; }
+/* Phones first: each sibling link is a 44px tap target (DESIGN.md 12); they
+   were 24px tall and close together at 390px (15 October 2026 mobile
+   review). A mouse needs no extra height, so desktop keeps the compact row. */
+.service-siblings a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+@media (min-width: 900px) and (hover: hover) and (pointer: fine) {
+  .service-siblings a { min-height: 0; }
+}
 
 /* ==========================================================================
    #proof — stat strip, hairline separators, no cards
@@ -1043,7 +1063,14 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
   width: 100%;
   max-width: 640px;
   margin-inline: auto;
-  padding: clamp(28px, 5vw, 48px);
+  /* Phones first: the ghost number is smaller below 900px and the panel's
+     top padding clears it, so it no longer sits on the heading's first line
+     (15 October 2026 mobile review: "01" to "04" overlapped the headings at
+     390px). From 900px up the panel has its original even padding. */
+  padding: calc(clamp(28px, 5vw, 48px) + 24px) clamp(28px, 5vw, 48px) clamp(28px, 5vw, 48px);
+}
+@media (min-width: 900px) {
+  .station-inner { padding: clamp(28px, 5vw, 48px); }
 }
 
 /* Panel content stacks above the ghost number */
@@ -1062,13 +1089,16 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
   margin: 0;
   max-width: none;
   font-family: var(--font-display);
-  font-size: clamp(6rem, 18vw, 14rem);
+  font-size: 5rem;
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.04em;
   color: rgba(91, 157, 255, 0.12);
   pointer-events: none;
   user-select: none;
+}
+@media (min-width: 900px) {
+  .ghost-num { font-size: clamp(6rem, 18vw, 14rem); }
 }
 @supports (-webkit-text-stroke: 2px red) {
   .ghost-num {
@@ -1103,8 +1133,12 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
   background: var(--accent);
 }
 
+/* Phones first: one link per line, so two short links ("See SEO",
+   "See AI SEO") are two clear targets rather than one run of text. From
+   900px they sit side by side again, with a gap between them. */
 .station-inner > a {
-  display: inline-flex;
+  display: flex;
+  width: fit-content;
   align-items: center;
   gap: 6px;
   min-height: 44px;
@@ -1112,6 +1146,9 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
   font-weight: 600;
   color: var(--accent);
   text-underline-offset: 5px;
+}
+@media (min-width: 900px) {
+  .station-inner > a { display: inline-flex; margin-right: 20px; }
 }
 
 /* Alternate panels left/right ≥900px; particles park in the free strip */
@@ -4164,6 +4201,80 @@ div.web-portrait::after {
 /* Blog post comparison tables: a plain horizontal scroller. Not .table-scroll,
    which adds its own border, margin and caption styling. */
 .table-overflow { overflow-x: auto; }
+
+/* -- Comparison tables on phones ------------------------------------------
+   Under 640px a three to seven column table could only scroll sideways, and
+   on a phone the columns past the first were simply cut off at the screen
+   edge (15 October 2026 mobile review: /pricing/, the service pages and the
+   blog posts). Each row becomes a card instead: the row's first cell is the
+   card's title, and every other cell sits under its column heading, which
+   the table-cell-labels plugin in vite.config.js copies into data-label at
+   build time. The markup stays a real <table> (DESIGN.md 10b).
+   This retrofits an existing desktop component, so it is scoped to phones
+   with a max-width query: from 640px up every table renders exactly as
+   before. */
+@media (max-width: 639.98px) {
+  div:is(.table-scroll, .table-overflow) {
+    margin: 24px 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  div:is(.table-scroll, .table-overflow) :is(table, tbody, tr, th, td, caption) {
+    display: block;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    margin: 0;
+    white-space: normal;
+  }
+  div:is(.table-scroll, .table-overflow) thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  div:is(.table-scroll, .table-overflow) caption {
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    text-align: left;
+    color: var(--text-3);
+    border-top: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  div:is(.table-scroll, .table-overflow) tr {
+    padding: 14px 16px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  div:is(.table-scroll, .table-overflow) tbody tr:last-child { border-bottom: 0; }
+  div:is(.table-scroll, .table-overflow) :is(th, td) {
+    padding: 0;
+    border: 0;
+    text-align: left;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  div:is(.table-scroll, .table-overflow) tr > :first-child {
+    font-weight: 600;
+    color: var(--text);
+  }
+  div:is(.table-scroll, .table-overflow) tr > :not(:first-child) {
+    margin-top: 10px;
+    color: var(--text-2);
+  }
+  div:is(.table-scroll, .table-overflow) [data-label]::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 2px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--text-3);
+  }
+}
 
 /* ==========================================================================
    /thank-you/ — the page Calendly sends people to once a call is booked

@@ -783,6 +783,13 @@ caption and row-header semantics. Add `table-scroll-prose` when the cells are se
 rather than figures; `.post td` is `nowrap` by default so money never breaks mid-figure,
 and the prose variant inverts that.
 
+Under 640px every table in a `.table-scroll` or `.table-overflow` wrapper is shown as one
+card per row: the first cell is the card's title and each other cell sits under its
+column heading. The `tableCellLabels` plugin in `vite.config.js` copies the `<thead>`
+headings into `data-label` on the body cells at build time, so a new table needs nothing
+by hand as long as it has a `<thead>` (15 October 2026: the columns past the first were
+cut off at the edge of a phone screen).
+
 ## 11. Copy voice rules (all writers)
 
 Short declarative sentences. Concrete over clever. Second person. Sentence case headings.

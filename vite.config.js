@@ -141,12 +141,57 @@ function footerYear() {
   }
 }
 
+/*
+ * Table cell labels, dev and build. On a phone (under 640px) every
+ * comparison table is shown as one card per row (main.css, "Comparison
+ * tables on phones"), and each cell after the first is printed under its
+ * column heading. This copies each column heading's text into a data-label
+ * on that column's body cells, so the card can show it with CSS alone and a
+ * new table needs nothing extra by hand. The first cell of a row is the
+ * card's title, so it gets no label. A cell that already has a data-label
+ * keeps it. Added 15 October 2026 (mobile review).
+ */
+function tableCellLabels() {
+  const text = (html) =>
+    html
+      .replace(/<[^>]+>/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/"/g, '&quot;')
+
+  return {
+    name: 'peak-leads-table-cell-labels',
+    transformIndexHtml: {
+      order: 'pre',
+      handler(html) {
+        return html.replace(/<table\b[\s\S]*?<\/table>/gi, (table) => {
+          const head = table.match(/<thead\b[\s\S]*?<\/thead>/i)
+          if (!head) return table
+          const labels = [...head[0].matchAll(/<th\b[^>]*>([\s\S]*?)<\/th>/gi)].map((m) => text(m[1]))
+          if (labels.length < 2) return table
+          return table.replace(/<tbody\b[\s\S]*?<\/tbody>/gi, (body) =>
+            body.replace(/<tr\b[\s\S]*?<\/tr>/gi, (row) => {
+              let i = -1
+              return row.replace(/<(td|th)\b([^>]*)>/gi, (tag, name, attrs) => {
+                i += 1
+                if (i === 0 || !labels[i] || /\bdata-label=/i.test(attrs)) return tag
+                return `<${name}${attrs} data-label="${labels[i]}">`
+              })
+            }),
+          )
+        })
+      },
+    },
+  }
+}
+
 export default defineConfig({
   plugins: [
     tailwindcss(),
     googleAnalytics(GA_MEASUREMENT_ID),
     microsoftClarity(CLARITY_PROJECT_ID),
     footerYear(),
+    tableCellLabels(),
   ],
   build: {
     rollupOptions: {
