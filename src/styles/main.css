@@ -2763,11 +2763,16 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
   color: var(--text) !important;
 }
 
+/* Phones get 14px small print (16px on the /pricing/ list items further
+   down); from 640px up the sizes are the original desktop ones. */
 .price-meta {
   font-family: var(--font-mono);
-  font-size: 0.78rem !important;
+  font-size: 0.875rem !important;
   letter-spacing: 0.04em;
   color: var(--text-3) !important;
+}
+@media (min-width: 640px) {
+  .price-meta { font-size: 0.78rem !important; }
 }
 
 /* -- region switch -------------------------------------------------------- */
@@ -3009,9 +3014,12 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
 .pricing-features li {
   position: relative;
   padding-left: 26px;
-  font-size: 0.92rem !important;
+  font-size: 1rem !important;
   line-height: 1.5 !important;
   max-width: none !important;
+}
+@media (min-width: 640px) {
+  .pricing-features li { font-size: 0.92rem !important; }
 }
 /* Tick drawn in CSS rather than an icon font or an inline SVG per item. */
 .pricing-features li::before {
@@ -3044,10 +3052,13 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
 
 .pricing-card-foot {
   margin: 14px 0 0 !important;
-  font-size: 0.82rem !important;
+  font-size: 0.875rem !important;
   line-height: 1.5 !important;
   color: var(--text-3) !important;
   max-width: none !important;
+}
+@media (min-width: 640px) {
+  .pricing-card-foot { font-size: 0.82rem !important; }
 }
 
 /* -- comparison table ----------------------------------------------------- */
