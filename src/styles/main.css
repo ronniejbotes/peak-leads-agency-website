@@ -1521,6 +1521,20 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
   padding-bottom: calc(var(--wc-h, 170px) * 0.075);
 }
 
+/* Phones: the ring's cards are about 236x133px at 390, so the card type set
+   off --wc-h came out at 6.9-11.3px (phone audit, 17 October 2026). Each
+   label takes a slightly larger share of the card height on narrow screens,
+   the same 640px cylinder.js treats as narrow; the plate grows by a few
+   pixels and the hierarchy (name over trade, domain smallest) is kept. */
+@media (max-width: 640px) {
+  .wc-url { font-size: calc(var(--wc-h, 170px) * 0.068); }
+  .wc-plate-name { font-size: calc(var(--wc-h, 170px) * 0.085); }
+  .wc-plate-tag { font-size: calc(var(--wc-h, 170px) * 0.066); }
+  .is-3d .wc-back strong { font-size: calc(var(--wc-h, 170px) * 0.095); }
+  /* also sizes .wc-meta, which is a span on the back face */
+  .is-3d .wc-back > span { font-size: calc(var(--wc-h, 170px) * 0.07); }
+}
+
 /* ==========================================================================
    .arcade — the "spiderman" easter egg overlay (src/js/arcade.js)
    Injected only when the word is typed; nothing here renders otherwise.
