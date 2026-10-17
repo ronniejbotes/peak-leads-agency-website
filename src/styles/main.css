@@ -2788,7 +2788,7 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
 
 .region-switch-label {
   font-family: var(--font-mono);
-  font-size: 0.74rem;
+  font-size: 0.875rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-3);
@@ -2806,7 +2806,7 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
 .region-switch-btn {
   position: relative;
   z-index: 1;
-  padding: 9px 18px;
+  padding: 9px 12px;
   min-height: 40px;
   border-radius: 999px;
   font-size: 0.92rem;
@@ -2817,10 +2817,19 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
 }
 .region-switch-btn span {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.875rem;
   letter-spacing: 0.08em;
   opacity: 0.7;
   margin-left: 6px;
+}
+/* Phones get 14px for "Show prices for" and the ZAR/USD codes, like the
+   card small print below (phone audit, 17 October 2026); from 640px up the
+   sizes are the original desktop ones. The buttons' side padding is 12px
+   on phones so the wider codes still fit a 360px screen. */
+@media (min-width: 640px) {
+  .region-switch-label { font-size: 0.74rem; }
+  .region-switch-btn { padding: 9px 18px; }
+  .region-switch-btn span { font-size: 0.72rem; }
 }
 .region-switch-btn[aria-checked='true'] { color: var(--accent-ink); }
 .region-switch-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -2952,7 +2961,7 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
   margin: 0;
   padding: 5px 12px;
   border-bottom-left-radius: 12px;
-  font-size: 0.74rem !important;
+  font-size: 0.875rem !important;
   font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--accent-ink) !important;
@@ -2961,7 +2970,7 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
 
 .pricing-card-name {
   font-family: var(--font-mono);
-  font-size: 0.78rem !important;
+  font-size: 0.875rem !important;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -2991,16 +3000,26 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
 }
 
 .pricing-period {
-  font-size: 0.86rem;
+  font-size: 0.875rem;
   color: var(--text-3);
 }
 
 .pricing-card-setup {
-  font-size: 0.84rem !important;
+  font-size: 0.875rem !important;
   color: var(--text-3) !important;
   margin-bottom: 18px !important;
 }
 .pricing-card-setup span { color: var(--text-2); font-weight: 600; }
+
+/* Card small print is 14px on phones: the badge, plan name, "per month" and
+   setup line were 11.8-13.8px (phone audit, 17 October 2026). From 640px up
+   each keeps its original desktop size, as T-64 did for the price note. */
+@media (min-width: 640px) {
+  .pricing-badge { font-size: 0.74rem !important; }
+  .pricing-card-name { font-size: 0.78rem !important; }
+  .pricing-period { font-size: 0.86rem; }
+  .pricing-card-setup { font-size: 0.84rem !important; }
+}
 
 .pricing-features {
   list-style: none;
