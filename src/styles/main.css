@@ -911,6 +911,17 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
 @media (min-width: 900px) and (hover: hover) and (pointer: fine) {
   .service-siblings a { min-height: 0; }
 }
+/* The same 44px tap target for the five "See ..." links on /services/, which
+   were 21px tall (phone audit, 17 October 2026). Inline-block with padding
+   rather than inline-flex, which would swallow the space before the arrow. */
+.service-more {
+  display: inline-block;
+  min-height: 44px;
+  padding-block: 8px;
+}
+@media (min-width: 900px) and (hover: hover) and (pointer: fine) {
+  .service-more { display: inline; min-height: 0; padding-block: 0; }
+}
 
 /* ==========================================================================
    #proof — stat strip, hairline separators, no cards
