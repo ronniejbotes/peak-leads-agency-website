@@ -2138,6 +2138,17 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
 .footer-tagline { color: var(--text-2); }
 
 .footer-contact a { color: var(--accent); }
+/* The footer email link was a 180x18 target on a phone (phone audit, 17
+   October 2026). Vertical padding makes it 44px tall; desktop with a mouse
+   keeps the compact line, as with .service-siblings. */
+.footer-contact a {
+  display: inline-block;
+  min-height: 44px;
+  padding-block: 11px;
+}
+@media (min-width: 900px) and (hover: hover) and (pointer: fine) {
+  .footer-contact a { display: inline; min-height: 0; padding-block: 0; }
+}
 
 .footer-nav {
   align-content: flex-start;
