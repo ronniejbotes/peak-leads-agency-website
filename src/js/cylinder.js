@@ -157,11 +157,17 @@ export function initWorkCylinder() {
 
     caption.classList.add('wc-face', 'wc-back');
     /* The back face reuses the already-decoded screenshot as a blurred
-       ground; ::before owns the filter so the text stays sharp. */
-    caption.style.setProperty(
-      '--wc-shot',
-      'url("' + (img.currentSrc || img.src) + '")'
-    );
+       ground; ::before owns the filter so the text stays sharp. The img has
+       a srcset, so name the file the browser picked: a lazy image that has
+       not started yet has no currentSrc, and falling back to src would
+       fetch the 1200px file as well as the phone copy. */
+    const setShot = () =>
+      caption.style.setProperty(
+        '--wc-shot',
+        'url("' + (img.currentSrc || img.src) + '")'
+      );
+    if (img.currentSrc) setShot();
+    else img.addEventListener('load', setShot, { once: true });
 
     const stripe = document.createElement('span');
     stripe.className = 'wc-stripe';
