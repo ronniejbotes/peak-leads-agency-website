@@ -133,7 +133,7 @@ body.page-funnel {
   --border:       color-mix(in oklab, #2A3448, #C6CEDD calc(var(--day) * 100%));
   --text:         color-mix(in oklab, #EEF2F8, #111725 calc(var(--day) * 100%));
   --text-2:       color-mix(in oklab, #A3AEC0, #5C6675 calc(var(--day) * 100%));
-  --text-3:       color-mix(in oklab, #7C8798, #6B7484 calc(var(--day) * 100%));
+  --text-3:       color-mix(in oklab, #7C8798, #66707E calc(var(--day) * 100%));
   --accent:       color-mix(in oklab, #5B9DFF, #0F3FB0 calc(var(--day) * 100%));
   --accent-ink:   color-mix(in oklab, #0A1220, #FFFFFF calc(var(--day) * 100%));
   --accent-soft:  color-mix(in oklab, rgba(91, 157, 255, 0.25), rgba(15, 63, 176, 0.30) calc(var(--day) * 100%));
@@ -1091,8 +1091,11 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
 }
 
 /* Ghost outline numbers 01-04 — absolute INSIDE the panel. Fallback solid
-   12% chalk where text-stroke is unsupported. */
-.ghost-num {
+   12% chalk where text-stroke is unsupported. Scoped to .station so these
+   rules outrank `.station p` below: the numeral is a <p>, and that rule was
+   painting it solid --text-2 over the headings (desktop audit, 18 October
+   2026). */
+.station .ghost-num {
   position: absolute;
   z-index: 0;
   top: -0.45em;
@@ -1109,10 +1112,10 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
   user-select: none;
 }
 @media (min-width: 900px) {
-  .ghost-num { font-size: clamp(6rem, 18vw, 14rem); }
+  .station .ghost-num { font-size: clamp(6rem, 18vw, 14rem); }
 }
 @supports (-webkit-text-stroke: 2px red) {
-  .ghost-num {
+  .station .ghost-num {
     color: transparent;
     -webkit-text-stroke: 2px var(--accent-soft);
   }
@@ -2045,7 +2048,9 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
   padding: 0 20px 18px;
   margin: 0;
   color: var(--text-2);
-  max-width: none;
+  /* About 70 characters a line; the panel's full 880px ran past 100
+     (desktop audit, 18 October 2026). The padding counts toward it. */
+  max-width: calc(50ch + 40px);
 }
 
 /* E-mail links carry no address in the markup, so scrapers reading the
@@ -2792,6 +2797,12 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
 .post-pricing > section > h3,
 .post-pricing > h1,
 .post-pricing > .eyebrow { max-width: 68ch; }
+/* Body copy at about 70 characters a line. Geist's "0" is wide, so 68ch
+   ran to 95-105 characters at desktop widths (desktop audit, 18 October
+   2026). Below about 600px the column is narrower than this anyway. */
+.post-pricing > .answer-block,
+.post-pricing > section > p,
+.post-pricing > section > ul li { max-width: 50ch; }
 
 .answer-block {
   font-size: 1.12rem !important;
@@ -2855,9 +2866,12 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
   font-family: var(--font-mono);
   font-size: 0.875rem;
   letter-spacing: 0.08em;
-  opacity: 0.7;
   margin-left: 6px;
 }
+/* Only the selected side's code is softened (white on the blue thumb stays
+   above 5:1). On the unselected side the grey label already reads as off,
+   and 70% of it was 2.76:1 on the track (desktop audit, 18 October 2026). */
+.region-switch-btn[aria-checked='true'] span { opacity: 0.7; }
 /* Phones get 14px for "Show prices for" and the ZAR/USD codes, like the
    card small print below (phone audit, 17 October 2026); from 640px up the
    sizes are the original desktop ones. The buttons' side padding is 12px

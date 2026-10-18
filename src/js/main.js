@@ -581,7 +581,7 @@ const mqWide =
     ? window.matchMedia('(min-width: 900px)')
     : null;
 
-const sayHi = { el: null, video: null, nearBook: false };
+const sayHi = { el: null, video: null, nearBook: false, nearFooter: false };
 
 function sayHiUpdate() {
   if (!sayHi.el) return;
@@ -590,7 +590,7 @@ function sayHiUpdate() {
     !body.classList.contains('no-3d') &&
     !!(mqPointerFine && mqPointerFine.matches) &&
     !!(mqWide && mqWide.matches);
-  const show = eligible && !sayHi.nearBook;
+  const show = eligible && !sayHi.nearBook && !sayHi.nearFooter;
   sayHi.el.hidden = !show;
   if (sayHi.video) {
     if (show) {
@@ -670,17 +670,28 @@ function initSayHi() {
   if (!sayHi.el) return;
   sayHi.video = sayHi.el.querySelector('video');
 
+  /* Out of the way while the booking band is on screen (it has its own
+     call to action), and while the footer is: the fixed bubble sat on top
+     of the footer links at the end of the page (desktop audit, 18 October
+     2026: "Testimonials" at 1024px, "Book a call" at 1280px). */
   const book = document.getElementById('book');
-  if (book && 'IntersectionObserver' in window) {
-    new window.IntersectionObserver(
+  const footer = document.querySelector('.site-footer');
+  if ((book || footer) && 'IntersectionObserver' in window) {
+    const watcher = new window.IntersectionObserver(
       (entries) => {
         for (let i = 0; i < entries.length; i++) {
-          sayHi.nearBook = entries[i].isIntersecting;
+          if (entries[i].target === book) {
+            sayHi.nearBook = entries[i].isIntersecting;
+          } else {
+            sayHi.nearFooter = entries[i].isIntersecting;
+          }
         }
         sayHiUpdate();
       },
       { threshold: 0 }
-    ).observe(book);
+    );
+    if (book) watcher.observe(book);
+    if (footer) watcher.observe(footer);
   }
 
   onMedia(mqPointerFine, sayHiUpdate);
