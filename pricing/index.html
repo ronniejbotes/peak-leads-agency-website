@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>
     /* Same region probe as the homepage: picks which currency the cards open
-       on. Timezone first, language as the fallback, USD as the default (and
-       what crawlers see). The swap itself runs inline just after the cards. */
+       on. Timezone first, language as the fallback. The markup carries the
+       rand prices, so crawlers and visitors without JS see ZAR; anyone detected
+       outside South Africa is swapped to USD by the inline script just after
+       the cards. */
     (function () {
       var d = document.documentElement;
       d.classList.add('js-enabled');
@@ -233,7 +235,8 @@
         <h1>Lead generation pricing.</h1>
 
         <p class="answer-block">Peak Leads runs lead generation on fixed monthly packages in
-        South Africa and the United States. Packages start at R7,950 per month in South Africa
+        South Africa and the United States, including B2B lead generation and appointment
+        setting for businesses that sell to other businesses. Packages start at R7,950 per month in South Africa
         and $499 per month in the US with the Lead Gen Launchpad (October 2026). Every package is month to
         month, paid up front, and you can cancel any month without a penalty.</p>
 
@@ -249,10 +252,10 @@
         <div class="region-switch" data-region-switch hidden>
           <span class="region-switch-label" id="region-switch-label">Show prices for</span>
           <div class="region-switch-track" role="radiogroup" aria-labelledby="region-switch-label">
-            <button type="button" class="region-switch-btn" data-region-btn="za" role="radio" aria-checked="false">
+            <button type="button" class="region-switch-btn" data-region-btn="za" role="radio" aria-checked="true">
               South Africa <span aria-hidden="true">ZAR</span>
             </button>
-            <button type="button" class="region-switch-btn" data-region-btn="us" role="radio" aria-checked="true">
+            <button type="button" class="region-switch-btn" data-region-btn="us" role="radio" aria-checked="false">
               United States <span aria-hidden="true">USD</span>
             </button>
             <span class="region-switch-thumb" aria-hidden="true"></span>
@@ -273,11 +276,11 @@
               <div class="pricing-card-body">
                 <p class="pricing-card-name">Lead Gen Launchpad</p>
                 <p class="pricing-card-price">
-                  <span class="pricing-amount" data-price data-za="7950" data-us="499" data-prefix-za="R" data-prefix-us="$">$499</span>
+                  <span class="pricing-amount" data-price data-za="7950" data-us="499" data-prefix-za="R" data-prefix-us="$">R7,950</span>
                   <span class="pricing-period">per month</span>
                 </p>
                 <p class="pricing-card-setup">
-                  <span data-setup data-za="R4,950" data-us="$299">$299</span> once-off setup, charged in month one
+                  <span data-setup data-za="R4,950" data-us="$299">R4,950</span> once-off setup, charged in month one
                 </p>
                 <ul class="pricing-features">
                   <li>Basic website build, or optimisation of your existing website</li>
@@ -300,11 +303,11 @@
               <div class="pricing-card-body">
                 <p class="pricing-card-name">Appointments</p>
                 <p class="pricing-card-price">
-                  <span class="pricing-amount" data-price data-za="19950" data-us="1999" data-prefix-za="R" data-prefix-us="$">$1,999</span>
+                  <span class="pricing-amount" data-price data-za="19950" data-us="1999" data-prefix-za="R" data-prefix-us="$">R19,950</span>
                   <span class="pricing-period">per month</span>
                 </p>
                 <p class="pricing-card-setup">
-                  <span data-setup data-za="R9,950" data-us="$950">$950</span> once-off setup, charged in month one
+                  <span data-setup data-za="R9,950" data-us="$950">R9,950</span> once-off setup, charged in month one
                 </p>
                 <ul class="pricing-features">
                   <li>We bring the prospect list, or we work from yours</li>
@@ -326,11 +329,11 @@
               <div class="pricing-card-body">
                 <p class="pricing-card-name">Email Outreach</p>
                 <p class="pricing-card-price">
-                  <span class="pricing-amount" data-price data-za="23950" data-us="2900" data-prefix-za="R" data-prefix-us="$">$2,900</span>
+                  <span class="pricing-amount" data-price data-za="23950" data-us="2900" data-prefix-za="R" data-prefix-us="$">R23,950</span>
                   <span class="pricing-period">per month</span>
                 </p>
                 <p class="pricing-card-setup">
-                  <span data-setup data-za="R9,950" data-us="$3,500">$3,500</span> once-off setup, charged in month one
+                  <span data-setup data-za="R9,950" data-us="$3,500">R9,950</span> once-off setup, charged in month one
                 </p>
                 <ul class="pricing-features">
                   <li>We bring the prospect list, or we work from yours</li>
@@ -352,11 +355,11 @@
               <div class="pricing-card-body">
                 <p class="pricing-card-name">LinkedIn Ads</p>
                 <p class="pricing-card-price">
-                  <span class="pricing-amount" data-price data-za="25950" data-us="2900" data-prefix-za="R" data-prefix-us="$">$2,900</span>
+                  <span class="pricing-amount" data-price data-za="25950" data-us="2900" data-prefix-za="R" data-prefix-us="$">R25,950</span>
                   <span class="pricing-period">per month</span>
                 </p>
                 <p class="pricing-card-setup">
-                  <span data-setup data-za="R9,950" data-us="$1,999">$1,999</span> once-off setup, charged in month one
+                  <span data-setup data-za="R9,950" data-us="$1,999">R9,950</span> once-off setup, charged in month one
                 </p>
                 <ul class="pricing-features">
                   <li>We build and run the ads on LinkedIn</li>
@@ -380,11 +383,11 @@
               <div class="pricing-card-body">
                 <p class="pricing-card-name">The Full Climb</p>
                 <p class="pricing-card-price">
-                  <span class="pricing-amount" data-price data-za="39950" data-us="4999" data-prefix-za="R" data-prefix-us="$">$4,999</span>
+                  <span class="pricing-amount" data-price data-za="39950" data-us="4999" data-prefix-za="R" data-prefix-us="$">R39,950</span>
                   <span class="pricing-period">per month</span>
                 </p>
                 <p class="pricing-card-setup">
-                  <span data-setup data-za="R15,000" data-us="$4,999">$4,999</span> once-off setup, charged in month one
+                  <span data-setup data-za="R15,000" data-us="$4,999">R15,000</span> once-off setup, charged in month one
                 </p>
                 <ul class="pricing-features">
                   <li>Appointment setting, everything included</li>
@@ -394,7 +397,7 @@
                   <li><strong>Google, Meta and LinkedIn ads all managed</strong></li>
                   <li><strong>A full website build, not just a landing page</strong></li>
                   <li><strong>SEO foundation and initial optimisation</strong></li>
-                  <li><strong>Saves <span data-saving data-za="R29,900" data-us="$2,800">$2,800</span> a month against buying the three lead channels separately</strong></li>
+                  <li><strong>Saves <span data-saving data-za="R29,900" data-us="$2,800">R29,900</span> a month against buying the three lead channels separately</strong></li>
                   <li>Paid up front each month by debit order</li>
                   <li>Cancel any month, no lock-in</li>
                 </ul>
