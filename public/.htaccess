@@ -17,6 +17,9 @@ RewriteRule ^free-audit/?$ /book-a-call/ [R=301,L]
 
 # Pages are checked with the server before a browser reuses them, so a deploy reaches returning visitors on their next visit. Files under /assets/ keep their long cache.
 <IfModule mod_headers.c>
+# HTTPS only, raised in steps (five minutes first). No includeSubDomains or preload until every subdomain is known to answer over https.
+Header always set Strict-Transport-Security "max-age=300"
+
 <FilesMatch "\.html$">
 Header set Cache-Control "no-cache"
 </FilesMatch>
