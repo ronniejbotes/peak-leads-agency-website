@@ -1,6 +1,9 @@
+import { readFile, writeFile } from 'node:fs/promises'
+import { join, resolve } from 'node:path'
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import tailwindcss from '@tailwindcss/vite'
+import Beasties from 'beasties'
 
 // Google Analytics 4 Measurement ID.
 // To switch analytics on, copy the ID that starts with G- from Google
@@ -226,6 +229,159 @@ function preloadBodyFont() {
   }
 }
 
+/*
+ * Critical CSS, build only (T-60, 20 October 2026). The site-wide stylesheet
+ * was the only file holding up the first paint (Lighthouse "render-blocking
+ * resources" on every page). After the build has written the pages, each
+ * page gets the rules it uses written into a <style> where the stylesheet
+ * link was. The full stylesheet still loads, but only once the page has
+ * loaded (or at the first key press or tap, if that comes sooner), from a
+ * one-line script, plus a <noscript> link for visitors without JavaScript.
+ * Loading it any earlier, even without blocking, put its 19 KB in the way
+ * of the first paint's bytes on a slow phone: Lighthouse's mobile LCP went
+ * up 150ms on the homepage with an early media="print" load, and down 75ms
+ * with this one. The page looks the same from the first paint, because:
+ *
+ * - beasties keeps every rule whose selector matches an element in the page,
+ *   in the stylesheet's own order, so the cascade (Tailwind's @layer order
+ *   included) resolves exactly as with the full file;
+ * - rules for states the scripts set after the HTML arrives (JS_STATE: the
+ *   js-enabled class the head script adds, which switches the phone menu to
+ *   the burger, data-region, no-3d, nav-light, the open menu and so on) are
+ *   matched with those tokens taken out, so they are in from the start;
+ * - rules for elements the scripts build (JS_BUILT: the #network typewriter
+ *   spans, the Recent work card faces, the pricing confetti) are always kept;
+ * - every @font-face and @keyframes rule is kept: beasties cannot see that
+ *   font-family: var(--font-sans) is Geist, and without the @font-face the
+ *   first paint would use the fallback font and reflow when the file landed
+ *   (the layout shift the body font preload above was added to stop).
+ *
+ * What is left out is what no page shows before the full file has arrived:
+ * other pages' rules and the mini game, which only opens after typing (the
+ * first key press fetches the full file). The built HTML is otherwise byte
+ * for byte what Vite wrote: only the stylesheet line is replaced, and
+ * beasties' own rewrite of the page is thrown away. A page that does not
+ * have exactly one stylesheet link, or where anything unexpected comes
+ * back, is left as it was (blocking, but correct) and the build prints a
+ * warning.
+ *
+ * When a script starts setting a new class or data attribute that the CSS
+ * styles, add it to JS_STATE, or that state will look unstyled until the
+ * full file arrives. Checked on 20 October 2026 by loading every built page
+ * with the full stylesheet withheld: pixel for pixel the same as before at
+ * 1440 and 390px, top to bottom, apart from the frame a playing video was on.
+ */
+const JS_STATE = [
+  /\.js-enabled\b/g,
+  /\.no-3d\b/g,
+  /\.nav-light\b/g,
+  /\.is-3d\b/g,
+  /\.is-open\b/g,
+  /\.in\b(?![\w-])/g,
+  /\[data-(?:region|open|done|active|hover|enter|muted)(?:[~|^$*]?=[^\]]*)?\]/g,
+  /\[aria-(?:expanded|checked|pressed|invalid)(?:[~|^$*]?=[^\]]*)?\]/g,
+]
+const JS_BUILT = [/\.tw-(?:head|tail|caret)\b/, /\.wc-[\w-]+/, /\.confetti-layer\b/]
+
+class SiteBeasties extends Beasties {
+  normalizeCssSelector(selector) {
+    let s = selector
+    for (const token of JS_STATE) s = s.replace(token, '')
+    // A compound left empty by the line above (".js-enabled .x" -> " .x") matches anything.
+    s = s.replace(/(^|[\s>+~(,])(?=[\s>+~),]|$)/g, '$1*')
+    // beasties drops pseudo-classes, which turns "main :is(ul,ol)>li" into "main >li"
+    // (li as a child of main: never matches). A * in front keeps it "main *>li".
+    s = s.replace(/(^|[\s>+~(,])(?=::?[a-z-])/gi, '$1*')
+    return super.normalizeCssSelector(s)
+  }
+}
+
+function criticalCss() {
+  let outDir
+  let logger
+
+  return {
+    name: 'peak-leads-critical-css',
+    apply: 'build',
+    enforce: 'post',
+    configResolved(config) {
+      outDir = resolve(config.root, config.build.outDir)
+      logger = config.logger
+    },
+    async writeBundle(options, bundle) {
+      const beasties = new SiteBeasties({
+        path: outDir,
+        publicPath: '/',
+        external: true,
+        inlineFonts: false,
+        preloadFonts: false,
+        keyframes: 'all',
+        reduceInlineStyles: false,
+        mergeStylesheets: false,
+        pruneSource: false,
+        compress: true,
+        allowRules: JS_BUILT,
+        logLevel: 'warn',
+        logger: {
+          warn: (message) => logger.warn(`[critical-css] ${message}`),
+          error: (message) => logger.error(`[critical-css] ${message}`),
+        },
+      })
+      const fontFaces = new Map()
+      const skip = (file, why) =>
+        logger.warn(`\n[critical-css] ${file}: ${why}; its stylesheet still blocks the first paint.\n`)
+
+      for (const file of Object.keys(bundle).filter((name) => name.endsWith('.html'))) {
+        const htmlPath = join(outDir, file)
+        const html = await readFile(htmlPath, 'utf8')
+        const links = html.match(/^[ \t]*<link rel="stylesheet" crossorigin href="\/assets\/[^"]+\.css">/gm) || []
+        if (links.length !== 1) {
+          if (links.length) skip(file, `${links.length} stylesheet links`)
+          continue
+        }
+        if (/<style\b/i.test(html)) {
+          skip(file, 'it already has a <style> block')
+          continue
+        }
+        const indent = links[0].match(/^[ \t]*/)[0]
+        const href = links[0].match(/href="([^"]+)"/)[1]
+
+        let css
+        try {
+          const styles = [...(await beasties.process(html)).matchAll(/<style>([\s\S]*?)<\/style>/g)]
+          if (styles.length !== 1) throw new Error(`${styles.length} <style> blocks came back`)
+          css = styles[0][1]
+        } catch (error) {
+          skip(file, error.message)
+          continue
+        }
+
+        // Every @font-face in the full file (fontsource's are flat, no nested braces).
+        if (!fontFaces.has(href)) {
+          const sheet = await readFile(join(outDir, href), 'utf8')
+          fontFaces.set(href, (sheet.match(/@font-face\s*\{[^{}]*\}/g) || []).join(''))
+        }
+        css += fontFaces.get(href)
+        if (/<\/style/i.test(css)) {
+          skip(file, 'the CSS contains "</style"')
+          continue
+        }
+
+        const loader =
+          '(function(){var d=document,done=0;function css(){if(done)return;done=1;' +
+          "var l=d.createElement('link');l.rel='stylesheet';l.crossOrigin='';" +
+          `l.href='${href}';d.head.appendChild(l)}` +
+          "addEventListener('load',css);addEventListener('keydown',css);addEventListener('pointerdown',css)})()"
+        const tag =
+          `${indent}<style>${css}</style>\n` +
+          `${indent}<script>${loader}</script>\n` +
+          `${indent}<noscript><link rel="stylesheet" crossorigin href="${href}"></noscript>`
+        await writeFile(htmlPath, html.replace(links[0], () => tag))
+      }
+    },
+  }
+}
+
 export default defineConfig({
   plugins: [
     tailwindcss(),
@@ -234,6 +390,7 @@ export default defineConfig({
     footerYear(),
     tableCellLabels(),
     preloadBodyFont(),
+    criticalCss(),
   ],
   build: {
     rollupOptions: {
