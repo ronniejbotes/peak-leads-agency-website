@@ -647,9 +647,45 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
   }
 }
 
-@media (max-width: 479.98px) {
-  /* Tight bar: hero + dropdown carry the CTA */
-  .nav-inner > .nav-cta { display: none; }
+/* Phone-bar CTA (28 October 2026). Under 900px the "Book A Call" pill lives
+   in the burger dropdown, so an inner page had no booking button on its
+   first screen: at 390px the first one was 3226px down /services/ and
+   10710px down the roofing-leads post. .nav-cta-bar is a compact copy in
+   the bar itself, between the wordmark and the burger, on every page that
+   has the burger except /thank-you/ (the visitor has just booked; its nav
+   pill is "Your questions"). It shows only with JS (without it the links already
+   render as a static row with the pill in it) and only under 900px (the
+   desktop links row carries its own pill). While the menu is open it steps
+   out, so the dropdown's full-width button is the only one on screen.
+   Fits from 360px: logo 146 + button ~100 + burger 44 inside 306px. */
+.nav-cta-bar { display: none; }
+@media (max-width: 899.98px) {
+  :root.js-enabled .nav-inner { column-gap: 10px; }
+  :root.js-enabled .nav-inner > .nav-cta-bar {
+    display: inline-flex;
+    flex-shrink: 0;
+    margin-left: auto;
+    /* The burger's 44px target has ~11px of air either side of its icon;
+       pull the button into that air so it reads as one group with the icon. */
+    margin-right: -6px;
+    padding: 0 14px;
+    font-size: 0.875rem;
+    transition: transform 150ms ease, box-shadow 150ms ease, opacity 150ms ease;
+  }
+  :root.js-enabled .site-nav[data-open] .nav-cta-bar,
+  :root.js-enabled .site-nav:has(.nav-burger[aria-expanded="true"]) .nav-cta-bar {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 150ms ease, visibility 0s linear 150ms;
+  }
+}
+@media (max-width: 374.98px) {
+  :root.js-enabled .nav-inner > .nav-cta-bar { padding: 0 11px; }
+}
+/* Under 360px logo, wordmark, button and burger cannot share one bar; the
+   dropdown carries the CTA there, as it did everywhere before. */
+@media (max-width: 359.98px) {
+  :root.js-enabled .nav-inner > .nav-cta-bar { display: none; }
 }
 
 @media (min-width: 900px) {
@@ -3447,6 +3483,11 @@ body.page-static form button[type="submit"] { margin-top: 26px; }
   color: var(--text-3);
 }
 .ticker-label + .ticker { margin-top: 18px; }
+/* 12.5px was too small to read on a phone. 13px, with the tracking eased
+   a touch, so the caption still sits on one line at 360px. */
+@media (max-width: 899.98px) {
+  .ticker-label { font-size: 0.8125rem; letter-spacing: 0.1em; }
+}
 
 .ticker {
   display: flex;

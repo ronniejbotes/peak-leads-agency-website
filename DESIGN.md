@@ -154,7 +154,10 @@ from-states. Eyebrow budget: max 3 on the whole page.
    Brand: logo img `/assets/images/logo.webp` (40px) + "PeakLeads" bold. Links: Home `/`,
    About `/about/`, What We Do `/services/`, Testimonials `/#testimonials`, Blog `/blog/`.
    CTA pill "Book A Call" → `/book-a-call/` (the questions come before any calendar, §8). Mobile <900px: burger → dropdown (js-enabled gated;
-   no-JS gets static wrapped row). 2px `.nav-progress` bottom edge, scaleX = --scroll-progress.
+   no-JS gets static wrapped row). 360-899px with JS: a compact `.nav-cta-bar` "Book a call"
+   → `/book-a-call/` sits in the bar beside the burger on every page with the burger except
+   `/thank-you/`, hidden while the menu is open and under 360px (added 2026-10-28).
+   2px `.nav-progress` bottom edge, scaleX = --scroll-progress.
 2. **`#hero`** (100svh, asymmetric: copy left max-w 620px, particles park RIGHT).
    Eyebrow "Build your presence." (the slogan), then H1: "Lead generation company for South
    African trades" (7 October 2026; the homepage's search is "lead generation companies south
