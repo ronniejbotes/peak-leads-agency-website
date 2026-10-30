@@ -434,6 +434,7 @@ export default defineConfig({
         postAdvertiseOnline: page('./blog/advertise-your-business-online-south-africa/index.html'),
         postMoreCustomers: page('./blog/how-to-get-more-customers/index.html'),
         postFreelancerVsAgency: page('./blog/freelancer-vs-agency/index.html'),
+        postSeoCost: page('./blog/seo-cost-south-africa/index.html'),
         notFound: page('./404.html'),
       },
       output: {
