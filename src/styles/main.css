@@ -2217,6 +2217,11 @@ body.page-static .site-nav.theme-day { background-color: transparent; }
   color: var(--text-3); /* caption only */
 }
 
+/* Google's own "Add as a preferred source" badge under the copyright line
+   (owner, 5 November 2026). Width and height are on the img, so nothing shifts. */
+.footer-source { margin-top: 16px; line-height: 0; }
+.pref-source { display: inline-block; line-height: 0; }
+
 /* ==========================================================================
    Say hi bubble — desktop, fine pointer, full experience only
    ========================================================================== */
