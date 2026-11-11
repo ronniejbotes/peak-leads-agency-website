@@ -17,8 +17,14 @@ RewriteRule ^free-audit/?$ /book-a-call/ [R=301,L]
 
 # Pages are checked with the server before a browser reuses them, so a deploy reaches returning visitors on their next visit. Files under /assets/ keep their long cache.
 <IfModule mod_headers.c>
-# HTTPS only, raised in steps (five minutes first). No includeSubDomains or preload until every subdomain is known to answer over https.
-Header always set Strict-Transport-Security "max-age=2592000"
+# HTTPS only, raised in steps (five minutes, a day, a month, then a year on 12 Nov 2026: T-59's last step). No includeSubDomains or preload until every subdomain is known to answer over https.
+Header always set Strict-Transport-Security "max-age=31536000"
+
+# Security headers (12 Nov 2026), the same lines as positionxero.com's on this host. Nothing a visitor sees changes: no sniffing of file types, no framing by other sites, only the domain (not the full address) sent to other sites as the referrer, and no camera, microphone or location access.
+Header always set X-Content-Type-Options "nosniff"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+Header always set X-Frame-Options "SAMEORIGIN"
+Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
 
 <FilesMatch "\.html$">
 Header set Cache-Control "no-cache"
