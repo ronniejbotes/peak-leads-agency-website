@@ -91,7 +91,7 @@ function deliverCrm(entry) {
   return fetch(CRM_ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({ ...entry.payload, leadId: String(entry.ts) }),
+    body: JSON.stringify({ ...entry.payload, ...(entry.check || {}), leadId: String(entry.ts) }),
     keepalive: true
   }).then((res) => {
     const refused = res.status >= 400 && res.status < 500 && ![404, 408, 429].includes(res.status);
@@ -110,9 +110,13 @@ function sendCrm(entry) {
 /* Queue, send, and try once more two seconds later. Resolves once the lead
    is acknowledged; rejects if both tries fail, leaving it queued for the
    next flushOutbox(). { crm: true } also hands the lead to HubSpot, on its
-   own queue; the promise does not wait for it. */
+   own queue; the promise does not wait for it. options.check ({ hp,
+   elapsedMs }: the honeypot's value and how long the questions took) goes to
+   the HubSpot endpoint only, never into the email; the endpoint drops a lead
+   without it (12 Nov 2026). */
 export function sendLead(payload, options) {
   const entry = { ts: Date.now(), payload };
+  if (options && options.check) entry.check = options.check;
   if (options && options.crm) {
     pushOutbox(entry, CRM_OUTBOX_KEY);
     sendCrm(entry);

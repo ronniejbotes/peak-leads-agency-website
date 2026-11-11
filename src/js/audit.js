@@ -65,6 +65,11 @@ const LEAVE_BY = 6000;
 
 const $ = (id) => document.getElementById(id);
 
+/* When the questions page started, for the HubSpot endpoint's bot check: a
+   finished set of answers that arrives within seconds of the page loading
+   was not typed by a person (12 Nov 2026). */
+const PAGE_STARTED = Date.now();
+
 const motionQuery =
   typeof window.matchMedia === 'function'
     ? window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -620,7 +625,10 @@ function submitLead() {
     /* pixel is optional */
   }
 
-  const sent = sendLead(buildPayload(open, turnedAway ? earlier : null), { crm: open });
+  const sent = sendLead(buildPayload(open, turnedAway ? earlier : null), {
+    crm: open,
+    check: { hp: hp ? hp.value : '', elapsedMs: Date.now() - PAGE_STARTED }
+  });
 
   if (open) {
     showScreen(NEXT_INDEX);

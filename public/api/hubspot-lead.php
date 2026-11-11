@@ -33,6 +33,25 @@
  *
  * The rotation counter and the ids of leads already handled are kept in the
  * same folder.
+ *
+ * Abuse guards (12 Nov 2026), checked before anything reaches HubSpot:
+ *   Origin     The request must carry an Origin header naming this site.
+ *              Every browser sends one on a POST, so only scripts posting
+ *              from elsewhere are refused.
+ *   Bot check  lead.js sends the honeypot's value (hp, always empty for a
+ *              person) and how long the questions took (elapsedMs). A filled
+ *              honeypot, a missing check or a run under MIN_FILL_MS is
+ *              answered "ok" so a bot learns nothing, logged, and not sent
+ *              on. The email from lead.js goes out on its own path either
+ *              way, so a person wrongly caught here still reaches the team.
+ *              Leads made by the old lead.js (no check fields, a leadId from
+ *              before CHECK_SINCE_MS) are still taken until LEGACY_UNTIL:
+ *              they wait in visitors' browser queues and retry later.
+ *   Rate       At most RATE_MAX requests per RATE_WINDOW seconds and
+ *              RATE_DAY_MAX a day from one IP address, counted in
+ *              hubspot-ratelimit.json in the private folder. Addresses are
+ *              stored only as a keyed hash. Over the limit answers 429, which
+ *              lead.js keeps queued and retries on the next visit.
  */
 
 ini_set('display_errors', '0');
@@ -47,6 +66,13 @@ const DEAL_TO_CONTACT = 3;
 const DEAL_PIPELINE = 'default';     // Sales Pipeline
 const DEAL_STAGE = '6194177258';     // Call booked
 const SEEN_KEEP = 200;
+const MIN_FILL_MS = 1500;   // six screens of questions take a person far longer
+const CHECK_SINCE_MS = 1794524000000; // 13 Nov 2026 ~00:53 SAST, a day after the check went live
+const LEGACY_UNTIL = 1797030000;      // 12 Dec 2026: old queued leads stop being taken
+const RATE_WINDOW = 600;    // seconds
+const RATE_MAX = 5;         // requests per RATE_WINDOW from one address
+const RATE_DAY_MAX = 20;    // requests per day from one address
+const RATE_KEEP = 5000;     // addresses remembered at most
 
 function reply($status, $body)
 {
@@ -155,6 +181,51 @@ function with_state($dir, $fn)
     }
 }
 
+/* True when this address is over the limit. Counts this request when it is
+   not. A file that cannot be opened lets the request through, so a disk
+   problem never costs a lead. */
+function rate_limited($dir, $secret)
+{
+    $ip = isset($_SERVER['REMOTE_ADDR']) ? (string) $_SERVER['REMOTE_ADDR'] : '';
+    if ($ip === '') return false;
+    $key = substr(hash_hmac('sha256', $ip, (string) $secret), 0, 24);
+    $fh = @fopen($dir . '/hubspot-ratelimit.json', 'c+');
+    if (!$fh) return false;
+    flock($fh, LOCK_EX);
+    try {
+        $now = time();
+        $data = json_decode(stream_get_contents($fh), true);
+        if (!is_array($data)) $data = [];
+        foreach ($data as $k => $times) {
+            $keep = [];
+            foreach ((array) $times as $time) {
+                if (is_int($time) && $time > $now - 86400) $keep[] = $time;
+            }
+            if ($keep) $data[$k] = $keep; else unset($data[$k]);
+        }
+        $mine = isset($data[$key]) ? $data[$key] : [];
+        $recent = 0;
+        foreach ($mine as $time) {
+            if ($time > $now - RATE_WINDOW) $recent++;
+        }
+        $limited = $recent >= RATE_MAX || count($mine) >= RATE_DAY_MAX;
+        if (!$limited) {
+            $mine[] = $now;
+            unset($data[$key]);
+            $data[$key] = $mine;
+            if (count($data) > RATE_KEEP) $data = array_slice($data, -RATE_KEEP, null, true);
+        }
+        ftruncate($fh, 0);
+        rewind($fh);
+        fwrite($fh, json_encode($data));
+        fflush($fh);
+        return $limited;
+    } finally {
+        flock($fh, LOCK_UN);
+        fclose($fh);
+    }
+}
+
 function clean($value, $max = 500)
 {
     $value = is_string($value) ? trim(preg_replace('/\s+/u', ' ', $value)) : '';
@@ -167,12 +238,27 @@ function clean($value, $max = 500)
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') reply(405, ['error' => 'POST only']);
 
 $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
-if ($origin !== '' && !in_array($origin, ALLOWED_ORIGINS, true)) reply(403, ['error' => 'origin']);
+if (!in_array($origin, ALLOWED_ORIGINS, true)) reply(403, ['error' => 'origin']);
 
 $raw = file_get_contents('php://input', false, null, 0, MAX_BODY + 1);
 if ($raw === false || strlen($raw) > MAX_BODY) reply(413, ['error' => 'too large']);
 $in = json_decode($raw, true);
 if (!is_array($in)) reply(400, ['error' => 'not JSON']);
+
+$hp = isset($in['hp']) ? $in['hp'] : null;
+$elapsed = isset($in['elapsedMs']) ? $in['elapsedMs'] : null;
+$lid = isset($in['leadId']) ? (string) $in['leadId'] : '';
+$legacy = !array_key_exists('hp', $in) && !array_key_exists('elapsedMs', $in)
+    && $lid !== '' && ctype_digit($lid) && (int) $lid < CHECK_SINCE_MS && time() < LEGACY_UNTIL;
+if ($legacy) {
+    error_log('hubspot-lead: legacy lead without the bot check, taken');
+} elseif (!is_string($hp) || $hp !== '' || !is_numeric($elapsed) || $elapsed < MIN_FILL_MS) {
+    if (is_string($hp) && $hp !== '') $why = 'honeypot';
+    elseif (!is_string($hp) || !is_numeric($elapsed)) $why = 'no check';
+    else $why = 'too fast';
+    error_log('hubspot-lead: dropped by the bot check (' . $why . ')');
+    reply(200, ['ok' => true]);
+}
 
 $email = strtolower(clean(isset($in['email']) ? $in['email'] : '', 254));
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) reply(400, ['error' => 'email']);
@@ -184,6 +270,7 @@ $config = require $dir . '/hubspot.php';
 if (empty($config['token']) || empty($config['owners']) || !is_array($config['owners'])) {
     reply(503, ['error' => 'not configured']);
 }
+if (rate_limited($dir, $config['token'])) reply(429, ['error' => 'slow down']);
 
 $name = clean(isset($in['name']) ? $in['name'] : '', 120);
 $parts = preg_split('/\s+/u', $name, 2);
