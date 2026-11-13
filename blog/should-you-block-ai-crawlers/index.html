@@ -123,6 +123,9 @@
         <p>Training crawlers collect pages that may be used to train AI models. Blocking one asks the company to leave your content out of future training. On its own, it does not remove you from search results.</p>
         <p>Search crawlers build the index an AI search tool answers from, much as Googlebot does for Google. Block one and your pages can drop out of that tool's answers.</p>
         <p>User-triggered fetchers, or answer bots, open a page because someone asked a question that needs it. Because a person asked, OpenAI says robots.txt rules may not apply to ChatGPT-User, and Perplexity says Perplexity-User generally ignores them. Anthropic says blocking Claude-User does stop Claude fetching your pages.</p>
+        <figure class="post-figure">
+          <img src="/assets/images/blog-ai-bot-kinds-1600.webp" srcset="/assets/images/blog-ai-bot-kinds-800.webp 800w, /assets/images/blog-ai-bot-kinds-1600.webp 1600w" sizes="(min-width: 720px) 663px, calc(100vw - 40px)" width="1600" height="1668" alt="AI bots grouped by job: search bots, bots that fetch for a user, training bots, and two tokens that are not crawlers" loading="lazy" decoding="async" />
+        </figure>
         <p>These are the names to look for.</p>
         <div class="table-scroll table-scroll-prose table-names">
           <table>
@@ -207,6 +210,10 @@
           <li>If the page is not found, there is no robots file and no bot is being asked to stay away. Skip to the next section.</li>
           <li>If there is a file, read it in groups. Each starts with <code>User-agent</code> lines naming bots, followed by <code>Allow</code> or <code>Disallow</code> lines saying where they may go.</li>
         </ol>
+          <figure class="post-figure">
+            <img src="/assets/images/blog-peak-leads-robots-txt-1600.webp" srcset="/assets/images/blog-peak-leads-robots-txt-800.webp 800w, /assets/images/blog-peak-leads-robots-txt-1600.webp 1600w" sizes="(min-width: 720px) 663px, calc(100vw - 40px)" width="1600" height="1289" alt="The whole Peak Leads robots.txt file: User-agent star, Allow slash, and the sitemap address" loading="lazy" decoding="async" />
+            <figcaption>Our own robots.txt, at peakleads.agency/robots.txt.</figcaption>
+          </figure>
         <p>The one to worry about is the blanket block:</p>
         <pre><code>User-agent: *
 Disallow: /</code></pre>

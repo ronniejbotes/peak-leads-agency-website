@@ -2602,6 +2602,17 @@ body.page-static main > article:first-child {
   background: var(--bg-raise);
 }
 
+/* Figures in posts: diagrams and screenshots with an optional caption
+   (blog images pass, 13 November 2026). */
+.post figure { margin: 8px 0 28px; }
+.post figure img { margin: 0; }
+.post figcaption {
+  margin-top: 10px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+
 .post table {
   display: block;
   overflow-x: auto;
