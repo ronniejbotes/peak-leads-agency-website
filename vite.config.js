@@ -417,6 +417,10 @@ export default defineConfig({
         aiSeo: page('./ai-seo/index.html'),
         googleAds: page('./google-ads/index.html'),
         leadGeneration: page('./lead-generation/index.html'),
+        // One leads page per trade (competitor-beat pass, 14 Nov 2026).
+        leadsRoofers: page('./lead-generation/roofers/index.html'),
+        leadsPlumbers: page('./lead-generation/plumbers/index.html'),
+        leadsElectricians: page('./lead-generation/electricians/index.html'),
         blog: page('./blog/index.html'),
         postRoofingLeads: page('./blog/how-much-do-roofing-leads-cost/index.html'),
         postExclusiveLeads: page('./blog/exclusive-vs-shared-leads/index.html'),

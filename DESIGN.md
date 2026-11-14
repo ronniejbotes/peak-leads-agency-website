@@ -257,9 +257,8 @@ from-states. Eyebrow budget: max 3 on the whole page.
    from outside the site still land here.
 10. **`#faq`** - H2 "Questions, answered." 11 native `<details>` glass accordions, all
     carrying `open` so the answers are visible text at load (an open answer shows a minus,
-    a closed one a plus). The first six are mirrored in FAQPage JSON-LD; the five added on
-    28 Sep 2026 (leads verified, site ownership, ranking, SEO timing, AI answers) are not,
-    because the SEO programme is removing that block (T-20): Are the leads exclusive? / What does it cost? (managed
+    a closed one a plus). None are mirrored in FAQPage JSON-LD any more: the SEO programme removed that block on
+    14 Nov 2026 (T-20), and the visible questions stayed as they were: Are the leads exclusive? / What does it cost? (managed
     lead generation from R19,950 per month, other work scoped on the call) / How fast is the website live? (2 to 3 weeks) /
     Do I pay upfront? ("No upfront payments. If you are not happy, you do not pay.") /
     Which trades do you work with? / What happens on the call?
@@ -770,8 +769,8 @@ copy, done.
   instagram.com/bradley_mj_kid, za.linkedin.com/in/bradley-hartmann-372785336) with a
   `hasOfferCatalog` of the 4 Services whose `@id`s point at `/services/#{web-design,seo,
   ads,leads}` + WebSite + WebPage. NO postal address and NO aggregateRating (self-serving
-  review markup; the 4.9/5 stays plain on-page text). FAQPage separate block mirroring
-  the first six #faq questions (see #faq in §4).
+  review markup; the 4.9/5 stays plain on-page text). The separate FAQPage block was removed on
+  14 Nov 2026 (T-20); the #faq questions stay visible (see #faq in §4).
 - Home H1 names the homepage's search ("Lead generation company for South African trades",
   7 October 2026); the slogan stays above it as the eyebrow. Section H2s lead with the exact
   service keyword: "Web development that wins...", "SEO that climbs...", "Paid ads that
